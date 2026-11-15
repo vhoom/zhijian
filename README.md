@@ -30,16 +30,6 @@
 
 ---
 
-<a id="preview"></a>
-
-## 效果预览
-
-| 浅色主题 | 深色主题 |
-| :---: | :---: |
-| <a href="public/preview1.jpg"><img src="public/preview1.jpg" width="280" alt="止间浅色主题提醒页面" /></a> | <a href="public/preview2.jpg"><img src="public/preview2.jpg" width="280" alt="止间深色主题提醒页面" /></a> |
-
-点击图片查看原图。
-
 ## 主要功能
 
 ### 看清使用情况
@@ -76,8 +66,16 @@
 
 具体设置和恢复边界见[界面与配置说明](https://github.com/vhoom/zhijian/blob/main/docs/界面与配置说明.md)。
 
-<a id="install"></a>
 
+
+<a id="preview"></a>
+
+## 效果预览
+
+| 浅色主题 | 深色主题 |
+| :---: | :---: |
+| <a href="public/preview1.jpg"><img src="public/preview1.jpg" width="280" alt="止间浅色主题提醒页面" /></a> | <a href="public/preview2.jpg"><img src="public/preview2.jpg" width="280" alt="止间深色主题提醒页面" /></a> |
+<a id="install"></a>
 ## 安装使用
 
 支持 **Android 10 及以上**。前往[版本发布页](https://github.com/vhoom/zhijian/releases)查看可下载的 APK；也可以[从源码构建](#build)。
