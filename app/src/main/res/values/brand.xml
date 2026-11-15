@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 展示名称的唯一来源；页面、系统标签、关于正文和导出文件名均从这里读取。 -->
+
     <string name="app_name" translatable="false">止间</string>
-    <!-- 提供正式仓库地址后修改此值，现有 settings_github_url 引用保持有效。 -->
-    <string name="settings_github_url" translatable="false">https://github.com</string>
+
+    <string name="settings_github_url" translatable="false">https://github.com/vhoom/zhijian</string>
 
     <!-- 暖白背景；深蓝笔画固定在图标图片中，明暗主题保持一致。 -->
     <color name="brand_icon_background">#FCFBF8</color>

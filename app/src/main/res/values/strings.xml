@@ -68,8 +68,7 @@
     <string name="settings_rows_scan_unreadable">无法读取应用扫描结果，请到管控页刷新应用清单。</string>
     <string name="settings_restore_default">恢复默认</string>
     <string name="settings_version">版本 %1$s</string>
-    <string name="settings_github" translatable="false">GitHub</string>
-    <string name="settings_github_description">在浏览器打开 GitHub</string>
+    <string name="settings_github_description">打开 GitHub</string>
     <string name="settings_link_unavailable">未找到可打开链接的浏览器</string>
     <string name="settings_row_description">%1$s，%2$s</string>
     <string name="settings_wuwei_title">无为 · 拦截配置</string>

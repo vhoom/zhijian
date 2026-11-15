@@ -3,7 +3,6 @@ package github.vhoom.zhijian.ui.settings;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.graphics.Paint;
 import android.net.Uri;
 import android.view.View;
 import android.widget.TextView;
@@ -20,7 +19,7 @@ import github.vhoom.zhijian.util.diagnostics.DiagnosticLog;
 /**
  * 关于区的装配入口；设置 Activity 不持有文本、日志或导出流程。
  *
- * 维护日期：2026年11月10日
+ * 维护日期：2026年11月15日
  */
 public final class AboutSettingsBinder {
     private final Activity activity;
@@ -38,9 +37,7 @@ public final class AboutSettingsBinder {
         bindRow(R.id.row_service_agreement, R.string.about_agreement_title, () -> open(AboutDocument.AGREEMENT));
         bindRow(R.id.row_diagnostics, R.string.diagnostics_title, () ->
                 activity.startActivity(new Intent(activity, DiagnosticsActivity.class)));
-        TextView github = activity.findViewById(R.id.link_github);
-        github.setPaintFlags(github.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        github.setOnClickListener(view -> openProject());
+        activity.findViewById(R.id.link_github).setOnClickListener(view -> openProject());
         if (BuildConfig.DEBUG) activity.findViewById(R.id.settings_logo).setOnClickListener(view -> {
             if (++debugLogoTaps < 7) return;
             debugLogoTaps = 0;
@@ -69,7 +66,7 @@ public final class AboutSettingsBinder {
         activity.startActivity(AboutDocumentActivity.intent(activity, document));
     }
 
-    /** 用户主动点击后交给浏览器，不由应用加载网络内容。 */
+    /** 用户点击 GitHub 图标后，由系统交给可处理链接的应用或浏览器。 */
     private void openProject() {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(activity.getString(R.string.settings_github_url)));
         try { activity.startActivity(intent); }
