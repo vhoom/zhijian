@@ -4,8 +4,8 @@
     <string name="storage_unavailable">本地数据暂时无法读取</string>
     <string name="storage_load_failed">本地数据或必要资源无法读取，原有配置已保留。请检查设备可用空间并重新启动应用；若仍失败，请安装完整版本。</string>
     <string name="storage_save_failed">保存失败，当前修改尚未生效，请稍后重试。</string>
-    <string name="retreat_level_locked">闭关的禁用或休息尚未结束，暂时不能切换强度。</string>
-    <string name="retreat_rule_locked">这项规则正在闭关中执行，请等禁用和休息结束后再修改。</string>
+    <string name="retreat_level_locked">静心的禁用或休息尚未结束，暂时不能切换强度。</string>
+    <string name="retreat_rule_locked">这项规则正在静心中执行，请等禁用和休息结束后再修改。</string>
 
     <string name="icon_back">‹</string>
     <string name="bar_settings">设置</string>
@@ -71,9 +71,9 @@
     <string name="settings_github_description">打开 GitHub</string>
     <string name="settings_link_unavailable">未找到可打开链接的浏览器</string>
     <string name="settings_row_description">%1$s，%2$s</string>
-    <string name="settings_wuwei_title">无为 · 拦截配置</string>
+    <string name="settings_wuwei_title">随心 · 拦截配置</string>
     <string name="settings_xiuxin_title">修心 · 拦截配置</string>
-    <string name="settings_biguan_title">闭关 · 拦截配置</string>
+    <string name="settings_biguan_title">静心 · 拦截配置</string>
     <string name="settings_seconds_value">%1$s 秒</string>
     <string name="settings_daily_reset_title">限量额度重置时间</string>
     <string name="settings_daily_reset_value">每天 %1$s</string>
@@ -115,9 +115,9 @@
     <string name="duration_minutes">%1$d 分</string>
     <string name="duration_below_minute">不足 1 分</string>
 
-    <string name="level_mortal">无为</string>
+    <string name="level_mortal">随心</string>
     <string name="level_repair">修心</string>
-    <string name="level_seal">闭关</string>
+    <string name="level_seal">静心</string>
 
     <string name="level_dialog_title">切换到「%1$s」</string>
     <string name="level_detail_mortal">\n轻微提醒，同时保留自主决定的情况。</string>

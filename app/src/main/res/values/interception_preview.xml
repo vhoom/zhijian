@@ -12,14 +12,14 @@
     <string name="interception_preview_close">结束预览</string>
     <string name="interception_preview_block">禁用</string>
     <string name="interception_preview_reminder">提醒</string>
-    <string name="interception_preview_wuwei">无为首屏</string>
+    <string name="interception_preview_wuwei">随心首屏</string>
     <string name="interception_preview_repair">修心首屏</string>
     <string name="interception_preview_hold">按压挑战</string>
     <string name="interception_preview_word">单词挑战</string>
     <string name="interception_preview_hold_completed">按压挑战 · 已完成</string>
     <string name="interception_preview_word_completed">单词挑战 · 已完成</string>
     <string name="interception_preview_confirmation">二次询问</string>
-    <string name="interception_preview_seal">闭关</string>
+    <string name="interception_preview_seal">@string/level_seal</string>
     <!-- Debug 控件样例 -->
     <string name="interception_preview_random">随机</string>
     <string name="interception_preview_buttons">按钮 / 按钮</string>

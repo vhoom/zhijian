@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 无为、修心共用首屏；主句居中偏上，底部按方案装配一个或两个控件。 -->
+<!-- 随心、修心共用首屏；主句居中偏上，底部按方案装配一个或两个控件。 -->
 <github.vhoom.zhijian.ui.interception.page.support.HeadlineScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"

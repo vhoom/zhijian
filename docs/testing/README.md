@@ -44,7 +44,7 @@ date: 2026-11-15
 | 前台观察、阈值与提醒 | `ForegroundObservationTest`、`ContinuousUsageCycleTest`、`RuleEngineTest`、`RuleEnginePriorityTest`、提醒系列 | `ForegroundEvaluationTest`、`runtime/interception` 系列 |
 | 重装、首次生效起点与强度切换 | `UsageTrackingStartTest` | `UsageEvidenceReaderTest`、`UsageTrackingStoreTest`、`InstallationRestoreTest`、`RetreatStorageTest` |
 | 跨日生效与计算耗时后的复查期限 | `InterceptionEvaluationTest`、`WeekdayRuleScheduleTest` | `ForegroundEvaluationTest` 的午夜、延迟回调及额度到期用例 |
-| 无为与修心禁用继续、冻结开关与真实重进 | `BlockContinuationPolicyTest`、`UsageTimelineTest`、`ReminderRepeatPolicyTest` | `BlockContinuationStoreTest`、`RepairContinuationTest`、`InterceptionReentryTest#wuweiContinueAfterReusedPageDoesNotImmediatelyBlockAgain`、`ForegroundEvaluationTest` |
+| 随心与修心禁用继续、冻结开关与真实重进 | `BlockContinuationPolicyTest`、`UsageTimelineTest`、`ReminderRepeatPolicyTest` | `BlockContinuationStoreTest`、`RepairContinuationTest`、`InterceptionReentryTest#wuweiContinueAfterReusedPageDoesNotImmediatelyBlockAgain`、`ForegroundEvaluationTest` |
 | 持久化、归档与授权 | `PolicySnapshotTest`、`UsageBucketsTest`、`PassGrantTest` | 存储系列、`UsageArchiveStoreTest`、`PendingInterceptionStoreTest` |
 | 设备夹具初始化与恢复 | — | `FixtureCleanupTest`、使用两个设备会话夹具的真实链路用例 |
 | 拦截页面与挑战 | `InterceptionFlowTest`、`InitialActionPlanTest`、按压、单词与数独系列 | `ui/interception` 系列、`SudokuProgressStoreTest`、`WordProgressStoreTest` |
@@ -61,14 +61,14 @@ date: 2026-11-15
 | [TouchEvents](../../app/src/androidTest/java/github/vhoom/zhijian/fixture/TouchEvents.java) | 按原独立组件用例的时间语义分发事件，在 finally 中回收 MotionEvent；不模拟完整多指或速度轨迹。 |
 | [UsageTargetActivity](../../app/src/androidTest/java/github/vhoom/zhijian/fixture/UsageTargetActivity.java) | 在测试 APK 包名下提供可启动的真实前台页面，由测试 Manifest 注册。 |
 | [FixtureCleanup](../../app/src/androidTest/java/github/vhoom/zhijian/fixture/FixtureCleanup.java) | 测试专用的恢复队列；初始化失败立即回滚，逐项尝试恢复并汇总异常，重复关闭不重复执行。 |
-| [ProtectionDeviceSession](../../app/src/androidTest/java/github/vhoom/zhijian/fixture/ProtectionDeviceSession.java) | 真实服务回归会话；页面创建前配置本次交互，备份规则、强度、挑战设置、无为与修心流程开关和系统授权，初始化失败或正常结束时逐项恢复并清理测试身份及访问确认；只构造未启动时只释放监听器。进程强制终止仍可能无法恢复。 |
+| [ProtectionDeviceSession](../../app/src/androidTest/java/github/vhoom/zhijian/fixture/ProtectionDeviceSession.java) | 真实服务回归会话；页面创建前配置本次交互，备份规则、强度、挑战设置、随心与修心流程开关和系统授权，初始化失败或正常结束时逐项恢复并清理测试身份及访问确认；只构造未启动时只释放监听器。进程强制终止仍可能无法恢复。 |
 | [DebugInterceptionActivity](../../app/src/debug/java/github/vhoom/zhijian/debug/DebugInterceptionActivity.java) | 仅 Debug 变体可用的 ADB 预览入口，不计入测试类和用例数量。 |
 
 ## 当前审查结论
 
 清单与源码数量一致：74 个本地测试类、448 个方法；51 个设备测试类、297 个方法。设备目录另有 7 个共享夹具 Java 文件，Debug 预览入口不计入 JUnit 清单。循环中的多个档位和参数组合不额外计数。
 
-已将脱离正式调用链的优先级辅助类测试替换为 `RuleEnginePriorityTest`，直接验证当前规则入口；设备优先级夹具现在分别保存展示、休息事实和周期，断言新禁用优先展示且原休息保留。前台调度测试补齐真实启动请求、旧结果不启动、独立初始化与闭关分支断言，并清理测试组自己的限制事实。
+已将脱离正式调用链的优先级辅助类测试替换为 `RuleEnginePriorityTest`，直接验证当前规则入口；设备优先级夹具现在分别保存展示、休息事实和周期，断言新禁用优先展示且原休息保留。前台调度测试补齐真实启动请求、旧结果不启动、独立初始化与静心分支断言，并清理测试组自己的限制事实。
 
 `ProtectionDeviceSession` 和 `GroupedContinuousUsageTest.DeviceSession` 共用恢复队列；测试组在尝试保存前登记，单项失败不会跳过其余组、配置或监听器。新增 `FixtureCleanupTest` 的 5 个故障注入用例，验证部分初始化失败、清理异常汇总、原始错误保留和重复关闭；这 5 个用例已在真机通过。正式服务夹具另清理测试应用自身的连续周期。
 

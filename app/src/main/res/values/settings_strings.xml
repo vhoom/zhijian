@@ -8,7 +8,7 @@
     <string name="settings_confirmation_description">挑战后的再次确认一下你</string>
     <string name="settings_obstacle_pages_title">阻碍页面</string>
     <string name="settings_obstacle_pages_description">给继续使用一点阻碍</string>
-    <string name="settings_wuwei_mode">无为</string>
+    <string name="settings_wuwei_mode">@string/level_mortal</string>
     <string name="settings_sheet_done">完成</string>
     <string name="settings_repair_mode">@string/level_repair</string>
     <string name="settings_mode_challenge_title">%1$s · %2$s</string>
