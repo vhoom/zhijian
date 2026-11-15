@@ -50,22 +50,26 @@ import static org.junit.Assert.*;
 /**
  * 覆盖 StorageIntegration 的边界输入、状态变化与回归行为。
  *
- * 维护日期：2026年11月14日
+ * 维护日期：2026年11月15日
  */
 @RunWith(AndroidJUnit4.class)
 public class StorageIntegrationTest {
-    /** 首次建立全局配置，重新打开不覆盖用户修改。 */
+    /** 首次建立随心配置，重新打开保留默认值及用户保存的修心、静心选择。 */
     @Test public void initializationCreatesDefaultsAndPreservesCommittedSettings() throws Exception {
         open();
-        assertEquals(ControlLevel.REPAIR, storage.snapshot().level());
+        assertEquals(ControlLevel.MORTAL, storage.snapshot().level());
         assertEquals(0L, storage.snapshot().dailyQuotaMillis());
         assertEquals(180_000L, storage.snapshot().effectiveFor("app.new").passDurationMillis);
         assertTrue(storage.snapshot().groups().isEmpty());
-        await(storage.setLevel(ControlLevel.MORTAL));
-        await(storage.setDailyQuota(3_600_000L));
         reopen();
         assertEquals(ControlLevel.MORTAL, storage.snapshot().level());
-        assertEquals(3_600_000L, storage.snapshot().dailyQuotaMillis());
+        await(storage.setDailyQuota(3_600_000L));
+        for (ControlLevel level : new ControlLevel[]{ControlLevel.REPAIR, ControlLevel.SEAL}) {
+            await(storage.setLevel(level));
+            reopen();
+            assertEquals(level, storage.snapshot().level());
+            assertEquals(3_600_000L, storage.snapshot().dailyQuotaMillis());
+        }
     }
 
     /** 规则组必须提供稳定正 ID，保存失败不写入临时组。 */
