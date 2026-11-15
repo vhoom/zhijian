@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <TextView style="@style/Text.App.SectionLabel"
+        android:accessibilityHeading="true"
+        android:text="@string/settings_about_title" />
+    <github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout style="@style/Widget.App.SettingsCard">
+        <include android:id="@+id/row_author_letter" layout="@layout/item_settings_about" />
+        <View style="@style/Widget.App.SettingsDivider" />
+        <include android:id="@+id/row_service_agreement" layout="@layout/item_settings_about" />
+        <View style="@style/Widget.App.SettingsDivider" />
+        <include android:id="@+id/row_diagnostics" layout="@layout/item_settings_about" />
+        <View style="@style/Widget.App.SettingsDivider" />
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="@dimen/space_lg">
+            <ImageView android:id="@+id/settings_logo"
+                android:layout_width="@dimen/space_4xl"
+                android:layout_height="@dimen/space_4xl"
+                android:background="@drawable/bg_settings_logo"
+                android:importantForAccessibility="no"
+                android:padding="@dimen/space_xs"
+                android:src="@drawable/ic_settings_logo_artwork" />
+            <TextView style="@style/Text.App.Strong"
+                android:layout_marginTop="@dimen/space_sm"
+                android:text="@string/app_name" />
+            <TextView android:id="@+id/app_version"
+                style="@style/Text.App.Caption"
+                android:layout_marginTop="@dimen/space_xxs"
+                android:textColor="@color/body" />
+            <TextView android:id="@+id/link_github"
+                style="@style/Text.App.BarAction"
+                android:layout_marginTop="@dimen/space_xs"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="@string/settings_github_description"
+                android:drawableStart="@drawable/ic_github"
+                android:drawablePadding="@dimen/space_xs"
+                android:text="@string/settings_github"
+                android:textColor="@color/link_deep"
+                android:textSize="@dimen/text_body_sm" />
+        </LinearLayout>
+    </github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout>
+</LinearLayout>
+

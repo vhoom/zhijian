@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="poem_preview_section">诗句长度预览</string>
+    <string name="poem_preview_detail">输入后实时查看首页诗句的换行效果；自定义内容仅用于预览。</string>
+    <string name="poem_preview_hint">输入自定义诗句，支持换行</string>
+    <string name="poem_preview_random">随机诗句</string>
+    <string name="poem_preview_longest">最长诗句</string>
+    <string name="poem_preview_metrics">字符：%1$d · 显示：%2$d 行</string>
+</resources>

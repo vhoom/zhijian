@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="developer_preview_title">开发者预览</string>
+    <string name="developer_preview_detail">选择状态查看配置入口和说明，也可切换首页网格与设置列表。预览中的系统设置按钮仅显示操作反馈。</string>
+    <string name="developer_interception_preview">拦截页面预览</string>
+    <string name="setup_preview_section">配置状态预览</string>
+    <string name="setup_preview_choose">选择状态</string>
+    <string name="setup_preview_previous">上一状态</string>
+    <string name="setup_preview_next">下一状态</string>
+    <string name="setup_preview_description">查看当前说明</string>
+    <string name="setup_preview_layout_value">界面：%1$s</string>
+    <string name="setup_preview_home_layout">首页网格</string>
+    <string name="setup_preview_settings_layout">设置列表</string>
+    <string name="setup_preview_scenario_value">%1$d/%2$d · %3$s</string>
+    <string name="setup_preview_action_result">预览操作：%1$s</string>
+    <string name="setup_preview_accessibility_unavailable">无障碍 · 未识别 · Android 12 及以下</string>
+    <string name="setup_preview_accessibility_unavailable_13">无障碍 · 未识别 · Android 13 及以上</string>
+    <string name="setup_preview_accessibility_disabled">无障碍 · 未开启 · Android 12 及以下</string>
+    <string name="setup_preview_accessibility_disabled_13">无障碍 · 未开启 · Android 13 及以上</string>
+    <string name="setup_preview_accessibility_disconnected">无障碍 · 已授权但未连接</string>
+    <string name="setup_preview_accessibility_connected">无障碍 · 已连接</string>
+    <string name="setup_preview_usage_disabled">使用情况访问 · 未开启</string>
+    <string name="setup_preview_usage_enabled">使用情况访问 · 已开启</string>
+    <string name="setup_preview_battery_disabled">电源设置 · 未开启</string>
+    <string name="setup_preview_battery_enabled">电源设置 · 已开启</string>
+    <string name="setup_preview_background_manual">后台运行 · 手动检查</string>
+    <string name="setup_preview_background_restricted">后台运行 · 系统受限</string>
+    <string name="setup_preview_background_unconfirmed">后台运行 · 拦截页面未确认显示</string>
+    <string name="setup_preview_background_both">后台运行 · 系统受限且页面未确认显示</string>
+    <string name="setup_preview_autostart">自启动 · 手动检查</string>
+</resources>

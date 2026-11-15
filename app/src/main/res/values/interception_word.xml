@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 动态文案库 3：单词风暴主句。 -->
+    <string-array name="interception_word_headlines">
+        <!-- 原有文案 -->
+        <item>先把注意力收回来。\n看看这个词的含义。</item>
+
+        <item>让这次选择慢一点。\n先认真读完这些单词。</item>
+        <item>再看看这一段是否已经足够。\n先解决完下面的单词。</item>
+        <item>先留住原来的目的。\n做几道题，再回头看看。</item>
+        <item>给屏幕之外的事情一点位置。\n先完成这组单词题。</item>
+        <item>把节奏放慢一点。\n读完题目再选择答案。</item>
+        <item>把这次停顿留给自己。\n先读一读下面的单词。</item>
+        <item>给原来的计划一点时间。\n先完成下面的题目。</item>
+        <item>把这一刻留给自己。\n读一读眼前的单词。</item>
+        <item>先想想手头的事情。\n做完这组题再决定。</item>
+        <item>给接下来的时间做个安排。\n先读完这组单词。</item>
+        <item>换个脑子</item>
+
+        <!-- 专注学习型 -->
+        <item>暂时放下屏幕里的内容。\n把注意力放在眼前的单词上。</item>
+        <item>现在开始一段专注时间。\n认真完成眼前的单词挑战。</item>
+        <item>让思绪回到学习上。\n看看这些单词你认识多少。</item>
+        <item>不急着寻找下一份内容。\n先看看眼前这个单词。</item>
+
+        <!-- 思考挑战型 -->
+        <item>别急着选择答案。\n先想想这个词是什么意思。</item>
+        <item>给大脑一点思考的时间。\n看看你能否选出正确答案。</item>
+        <item>凭记忆，凭实力。</item>
+        <item>答案就在眼前的选项中。\n你能准确判断吗？</item>
+
+
+        <!-- 轻松鼓励型 -->
+        <item>来做几道单词题。\n看看今天的词汇状态。</item>
+        <item>不需要着急，也不用紧张。\n按照自己的节奏完成挑战。</item>
+        <item>认识多少算多少。\n每次练习都是一次积累。</item>
+
+
+        <!-- 修心专注型 -->
+        <item>让注意力回到当下。\n专心做好眼前这一题。</item>
+        <item>一心一事，一步一步。\n从这个单词开始。</item>
+        <item>暂时放下外界的纷扰。\n留心眼前的文字与含义。</item>
+        <item>不求快，只求理解。\n认真完成眼前的挑战。</item>
+    </string-array>
+
+    <!-- 动态文案库 5：单词选错文案。 -->
+    <string-array name="interception_word_wrong_feedback">
+        <item>不对，再想想</item>
+        <item>不对</item>
+        <item>换一个选项</item>
+        <item>回答错误</item>
+        <item>选择错误，请重试</item>
+        <item>答案不正确</item>
+        <item>重新选</item>
+    </string-array>
+
+    <!-- 固定题干：英译中填入单词，中译英填入中文含义。 -->
+    <string name="interception_word_prompt_en_zh">选出“%1$s”的中文含义</string>
+    <string name="interception_word_prompt_zh_en">选出“%1$s”的英文表达</string>
+    <!-- 固定完成反馈、题号与读屏进度：只更新单词和数值，措辞不轮换。 -->
+    <string name="interception_word_completed">单词挑战已完成</string>
+    <string name="interception_word_number">%1$d/%2$d</string>
+    <string name="interception_word_wait_progress">本题最低停留进度 %1$d%%</string>
+</resources>

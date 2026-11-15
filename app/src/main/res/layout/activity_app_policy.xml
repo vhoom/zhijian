@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical">
+
+    <LinearLayout style="@style/Widget.App.Bar.RuleEditor">
+        <TextView
+            android:id="@+id/btn_back"
+            style="@style/Text.App.BarAction"
+            android:text="@string/icon_back"
+            android:textSize="@dimen/text_display_md" />
+        <TextView
+            android:id="@+id/page_title"
+            style="@style/Text.App.Heading"
+            android:textColor="@color/rule_text"
+            android:textStyle="bold"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1" />
+        <TextView
+            android:id="@+id/btn_save"
+            style="@style/Text.App.BarAction"
+            android:textColor="@color/ink"
+            android:textSize="@dimen/text_body_sm"
+            android:text="@string/rule_save" />
+    </LinearLayout>
+    <View style="@style/Widget.App.Divider" android:background="@color/rule_border" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/rule_page_gutter"
+            android:paddingEnd="@dimen/rule_page_gutter"
+            android:paddingTop="@dimen/rule_page_gutter"
+            android:paddingBottom="@dimen/rule_page_bottom">
+
+            <LinearLayout style="@style/Widget.App.Card.RuleEditor">
+                <LinearLayout
+                    android:id="@+id/policy_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="@dimen/space_xs"
+                        android:orientation="vertical">
+                        <TextView
+                            style="@style/Text.App.RuleTitle"
+                            android:labelFor="@id/switch_policy"
+                            android:text="@string/policy_enable" />
+                        <TextView
+                            android:id="@+id/policy_mode_line"
+                            style="@style/Text.App.RuleHint" />
+                    </LinearLayout>
+                    <Switch
+                        android:id="@+id/switch_policy"
+                        style="@style/Widget.App.Switch.RuleEditor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/policy_enable"
+                        android:saveEnabled="false" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/policy_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:id="@+id/weekday_editor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+                <TextView
+                    android:id="@+id/rule_section_title"
+                    style="@style/Text.App.SectionLabel.RuleEditor"
+                    android:accessibilityHeading="true"
+                    android:text="@string/rule_reminders_title" />
+                <LinearLayout
+                    android:id="@+id/type_rows"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+                <TextView style="@style/Text.App.SectionLabel.RuleEditor"
+                    android:accessibilityHeading="true"
+                    android:text="@string/rule_pass_title" />
+                <include layout="@layout/view_rule_pass" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_reset"
+                style="@style/Widget.App.Button.RuleEditor"
+                android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/space_md"
+                android:text="@string/policy_reset" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

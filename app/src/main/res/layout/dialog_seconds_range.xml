@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout style="@style/Widget.App.SettingsCard">
+        <LinearLayout style="@style/Widget.App.SettingsItem.Static" android:gravity="top" android:baselineAligned="false">
+            <TextView
+                style="@style/Text.App.SettingsTitle"
+                android:minHeight="@dimen/control_height"
+                android:gravity="center_vertical"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="@dimen/space_xs"
+                android:labelFor="@id/field_min_seconds"
+                android:text="@string/settings_min_duration" />
+            <github.vhoom.zhijian.ui.component.input.InputFieldLayout
+                style="@style/Widget.App.InputField"
+                android:layout_width="wrap_content">
+                <LinearLayout
+                    android:id="@+id/stepper_min_seconds"
+                    style="@style/Widget.App.SettingsStepper">
+                    <TextView android:id="@+id/stepper_min_seconds_decrease"
+                        android:tag="settings_step_decrease"
+                        style="@style/Widget.App.SettingsStepButton"
+                        android:text="@string/settings_step_minus" />
+                    <EditText
+                        android:id="@+id/field_min_seconds"
+                        style="@style/Widget.App.SettingsStepField"
+                        android:contentDescription="@string/settings_min_duration"
+                        android:inputType="numberDecimal"
+                        android:imeOptions="actionNext" />
+                    <TextView android:id="@+id/stepper_min_seconds_increase"
+                        android:tag="settings_step_increase"
+                        style="@style/Widget.App.SettingsStepButton"
+                        android:text="@string/settings_step_plus" />
+                    <TextView style="@style/Text.App.Caption"
+                        android:layout_marginEnd="@dimen/space_xs"
+                        android:text="@string/settings_seconds_unit" />
+                </LinearLayout>
+                <TextView android:id="@+id/min_seconds_error"
+                    style="@style/Text.App.InputError" />
+            </github.vhoom.zhijian.ui.component.input.InputFieldLayout>
+        </LinearLayout>
+        <View style="@style/Widget.App.SettingsDivider" />
+        <LinearLayout style="@style/Widget.App.SettingsItem.Static" android:gravity="top" android:baselineAligned="false">
+            <TextView
+                style="@style/Text.App.SettingsTitle"
+                android:minHeight="@dimen/control_height"
+                android:gravity="center_vertical"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="@dimen/space_xs"
+                android:labelFor="@id/field_max_seconds"
+                android:text="@string/settings_max_duration" />
+            <github.vhoom.zhijian.ui.component.input.InputFieldLayout
+                style="@style/Widget.App.InputField"
+                android:layout_width="wrap_content">
+                <LinearLayout
+                    android:id="@+id/stepper_max_seconds"
+                    style="@style/Widget.App.SettingsStepper">
+                    <TextView android:id="@+id/stepper_max_seconds_decrease"
+                        android:tag="settings_step_decrease"
+                        style="@style/Widget.App.SettingsStepButton"
+                        android:text="@string/settings_step_minus" />
+                    <EditText
+                        android:id="@+id/field_max_seconds"
+                        style="@style/Widget.App.SettingsStepField"
+                        android:contentDescription="@string/settings_max_duration"
+                        android:inputType="numberDecimal"
+                        android:imeOptions="actionDone" />
+                    <TextView android:id="@+id/stepper_max_seconds_increase"
+                        android:tag="settings_step_increase"
+                        style="@style/Widget.App.SettingsStepButton"
+                        android:text="@string/settings_step_plus" />
+                    <TextView style="@style/Text.App.Caption"
+                        android:layout_marginEnd="@dimen/space_xs"
+                        android:text="@string/settings_seconds_unit" />
+                </LinearLayout>
+                <TextView android:id="@+id/max_seconds_error"
+                    style="@style/Text.App.InputError" />
+            </github.vhoom.zhijian.ui.component.input.InputFieldLayout>
+        </LinearLayout>
+    </github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout>
+    <TextView
+        style="@style/Text.App.SettingsDescription"
+        android:layout_marginTop="@dimen/space_sm"
+        android:text="@string/settings_seconds_range_hint" />
+</LinearLayout>

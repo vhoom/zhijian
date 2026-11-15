@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- 时段限时的额度并入时间行；连续提醒参数放在下行，共用窄屏滚动入口。 -->
+    <HorizontalScrollView
+        android:id="@+id/window_grid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/window_time_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_rule_parameter"
+                android:baselineAligned="false"
+                android:gravity="top"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/rule_parameter_padding"
+                android:paddingEnd="@dimen/rule_parameter_padding">
+
+                <TextView
+                    style="@style/Text.App.RuleParameter"
+                    android:minHeight="@dimen/control_height"
+                    android:gravity="start|center_vertical"
+                    android:layout_marginEnd="@dimen/rule_time_label_gap"
+                    android:text="@string/rule_window_start" />
+
+                <github.vhoom.zhijian.ui.component.input.InputFieldLayout
+                    style="@style/Widget.App.InputField"
+                    android:layout_width="wrap_content">
+                    <FrameLayout style="@style/Widget.App.RuleNumberTarget">
+
+                        <TextView
+                            android:id="@+id/tv_start"
+                            style="@style/Widget.App.Field.RuleTime"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
+                    <TextView android:id="@+id/window_start_error"
+                        style="@style/Text.App.InputError" />
+                </github.vhoom.zhijian.ui.component.input.InputFieldLayout>
+
+                <TextView
+                    style="@style/Text.App.RuleParameter"
+                    android:minHeight="@dimen/control_height"
+                    android:gravity="start|center_vertical"
+                    android:layout_marginStart="@dimen/space_xs"
+                    android:layout_marginEnd="@dimen/rule_time_label_gap"
+                    android:text="@string/rule_window_end" />
+
+                <github.vhoom.zhijian.ui.component.input.InputFieldLayout
+                    style="@style/Widget.App.InputField"
+                    android:layout_width="wrap_content">
+                    <FrameLayout style="@style/Widget.App.RuleNumberTarget">
+
+                        <TextView
+                            android:id="@+id/tv_end"
+                            style="@style/Widget.App.Field.RuleTime"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </FrameLayout>
+                    <TextView android:id="@+id/window_end_error"
+                        style="@style/Text.App.InputError" />
+                </github.vhoom.zhijian.ui.component.input.InputFieldLayout>
+
+                <Space
+                    android:id="@+id/window_action_spacer"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/window_remove"
+                    style="@style/Text.App.RuleAction"
+                    android:text="@string/icon_remove"
+                    android:textSize="@dimen/text_body_sm" />
+            </LinearLayout>
+
+            <include
+                android:id="@+id/window_parameters"
+                layout="@layout/view_rule_usage_rest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+</LinearLayout>

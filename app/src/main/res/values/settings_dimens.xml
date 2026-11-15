@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="settings_step_field_width">64dp</dimen>
+    <dimen name="settings_sheet_radius">@dimen/radius_xl</dimen>
+    <dimen name="settings_sheet_handle_width">36dp</dimen>
+    <dimen name="switch_track_width">52dp</dimen>
+    <dimen name="switch_track_height">30dp</dimen>
+    <dimen name="switch_track_radius">15dp</dimen>
+    <dimen name="switch_thumb_size">26dp</dimen>
+</resources>

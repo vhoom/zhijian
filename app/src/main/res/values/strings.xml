@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="storage_loading">正在读取本地数据…</string>
+    <string name="storage_unavailable">本地数据暂时无法读取</string>
+    <string name="storage_load_failed">本地数据或必要资源无法读取，原有配置已保留。请检查设备可用空间并重新启动应用；若仍失败，请安装完整版本。</string>
+    <string name="storage_save_failed">保存失败，当前修改尚未生效，请稍后重试。</string>
+    <string name="retreat_level_locked">闭关的禁用或休息尚未结束，暂时不能切换强度。</string>
+    <string name="retreat_rule_locked">这项规则正在闭关中执行，请等禁用和休息结束后再修改。</string>
+
+    <string name="icon_back">‹</string>
+    <string name="bar_settings">设置</string>
+
+    <string name="title_today">首页</string>
+    <string name="title_rules_center">管控中心</string>
+
+    <string name="page_switch_to">切换到%1$s</string>
+    <string name="page_current">%1$s，当前页</string>
+    <string name="icon_forward" translatable="false">›</string>
+
+    <string name="setup_title">配置引导</string>
+    <string name="setup_expand">展开</string>
+    <string name="setup_collapse">收起</string>
+    <string name="setup_heading_description">%1$s，%2$s</string>
+    <string name="setup_function_missing_permission">未启用必要权限</string>
+    <string name="setup_function_waiting_connection">等待服务连接</string>
+    <string name="setup_function_background_restricted">后台运行受限</string>
+    <string name="setup_function_running">基础服务已连接</string>
+    <string name="setup_usage_title">使用情况访问</string>
+    <string name="setup_battery_title">电源设置</string>
+    <string name="setup_background_title">后台运行</string>
+    <string name="setup_autostart_title">自启动</string>
+    <string name="setup_autostart_detail">在系统应用信息、电池管理或自启动管理中找到「%1$s」，允许自启动及关联启动（若系统提供）。\n\n不同手机入口不同，没有这些选项时可跳过。请以系统实际设置为准。</string>
+    <string name="setup_accessibility_title">无障碍</string>
+    <string name="setup_enabled">已开启</string>
+    <string name="setup_disabled">未开启</string>
+    <string name="setup_manual">手动检查</string>
+    <string name="setup_item_description">%1$s，%2$s</string>
+    <string name="setup_go_settings">前往设置</string>
+    <string name="setup_usage_detail">用于读取应用使用时长和打开记录。\n\n在系统页面中选择「%1$s」，开启“允许查看使用情况”；部分手机称为“使用情况访问权限”，若出现“受限设置”请跟随系统提示操作。</string>
+    <string name="setup_battery_detail">允许「%1$s」不受电池优化限制。\n\n在系统确认框中选择“允许”。如果进入电池优化列表，切换为“所有应用”，找到此应用并选择“不优化”。</string>
+    <string name="setup_battery_enabled_detail">「%1$s」已允许忽略电池优化。\n\n可以打开系统列表查看此配置。</string>
+    <string name="setup_background_restricted">后台受限</string>
+    <string name="setup_background_restricted_detail">系统检测到此应用的后台运行受限，请先解除限制再继续下面的操作。</string>
+    <string name="setup_open_app_details">打开应用信息</string>
+    <string name="setup_accessibility_connected">已连接</string>
+    <string name="setup_accessibility_disconnected">已授权 · 未连接</string>
+    <string name="setup_accessibility_unavailable">未识别</string>
+    <string name="setup_accessibility_detail">开启「%1$s」的无障碍服务后，允许服务识别前台应用，并在规则生效时触发防沉迷。</string>
+    <string name="setup_accessibility_connected_detail">无障碍服务已连接。规则触发后，应用将尝试显示全屏拦截页面。</string>
+    <string name="setup_accessibility_disconnected_detail">「%1$s」已获授权，服务尚未连接。\n\n刚开启时可稍等片刻；若一直未连接，请在系统设置中关闭再开启服务。</string>
+    <string name="setup_accessibility_unavailable_detail">系统似乎未提供用于「%1$s」的无障碍服务。\n\n可先打开无障碍设置查找此应用，或从应用信息检查安装状态。</string>
+    <string name="setup_accessibility_restricted_detail">如果出现“受限设置”，可进入应用信息，寻找右上角菜单中选择“允许受限设置”，再返回无障碍页面。</string>
+    <string name="accessibility_service_summary">识别前台应用并执行防沉迷规则</string>
+    <string name="accessibility_service_description">识别当前使用的应用，在时间管理规则触发时显示全屏拦截页面。</string>
+    <string name="permission_settings_unavailable">系统未提供这个入口，请到系统设置中查找「%1$s」。</string>
+
+    <string name="settings_show_guide">显示配置引导</string>
+    <string name="settings_show_daily_poem">显示每日古诗</string>
+    <string name="settings_appearance_home">外观与首页</string>
+    <string name="settings_permissions_title">权限与运行</string>
+    <string name="settings_rows_title">用量榜条数</string>
+    <string name="settings_rows_value">%1$d 条</string>
+    <string name="settings_rows_invalid">请输入 1～%1$d 的整数条数</string>
+    <string name="settings_rows_loading">正在读取已扫描应用数…</string>
+    <string name="settings_rows_capacity">已扫描 %1$d 个可管控应用，最多显示 %1$d 条。</string>
+    <string name="settings_rows_scan_missing">尚无应用扫描结果，请先到管控页扫描应用。</string>
+    <string name="settings_rows_scan_empty">扫描结果中没有可管控应用，暂时无法设置条数。</string>
+    <string name="settings_rows_scan_unreadable">无法读取应用扫描结果，请到管控页刷新应用清单。</string>
+    <string name="settings_restore_default">恢复默认</string>
+    <string name="settings_version">版本 %1$s</string>
+    <string name="settings_github" translatable="false">GitHub</string>
+    <string name="settings_github_description">在浏览器打开 GitHub</string>
+    <string name="settings_link_unavailable">未找到可打开链接的浏览器</string>
+    <string name="settings_row_description">%1$s，%2$s</string>
+    <string name="settings_wuwei_title">无为 · 拦截配置</string>
+    <string name="settings_xiuxin_title">修心 · 拦截配置</string>
+    <string name="settings_biguan_title">闭关 · 拦截配置</string>
+    <string name="settings_seconds_value">%1$s 秒</string>
+    <string name="settings_daily_reset_title">限量额度重置时间</string>
+    <string name="settings_daily_reset_value">每天 %1$s</string>
+    <string name="settings_hold_range_title">按压挑战时长</string>
+    <string name="settings_word_challenge_title">单词风暴参数</string>
+    <string name="settings_word_challenge_value">%1$d 题 · %2$s 秒/题 · 至少 %3$s 秒</string>
+    <string name="settings_word_challenge_hint">答错会继续停留在当前题。</string>
+    <string name="settings_word_question_count_label">题量</string>
+    <string name="settings_word_question_unit">题</string>
+    <string name="settings_word_dwell_label">每题最少停留</string>
+    <string name="settings_word_question_invalid">请输入至少 %1$d 题</string>
+    <string name="settings_word_count_exceeds_catalog">数量超出词库</string>
+    <string name="settings_word_dwell_invalid">请输入 %1$s～%2$s 秒/题</string>
+    <string name="settings_seconds_fixed">固定 %1$s 秒</string>
+    <string name="settings_seconds_range">随机 %1$s–%2$s 秒</string>
+    <string name="settings_seconds_range_hint">每次触发随机，可包含两个端点。</string>
+    <string name="settings_seconds_unit">秒</string>
+    <string name="settings_seconds_range_invalid">请输入 %1$s～%2$s 秒，且最小值不能大于最大值</string>
+
+    <string name="strength_remaining_fmt">剩余 %1$s</string>
+    <string name="strength_percent_fmt">%1$d%%</string>
+    <string name="strength_quota_fmt">每日总时长额度 %1$s</string>
+
+    <!-- 用量榜第一行固定的总时长，口径是系统的亮/灭屏事件，不是各应用时长相加。 -->
+    <string name="usage_screen_total">今日屏幕使用时长</string>
+    <string name="section_level">防沉迷执行强度</string>
+    <string name="usage_grant_hint">未获「使用情况访问」权限，读不到今日应用时长。</string>
+    <string name="usage_grant_request">去开启使用情况访问</string>
+    <string name="usage_access_warning_title">使用时长权限未开启</string>
+    <string name="usage_access_warning_detail">无障碍已开启，但本应用还无法读取应用使用时长，限时与连续规则可能无法正确触发。</string>
+    <string name="usage_access_warning_action">去开启</string>
+    <string name="usage_access_warning_description">使用时长权限未开启。无障碍已开启，但限时规则可能无法正确触发。点击去开启。</string>
+
+    <string name="refresh_pull">下拉刷新</string>
+    <string name="refresh_release">松开刷新</string>
+    <string name="refresh_loading">正在刷新…</string>
+
+    <string name="duration_hours_minutes">%1$d 小时 %2$d 分</string>
+    <string name="duration_minutes">%1$d 分</string>
+    <string name="duration_below_minute">不足 1 分</string>
+
+    <string name="level_mortal">无为</string>
+    <string name="level_repair">修心</string>
+    <string name="level_seal">闭关</string>
+
+    <string name="level_dialog_title">切换到「%1$s」</string>
+    <string name="level_detail_mortal">\n轻微提醒，同时保留自主决定的情况。</string>
+    <string name="level_detail_repair">\n在轻微提醒上，提供一些互动进行阻碍与缓冲。</string>
+    <string name="level_detail_seal">\n没有例外，自己定的规则就要做到。</string>
+
+    <string name="interception_preview_app">示例应用</string>
+    <string name="interception_saving">等一下，正在保存…</string>
+    <string name="dialog_confirm">确认切换</string>
+    <string name="dialog_cancel">取消</string>
+
+    <string name="rules_entry_button">管理规则组</string>
+    <string name="rules_group_title">管理规则组</string>
+    <string name="new_rule">+ 新建规则组</string>
+    <string name="rules_empty">还没有规则组\n点击右上角“新建规则组”开始设置</string>
+
+    <string name="search_hint">搜索应用名称…</string>
+    <string name="apps_count">共 %1$d 个可管控应用</string>
+    <string name="apps_refresh">刷新应用列表</string>
+    <string name="apps_refresh_loading">正在刷新应用列表</string>
+    <string name="apps_refresh_failed">应用列表更新失败，请点击刷新重试</string>
+
+    <string name="tag_independent">单独生效</string>
+
+    <string name="app_policy_title">%1$s - 独立管控策略</string>
+    <string name="policy_enable">启用独立设置</string>
+    <string name="policy_mode_independent">当前生效：优先生效</string>
+    <string name="policy_mode_follow">当前生效：跟随规则组或关闭</string>
+    <string name="policy_mode_group">当前使用「%1$s」规则组</string>
+    <string name="policy_reset">重置并关闭</string>
+    <string name="rule_reset_all">全部重置</string>
+    <string name="policy_reset_confirm">重置此应用的全部独立规则及参数，并恢复跟随规则组或全局配置？</string>
+    <string name="rule_reset_confirm">重置全部规则及参数？规则组名称、所选应用和使用记录将保留。</string>
+    <string name="policy_reset_done">已恢复默认策略</string>
+
+    <string name="settings_theme_title">界面配色</string>
+    <string name="theme_mode_system">跟随系统</string>
+    <string name="theme_mode_light">白天</string>
+    <string name="theme_mode_dark">夜间</string>
+
+    <string name="settings_rows_hint">只影响首页列出几行，落选的应用仍然计入今日合计。</string>
+
+    <string name="rule_default_name">规则组</string>
+    <string name="rule_default_short_video_group">默认组-短中长视频组</string>
+    <string name="rule_default_media_group">默认组-媒体信息流组</string>
+    <string name="rule_default_reading_group">默认组-书籍阅读组</string>
+    <string name="rule_section_apps">管控应用</string>
+    <string name="rule_apps_loading">正在读取应用…</string>
+    <string name="rule_apps_retry">重新读取应用</string>
+    <string name="rule_apps_load_failed">应用列表读取失败，请重试</string>
+    <string name="rule_remove">移除</string>
+    <string name="rule_remove_app_a11y">移除 %1$s</string>
+    <string name="rule_picker_empty">没有可添加的应用</string>
+    <string name="rule_type_daily_limit">全天限时</string>
+    <string name="rule_type_daily_count">全天限次</string>
+    <string name="rule_type_window_limit">时段限时</string>
+    <string name="rule_type_window_ban">时段禁用</string>
+    <string name="rule_type_continuous">全天连续使用提醒</string>
+    <string name="rule_type_window_continuous">时段连续使用提醒</string>
+    <string name="rule_summary_window_continuous">%1$s—%2$s 连续使用 %3$s 分钟，休息 %4$s 分钟</string>
+    <string name="rule_hint_window_continuous">指定多个时段内的使用与提醒休息</string>
+    <string name="rule_window_pause_description">第 %1$d 个时段的连续休息时长</string>
+    <string name="rule_window_continuous_description">第 %1$d 个时段的连续使用阈值</string>
+    <string name="rule_every_day">每天</string>
+    <string name="rule_window_start">开始</string>
+    <string name="rule_window_end">结束</string>
+    <string name="rule_start_time_a11y">开始时间 %1$s</string>
+    <string name="rule_end_time_a11y">结束时间 %1$s</string>
+    <string name="rule_hint_required">必填</string>
+    <string name="rule_summary_empty">未选规则类型</string>
+    <string name="rule_summary_unset">%1$s 未设置</string>
+    <string name="rule_group_picker_count">选择应用 · %1$d（至少 %2$d 个）</string>
+    <string name="rule_saved">设置成功</string>
+    <string name="rule_save">保存</string>
+    <string name="rule_new_title">新建规则组</string>
+    <string name="rule_edit_title">编辑规则组</string>
+    <string name="rule_missing">规则组不存在或已删除</string>
+    <string name="rule_discard_confirm">放弃本次未保存的修改？</string>
+    <string name="rule_discard">放弃修改</string>
+    <string name="rule_continue_editing">继续编辑</string>
+    <string name="rule_state_enabled">已开启</string>
+    <string name="rule_state_disabled">已关闭</string>
+    <string name="rule_state_for">%1$s，%2$s</string>
+    <string name="rule_summary_daily_limit">每天最多使用 %1$s 分钟</string>
+    <string name="rule_summary_daily_count">每天最多打开 %1$d 次</string>
+    <string name="rule_summary_window_limit">%1$s 至 %2$s 内最多用 %3$s 分钟</string>
+    <string name="rule_summary_window_ban">%1$s 至 %2$s 禁用</string>
+    <string name="rule_summary_continuous">连续使用 %1$s 分钟后中断 · 我将休息 %2$s 分钟</string>
+    <string name="rule_group_name_with_count">%1$s · %2$d 个应用</string>
+    <string name="rule_delete_confirm">删除规则组「%1$s」？</string>
+    <string name="rule_delete">删除</string>
+    <string name="tag_group_name_description">生效规则组：%1$s</string>
+    <string name="rule_name_label">规则组名称</string>
+    <string name="rule_apps_selected">已选 %1$d 个应用</string>
+    <string name="rule_builtin_apps_count">%1$d 个应用</string>
+    <string name="rule_apps_empty_hint">选择使用这组规则的应用</string>
+    <string name="rule_apps_more">还有 %1$d 个应用</string>
+    <string name="rule_manage_apps">选择应用</string>
+    <string name="rule_picker_done">完成</string>
+    <string name="rule_weekdays_title">指定星期</string>
+    <string name="rule_weekdays_copy_previous">应用刚才的配置</string>
+    <string name="rule_weekday_finish_editing">请先确认应用或清除当前星期的配置</string>
+    <string name="rule_weekday_confirm">确认应用</string>
+    <string name="rule_weekday_clear">清除应用</string>
+    <string name="rule_weekday_configured">已有配置</string>
+    <string name="rule_weekday_empty">暂无配置</string>
+    <string name="rule_weekday_selected_description">%1$s，%2$s，正在编辑</string>
+    <string name="rule_weekday_unselected_description">%1$s，%2$s</string>
+    <string name="rule_summary_weekdays">按星期配置 · %1$d 天启用规则</string>
+    <string-array name="rule_weekday_labels">
+        <item>一</item><item>二</item><item>三</item><item>四</item>
+        <item>五</item><item>六</item><item>日</item>
+    </string-array>
+    <string-array name="rule_weekday_full_labels">
+        <item>星期一</item><item>星期二</item><item>星期三</item>
+        <item>星期四</item><item>星期五</item><item>星期六</item><item>星期日</item>
+    </string-array>
+    <string name="rule_reminders_title">提醒规则</string>
+    <string name="rule_group_shared_quota_hint">同组内所有的应用共享额度配置</string>
+    <string name="rule_hint_daily">一天内累计使用的时长</string>
+    <string name="rule_hint_count">一天内打开应用的次数</string>
+    <string name="rule_hint_window_limit">每个时段段独立设置可用时长</string>
+    <string name="rule_hint_window_ban">在指定的多个时段内禁用</string>
+    <string name="rule_hint_continuous">随时随地提醒休息</string>
+    <string name="rule_value_daily">每天最多使用</string>
+    <string name="rule_value_count">每天最多打开</string>
+    <string name="rule_value_continuous">使用</string>
+    <string name="rule_value_interruption_pause">休息</string>
+    <string name="rule_unit_minutes">分钟</string>
+    <string name="rule_unit_times">次</string>
+    <string name="rule_add_window">＋ 添加时段</string>
+    <string name="rule_add_window_description">为%1$s添加时段</string>
+    <string name="rule_remove_window">移除%1$s的第 %2$d 个时段</string>
+    <string name="rule_window_limit_description">第 %1$d 个时段的额度，分钟</string>
+    <string name="rule_time_next_day">次日 %1$s</string>
+    <!-- 编辑框内换行显示跨午夜标记。 -->
+    <string name="rule_time_next_day_display">次日\n%1$s</string>
+    <string name="rule_app_selected_description">%1$s，已选择</string>
+    <string name="rule_app_unselected_description">%1$s，未选择</string>
+    <string name="icon_remove" translatable="false">×</string>
+    <string name="rule_pass_title">特殊放行</string>
+    <string name="rule_pass_value">允许临时获得使用时间</string>
+    <string name="rule_pass_hint">默认3分钟</string>
+    <string name="rule_group_priority_hint">同一应用优先使用列表中最靠前的已开启规则组</string>
+    <string name="settings_challenge_hold_title">按压挑战</string>
+    <string name="settings_challenge_word_title">单词风暴</string>
+</resources>

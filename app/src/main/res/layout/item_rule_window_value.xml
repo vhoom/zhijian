@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 单项使用或休息参数不叠加背景，输入框保留自身样式与透明触控区域。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="top"
+    android:minHeight="@dimen/rule_row_height"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/param_label"
+        style="@style/Text.App.RuleParameter"
+        android:minHeight="@dimen/control_height"
+        android:gravity="start|center_vertical"
+        android:layout_width="wrap_content"
+        android:layout_marginEnd="@dimen/space_xxs" />
+
+    <github.vhoom.zhijian.ui.component.input.InputFieldLayout
+        style="@style/Widget.App.InputField"
+        android:layout_width="wrap_content">
+        <FrameLayout style="@style/Widget.App.RuleNumberTarget">
+
+            <EditText
+                android:id="@+id/param_field"
+                style="@style/Widget.App.Field.RuleCompact"
+                android:hint="@string/rule_hint_required"
+                android:importantForAutofill="no"
+                android:inputType="numberDecimal" />
+        </FrameLayout>
+        <TextView android:id="@+id/input_error"
+            style="@style/Text.App.InputError" />
+    </github.vhoom.zhijian.ui.component.input.InputFieldLayout>
+
+    <TextView
+        android:id="@+id/param_unit"
+        style="@style/Text.App.RuleParameter"
+        android:minHeight="@dimen/control_height"
+        android:gravity="start|center_vertical"
+        android:layout_width="wrap_content"
+        android:layout_marginStart="@dimen/space_xxs"
+        android:maxLines="1"
+        android:text="@string/rule_unit_minutes" />
+</LinearLayout>

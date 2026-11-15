@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 全天连续提醒的滚动入口；时段内使用同一参数结构并与时间行一起滚动。 -->
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true"
+    android:scrollbars="none">
+
+    <include
+        layout="@layout/view_rule_usage_rest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</HorizontalScrollView>

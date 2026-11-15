@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 跨页面固定提示：数值或操作名称变化时填入参数，措辞不轮换。 -->
+    <string name="interception_rest_seconds">%1$d 秒</string>
+    <string name="interception_slide_action">滑动确认：%1$s</string>
+</resources>

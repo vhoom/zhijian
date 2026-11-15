@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    运行参数：防沉迷的阈值与频率都改这里，代码里不留魔法数字。视觉刻度在 dimens.xml，两套分开维护。
+    usage_row_limit 仅用于首页首次测量之前，正式默认数由首页实测高度计算。
+-->
+<resources>
+
+    <!-- 今日前台时长按墙钟累加，超过这个周期界面就会看着像卡住。 -->
+    <integer name="usage_refresh_interval_ms">15000</integer>
+
+    <!-- 首次布局尚未完成时的临时行数，实测后由计算结果替代；设置页只展示实际数字。 -->
+    <integer name="usage_row_limit">6</integer>
+
+    <!-- 图标缓存条数：设备上的可管控应用数量级，够整页不重复走 binder。 -->
+    <integer name="app_icon_cache_size">160</integer>
+
+    <!-- 全局额度没有单独的放行设置，完成交互后使用这个缺省时长。 -->
+    <integer name="default_pass_minutes">3</integer>
+
+    <!-- 按压挑战默认随机 50 至 75 秒；用户已保存的区间优先。 -->
+    <integer name="button_friction_min_seconds">50</integer>
+    <integer name="button_friction_max_seconds">75</integer>
+
+    <!-- 单词摩擦默认 17 题，每题至少停留 2 秒，理论最低时长 34 秒。 -->
+    <integer name="word_challenge_question_count">17</integer>
+    <integer name="word_challenge_min_dwell_seconds">2</integer>
+
+    <!-- 下拉刷新松手后头部归位的动画时长。 -->
+    <integer name="pull_settle_duration_ms">180</integer>
+    <integer name="page_settle_duration_ms">180</integer>
+
+    <!-- 最多把内容顶出几倍头部高度。 -->
+    <integer name="pull_max_header_ratio">2</integer>
+
+    <!-- 资源类型表里没有 float，手势系数按字符串存放，读取时解析一次。 -->
+    <string name="pull_damping" translatable="false">0.5</string>
+    <string name="swipe_drag_factor" translatable="false">2.0</string>
+
+    <!-- 松手时至少要划出容器宽度的这个比例才真的翻页，防止轻碰就换页。 -->
+    <string name="swipe_flip_threshold" translatable="false">0.20</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setup_background_detail">请在「%1$s」的应用信息或系统设置中检查以下项目：\n\n1. 后台弹出界面权限：如果提供“后台弹出界面”“在后台显示弹出窗口”等选项，请允许。\n\n2. 后台近期任务：锁定应用卡片。\n\n各系统的名称和位置可能不同，只需检查实际提供的项目。进入应用信息后，可查看“权限管理”“其他权限”等栏目，也可在系统设置搜索上述名称。</string>
+    <string name="setup_display_unconfirmed">检查页面显示</string>
+    <string name="setup_function_display_unconfirmed">拦截页面未确认显示</string>
+    <string name="setup_display_unconfirmed_detail">最近一次规则已触发，但尚未确认拦截页面实际显示。请优先检查“后台弹出界面”与服务连接；系统限制或页面初始化失败都可能导致此现象。可在“%1$s → %2$s”查看记录。</string>
+</resources>

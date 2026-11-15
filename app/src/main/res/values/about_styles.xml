@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Text.App.Document" parent="@style/Text.App.Body">
+        <item name="android:textColor">@color/ink</item>
+        <item name="android:textSize">@dimen/text_body_md</item>
+        <item name="android:lineHeight">@dimen/line_reading</item>
+        <item name="android:textIsSelectable">true</item>
+    </style>
+    <style name="Text.App.Letter" parent="@style/Text.App.Document">
+        <item name="android:fontFamily">@string/font_reading</item>
+        <item name="android:lineHeight">@dimen/line_letter</item>
+    </style>
+</resources>
+

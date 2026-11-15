@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 强度档位选中态：浅绿底，昼夜两套色值走 @color 引用自动翻面。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/level_selected_bg" />
+    <corners android:radius="@dimen/radius_pill" />
+</shape>

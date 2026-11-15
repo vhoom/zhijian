@@ -1,0 +1,915 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "84d67630cc0f7ba8ac17821915ee6bee",
+    "entities": [
+      {
+        "tableName": "policy",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `scope` TEXT NOT NULL, `name` TEXT NOT NULL, `groupId` INTEGER NOT NULL, `creationOrder` INTEGER NOT NULL, `revision` INTEGER NOT NULL, `enabled` INTEGER NOT NULL, `passDurationMs` INTEGER NOT NULL, `controlLevel` TEXT NOT NULL, `weekdayRulesJson` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scope",
+            "columnName": "scope",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupId",
+            "columnName": "groupId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "creationOrder",
+            "columnName": "creationOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "revision",
+            "columnName": "revision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "enabled",
+            "columnName": "enabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "passDurationMs",
+            "columnName": "passDurationMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "controlLevel",
+            "columnName": "controlLevel",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weekdayRulesJson",
+            "columnName": "weekdayRulesJson",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "policy_rule",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`policyId` TEXT NOT NULL, `type` TEXT NOT NULL, `selected` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `secondaryDurationMs` INTEGER NOT NULL, `limitCount` INTEGER NOT NULL, PRIMARY KEY(`policyId`, `type`), FOREIGN KEY(`policyId`) REFERENCES `policy`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "policyId",
+            "columnName": "policyId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "selected",
+            "columnName": "selected",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "durationMs",
+            "columnName": "durationMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "secondaryDurationMs",
+            "columnName": "secondaryDurationMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "limitCount",
+            "columnName": "limitCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "policyId",
+            "type"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "policy",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "policyId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "policy_app",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`policyId` TEXT NOT NULL, `packageName` TEXT NOT NULL, `position` INTEGER NOT NULL, PRIMARY KEY(`policyId`, `packageName`), FOREIGN KEY(`policyId`) REFERENCES `policy`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "policyId",
+            "columnName": "policyId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packageName",
+            "columnName": "packageName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "policyId",
+            "packageName"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_policy_app_packageName",
+            "unique": false,
+            "columnNames": [
+              "packageName"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_policy_app_packageName` ON `${TABLE_NAME}` (`packageName`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "policy",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "policyId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "policy_window",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`policyId` TEXT NOT NULL, `windowId` TEXT NOT NULL, `type` TEXT NOT NULL, `position` INTEGER NOT NULL, `startMinute` INTEGER NOT NULL, `endMinute` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `limitCount` INTEGER NOT NULL DEFAULT 0, `interruptionPauseMs` INTEGER NOT NULL DEFAULT 60000, PRIMARY KEY(`policyId`, `windowId`), FOREIGN KEY(`policyId`) REFERENCES `policy`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "policyId",
+            "columnName": "policyId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "windowId",
+            "columnName": "windowId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startMinute",
+            "columnName": "startMinute",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endMinute",
+            "columnName": "endMinute",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "durationMs",
+            "columnName": "durationMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "limitCount",
+            "columnName": "limitCount",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "interruptionPauseMs",
+            "columnName": "interruptionPauseMs",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "60000"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "policyId",
+            "windowId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_policy_window_policyId_type_position",
+            "unique": false,
+            "columnNames": [
+              "policyId",
+              "type",
+              "position"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_policy_window_policyId_type_position` ON `${TABLE_NAME}` (`policyId`, `type`, `position`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "policy",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "policyId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "storage_meta",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))",
+        "fields": [
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "key"
+          ]
+        }
+      },
+      {
+        "tableName": "usage_session",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `packageName` TEXT NOT NULL, `appLabel` TEXT NOT NULL, `visitId` TEXT NOT NULL, `zoneId` TEXT NOT NULL, `source` TEXT NOT NULL, `endReason` TEXT NOT NULL, `startedAtMs` INTEGER NOT NULL, `endedAtMs` INTEGER NOT NULL, `foregroundMs` INTEGER NOT NULL, `sequence` INTEGER NOT NULL, `countsAsOpen` INTEGER NOT NULL, `complete` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packageName",
+            "columnName": "packageName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "appLabel",
+            "columnName": "appLabel",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "visitId",
+            "columnName": "visitId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "zoneId",
+            "columnName": "zoneId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endReason",
+            "columnName": "endReason",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startedAtMs",
+            "columnName": "startedAtMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endedAtMs",
+            "columnName": "endedAtMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "foregroundMs",
+            "columnName": "foregroundMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sequence",
+            "columnName": "sequence",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "countsAsOpen",
+            "columnName": "countsAsOpen",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "complete",
+            "columnName": "complete",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_usage_session_startedAtMs_id",
+            "unique": false,
+            "columnNames": [
+              "startedAtMs",
+              "id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_usage_session_startedAtMs_id` ON `${TABLE_NAME}` (`startedAtMs`, `id`)"
+          },
+          {
+            "name": "index_usage_session_packageName_startedAtMs_id",
+            "unique": false,
+            "columnNames": [
+              "packageName",
+              "startedAtMs",
+              "id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_usage_session_packageName_startedAtMs_id` ON `${TABLE_NAME}` (`packageName`, `startedAtMs`, `id`)"
+          },
+          {
+            "name": "index_usage_session_visitId",
+            "unique": false,
+            "columnNames": [
+              "visitId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_usage_session_visitId` ON `${TABLE_NAME}` (`visitId`)"
+          }
+        ]
+      },
+      {
+        "tableName": "usage_daily",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`localDate` TEXT NOT NULL, `zoneId` TEXT NOT NULL, `packageName` TEXT NOT NULL, `foregroundMs` INTEGER NOT NULL, `openCount` INTEGER NOT NULL, PRIMARY KEY(`localDate`, `zoneId`, `packageName`))",
+        "fields": [
+          {
+            "fieldPath": "localDate",
+            "columnName": "localDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "zoneId",
+            "columnName": "zoneId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packageName",
+            "columnName": "packageName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "foregroundMs",
+            "columnName": "foregroundMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "openCount",
+            "columnName": "openCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "localDate",
+            "zoneId",
+            "packageName"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_usage_daily_packageName_localDate",
+            "unique": false,
+            "columnNames": [
+              "packageName",
+              "localDate"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_usage_daily_packageName_localDate` ON `${TABLE_NAME}` (`packageName`, `localDate`)"
+          }
+        ]
+      },
+      {
+        "tableName": "interception_record",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `packageName` TEXT NOT NULL, `policyId` TEXT NOT NULL, `policyRevision` INTEGER NOT NULL, `kind` TEXT NOT NULL, `controlLevel` TEXT NOT NULL, `reason` TEXT NOT NULL, `challenge` TEXT NOT NULL, `outcome` TEXT NOT NULL, `occurredAtMs` INTEGER NOT NULL, `finishedAtMs` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packageName",
+            "columnName": "packageName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "policyId",
+            "columnName": "policyId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "policyRevision",
+            "columnName": "policyRevision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kind",
+            "columnName": "kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "controlLevel",
+            "columnName": "controlLevel",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reason",
+            "columnName": "reason",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "challenge",
+            "columnName": "challenge",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "outcome",
+            "columnName": "outcome",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "occurredAtMs",
+            "columnName": "occurredAtMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "finishedAtMs",
+            "columnName": "finishedAtMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_interception_record_occurredAtMs_id",
+            "unique": false,
+            "columnNames": [
+              "occurredAtMs",
+              "id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_interception_record_occurredAtMs_id` ON `${TABLE_NAME}` (`occurredAtMs`, `id`)"
+          },
+          {
+            "name": "index_interception_record_packageName_occurredAtMs_id",
+            "unique": false,
+            "columnNames": [
+              "packageName",
+              "occurredAtMs",
+              "id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_interception_record_packageName_occurredAtMs_id` ON `${TABLE_NAME}` (`packageName`, `occurredAtMs`, `id`)"
+          }
+        ]
+      },
+      {
+        "tableName": "pass_grant",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`packageName` TEXT NOT NULL, `policyId` TEXT NOT NULL, `policyRevision` INTEGER NOT NULL, `bootId` TEXT NOT NULL, `issuedAtMs` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `deadlineElapsedMs` INTEGER NOT NULL, PRIMARY KEY(`packageName`))",
+        "fields": [
+          {
+            "fieldPath": "packageName",
+            "columnName": "packageName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "policyId",
+            "columnName": "policyId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "policyRevision",
+            "columnName": "policyRevision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bootId",
+            "columnName": "bootId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "issuedAtMs",
+            "columnName": "issuedAtMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "durationMs",
+            "columnName": "durationMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deadlineElapsedMs",
+            "columnName": "deadlineElapsedMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "packageName"
+          ]
+        }
+      },
+      {
+        "tableName": "runtime_checkpoint",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` TEXT NOT NULL, `sessionId` TEXT NOT NULL, `packageName` TEXT NOT NULL, `bootId` TEXT NOT NULL, `phase` TEXT NOT NULL, `sequence` INTEGER NOT NULL, `recordedAtMs` INTEGER NOT NULL, `recordedElapsedMs` INTEGER NOT NULL, `continuousStartedElapsedMs` INTEGER NOT NULL, PRIMARY KEY(`key`))",
+        "fields": [
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionId",
+            "columnName": "sessionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packageName",
+            "columnName": "packageName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bootId",
+            "columnName": "bootId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "phase",
+            "columnName": "phase",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sequence",
+            "columnName": "sequence",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recordedAtMs",
+            "columnName": "recordedAtMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recordedElapsedMs",
+            "columnName": "recordedElapsedMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "continuousStartedElapsedMs",
+            "columnName": "continuousStartedElapsedMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "key"
+          ]
+        }
+      },
+      {
+        "tableName": "word_entry",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`english` TEXT NOT NULL, `position` INTEGER NOT NULL, PRIMARY KEY(`english`))",
+        "fields": [
+          {
+            "fieldPath": "english",
+            "columnName": "english",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "english"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_word_entry_position",
+            "unique": true,
+            "columnNames": [
+              "position"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_word_entry_position` ON `${TABLE_NAME}` (`position`)"
+          }
+        ]
+      },
+      {
+        "tableName": "word_meaning",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`english` TEXT NOT NULL, `position` INTEGER NOT NULL, `partOfSpeech` TEXT NOT NULL, `chinese` TEXT NOT NULL, PRIMARY KEY(`english`, `position`), FOREIGN KEY(`english`) REFERENCES `word_entry`(`english`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "english",
+            "columnName": "english",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "partOfSpeech",
+            "columnName": "partOfSpeech",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chinese",
+            "columnName": "chinese",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "english",
+            "position"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_word_meaning_english",
+            "unique": false,
+            "columnNames": [
+              "english"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_word_meaning_english` ON `${TABLE_NAME}` (`english`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "word_entry",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "english"
+            ],
+            "referencedColumns": [
+              "english"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "usage_archive_day",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`localDate` TEXT NOT NULL, `zoneId` TEXT NOT NULL, `screenMs` INTEGER NOT NULL, `observedAtMs` INTEGER NOT NULL, PRIMARY KEY(`localDate`))",
+        "fields": [
+          {
+            "fieldPath": "localDate",
+            "columnName": "localDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "zoneId",
+            "columnName": "zoneId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "screenMs",
+            "columnName": "screenMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "observedAtMs",
+            "columnName": "observedAtMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "localDate"
+          ]
+        }
+      },
+      {
+        "tableName": "usage_archive_app",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`localDate` TEXT NOT NULL, `packageName` TEXT NOT NULL, `appLabel` TEXT NOT NULL, `foregroundMs` INTEGER NOT NULL, PRIMARY KEY(`localDate`, `packageName`), FOREIGN KEY(`localDate`) REFERENCES `usage_archive_day`(`localDate`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "localDate",
+            "columnName": "localDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packageName",
+            "columnName": "packageName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "appLabel",
+            "columnName": "appLabel",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "foregroundMs",
+            "columnName": "foregroundMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "localDate",
+            "packageName"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_usage_archive_app_packageName_localDate",
+            "unique": false,
+            "columnNames": [
+              "packageName",
+              "localDate"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_usage_archive_app_packageName_localDate` ON `${TABLE_NAME}` (`packageName`, `localDate`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "usage_archive_day",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "localDate"
+            ],
+            "referencedColumns": [
+              "localDate"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '84d67630cc0f7ba8ac17821915ee6bee')"
+    ]
+  }
+}

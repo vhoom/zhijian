@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- 仅 Debug 变体存在；前台 Activity 可绕过厂商对后台广播启动页面的限制。 -->
+        <activity
+            android:name="github.vhoom.zhijian.debug.DebugInterceptionActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@style/Theme.Zhijian.Interception">
+            <intent-filter>
+                <action android:name="github.vhoom.zhijian.DEBUG_INTERCEPTION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

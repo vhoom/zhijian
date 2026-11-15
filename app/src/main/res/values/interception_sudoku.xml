@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_challenge_sudoku_title">数独挑战</string>
+    <string name="settings_sudoku_easy">简单</string>
+    <string name="settings_sudoku_medium">中级</string>
+    <string name="settings_sudoku_hard">困难</string>
+    <string name="interception_sudoku_next">继续</string>
+    <string name="interception_preview_sudoku">数独挑战</string>
+    <string name="interception_preview_sudoku_completed">数独完成</string>
+    <!-- 数独完成后显示；按本局身份选句，页面恢复时保留。 -->
+    <string-array name="interception_sudoku_completions">
+        <item>这一局，你把注意力留在了眼前。</item>
+        <item>九宫已齐，给自己一个从容的停顿。</item>
+        <item>慢慢填完，也是一种向前。</item>
+        <item>刚才的专注，已经属于你。</item>
+        <item>一格一格，你完成了眼前的事。</item>
+        <item>这一刻，让心和手一起歇一歇。</item>
+        <item>填完了，先歇一下吧。</item>
+        <item>这一局结束了，缓口气。</item>
+        <item>做完了，不急着往下走。</item>
+        <item>填得挺好，可以放一放了。</item>
+        <item>一盘下来，辛苦了。</item>
+
+        <item>这一局没白做，歇会儿吧。</item>
+        <item>填好了，慢慢来就挺好。</item>
+        <item>手和脑子都动过了，停一下。</item>
+        <item>盘面满了，你也可以歇一歇。</item>
+        <item>搞定，收工。</item>
+        <item>这一盘拿下了。</item>
+        <item>填完了，厉害。</item>
+        <item>行，这局你赢了。</item>
+        <item>漂亮，收手吧。</item>
+        <item>九宫格都填满了，还能说啥。</item>
+        <item>一格没剩，干得不错。</item>
+        <item>这盘做得挺顺。</item>
+        <item>填完了，可以喘口气了。</item>
+        <item>脑子转过了，手也动过了，够了。</item>
+
+        <item>填完这盘，先别急着。</item>
+        <item>盘面空了，你也不用急着填满时间。</item>
+        <item>做完了，接下来是自己的事。</item>
+        <item>这一局结束了，怎么走你定。</item>
+        <item>填完了，剩下的你自己选。</item>
+        <item>到这里就好，慢慢来。</item>
+        <item>不急，先放一放。</item>
+        <item>这一盘到此为止，歇一歇。</item>
+        <item>做完这一件，先停一停。</item>
+        <item>嗯，挺好，先这样。</item>
+        <item>可以了，抬抬头。</item>
+        <item>这一局收尾，深呼吸一下。</item>
+        <item>填完了，看看窗外也行。</item>
+        <item>盘面满了，手可以放下了。</item>
+        <item>做完了，去喝口水吧。</item>
+        <item>这一局没催你，你也没急着走。</item>
+        <item>慢慢填完的样子，挺好的。</item>
+        <item>能坐下来做完一盘，不容易。</item>
+        <item>刚才那几分钟，是你自己的。</item>
+        <item>这一局，你陪了自己一会儿。</item>
+        <item>这盘结束了，手可以放下了。</item>
+        <item>填完这一盘，先抬抬头。</item>
+        <item>刚刚那点耐心，是你自己的。</item>
+        <item>格子都归位了，人也该松一松。</item>
+        <item>慢慢来，这一局你走完了。</item>
+        <item>填到最后，心也跟着静了些。</item>
+        <item>这一盘收好，先不急着下一盘。</item>
+        <item>空填满了，气也缓下来了。</item>
+
+
+        <item>盘面安静下来了，你也一样。</item>
+        <item>这一局做完，先坐一会儿。</item>
+        <item>方才的专注，留下来就很好。</item>
+        <item>填完了，接下来你自己定。</item>
+        <item>收笔了，先歇会儿再说。</item>
+        <item>一格一格填满，挺好。</item>
+        <item>这局做得很稳，停一停吧。</item>
+        <item>盘面齐了，慢慢来就是快。</item>
+        <item>完成一局，先把手机放一放。</item>
+        <item>刚刚这段安静，是你的。</item>
+        <item>填完了，伸个懒腰吧。</item>
+        <item>这一局到此，先缓缓。</item>
+        <item>事以至此，先缓缓。</item>
+        <item>格子满了，脑子也该放空了。</item>
+        <item>做完这一盘，喝口水吧。</item>
+        <item>不急，这一局你已经完成了。</item>
+
+
+
+        <item>格子都填对了，先停停。</item>
+
+        <item>盘面满了，该起身动动了。</item>
+        <item>这一局结束，不用急着走。</item>
+        <item>慢慢填完的感觉，可以记住。</item>
+        <item>做完了，先深呼吸一下。</item>
+        <item>空格一个个少下去，你也慢下来了。</item>
+        <item>这一盘收尾了，先不碰手机。</item>
+        <item>填完了，让眼睛也歇一歇。</item>
+        <item>你完成了一局，这就够了。</item>
+        <item>盘面妥帖，人可以歇着了。</item>
+        <item>这一局，是你自己填完的。</item>
+        <item>这一盘收尾了，先抬抬头。</item>
+        <item>一局做完，时间还在你这边。</item>
+        <item>这一局你认真了，现在可以放松一下。</item>
+        <item>做完了，接下来不必急着决定。</item>
+        <item>空格一个个消失，你也慢慢静下来了。</item>
+        <item>这一局很稳，先停在这里。</item>
+        <item>盘面完整了，心也可以缓一缓。</item>
+        <item>填完就好，不用赶下一步。</item>
+        <item>一局下来，你把自己留在了这里。</item>
+        <item>做完了，给自己留一点空。</item>
+        <item>这一盘填得踏实，先歇一歇。</item>
+        <item>数字都归位了，你也可以停一停。</item>
+        <item>填完这一局，不急着回原来的地方。</item>
+        <item>一格格填完，你也慢了下来。</item>
+        <item>这一局结束了，先深呼吸一下。</item>
+        <item>盘面安静了，接下来你自己定。</item>
+        <item>填完这盘，先别急着点下一步。</item>
+        <item>一局做完，手可以离开屏幕了。</item>
+        <item>这一盘你耐着性子做完了，很好。</item>
+        <item>数字填满了，给自己一点时间。</item>
+        <item>这一局收好了，慢慢来。</item>
+
+        <item>盘面满了，先缓一口气。</item>
+
+        <item>这一盘结束了，先停一停再说。</item>
+    </string-array>
+    <string name="interception_sudoku_save_failed">进度读取或保存失败，请重试。</string>
+    <string name="interception_sudoku_retry">重试</string>
+    <string name="interception_sudoku_completed">数独已完成</string>
+    <string name="interception_sudoku_empty">空白</string>
+    <string name="interception_sudoku_given">给定数字</string>
+    <string name="interception_sudoku_editable">可填写</string>
+    <string name="interception_sudoku_cell">第 %1$d 行第 %2$d 列，%3$s，%4$s</string>
+    <string name="interception_sudoku_cell_conflict">，有重复冲突</string>
+    <string name="interception_sudoku_input">填入 %1$d</string>
+    <string name="interception_sudoku_clear_digit">清空 %1$d</string>
+    <item name="interception_sudoku_continue" type="id" />
+    <style name="TextAppearance.App.SudokuCell" parent="@style/TextAppearance.App.BodyLg">
+        <item name="android:textSize">@dimen/text_title</item>
+        <item name="android:textColor">@color/ink</item>
+    </style>
+    <style name="TextAppearance.App.SudokuKey" parent="@style/TextAppearance.App.BodyLg">
+        <item name="android:textColor">@color/interception_button_text</item>
+    </style>
+    <dimen name="sudoku_grid_line">1dp</dimen>
+    <dimen name="sudoku_selection_line">2dp</dimen>
+    <dimen name="sudoku_cell_size">40dp</dimen>
+    <dimen name="sudoku_keypad_width">168dp</dimen>
+    <dimen name="sudoku_keypad_right_offset">12dp</dimen>
+</resources>

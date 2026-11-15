@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 规则编辑只定义结构差异；尺寸和语义色引用全局规范，自动适配深色。 -->
+    <dimen name="rule_page_gutter">@dimen/space_md</dimen>
+    <dimen name="rule_page_bottom">@dimen/space_xl</dimen>
+    <dimen name="rule_card_padding">@dimen/space_md</dimen>
+    <dimen name="rule_card_gap">@dimen/space_md</dimen>
+    <dimen name="rule_row_height">@dimen/control_height</dimen>
+    <dimen name="rule_inline_field_width">64dp</dimen>
+    <item name="rule_compact_field_binding" type="id" />
+    <dimen name="rule_app_icon_size">24dp</dimen>
+    <dimen name="rule_app_list_max_height">240dp</dimen>
+    <dimen name="rule_window_padding">10dp</dimen>
+    <dimen name="rule_parameter_padding">10dp</dimen>
+    <dimen name="rule_time_label_gap">6dp</dimen>
+    <dimen name="rule_input_radius">6dp</dimen>
+    <dimen name="rule_time_field_width">62dp</dimen>
+    <dimen name="rule_time_field_height">30dp</dimen>
+    <dimen name="rule_duration_field_width">46dp</dimen>
+    <dimen name="rule_duration_field_height">28dp</dimen>
+    <dimen name="rule_title_size">@dimen/text_body_md</dimen>
+
+    <color name="rule_canvas">@color/canvas</color>
+    <color name="rule_card">@color/canvas_soft</color>
+    <color name="rule_primary">@color/level_selected_text</color>
+    <color name="rule_primary_soft">@color/level_selected_bg</color>
+    <color name="rule_text">@color/ink</color>
+    <color name="rule_text_secondary">@color/body</color>
+    <color name="rule_text_disabled">@color/mute</color>
+    <color name="rule_border">@color/hairline</color>
+
+    <style name="Theme.Zhijian.RuleEditor" parent="@style/Theme.Zhijian">
+        <item name="android:windowBackground">@color/rule_canvas</item>
+    </style>
+
+    <!-- 卡片与分区标题。 -->
+    <style name="Widget.App.Card.RuleEditor" parent="@style/Widget.App.Card">
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:layout_marginBottom">@dimen/rule_card_gap</item>
+        <item name="android:padding">@dimen/rule_card_padding</item>
+        <item name="android:background">@drawable/bg_card</item>
+    </style>
+    <style name="Text.App.RuleTitle" parent="@style/Text.App.Strong">
+        <item name="android:textSize">@dimen/rule_title_size</item>
+        <item name="android:textColor">@color/rule_text</item>
+    </style>
+    <style name="Text.App.RuleBody" parent="@style/Text.App.Body">
+        <item name="android:textAppearance">@style/TextAppearance.App.BodySm</item>
+        <item name="android:textColor">@color/rule_text_secondary</item>
+    </style>
+    <style name="Text.App.RuleParameter" parent="@style/Text.App.RuleBody">
+        <item name="android:textSize">@dimen/text_caption</item>
+        <item name="android:lineHeight">@dimen/line_caption</item>
+    </style>
+    <style name="Text.App.RuleHint" parent="@style/Text.App.Supporting">
+        <item name="android:layout_marginTop">@dimen/space_xxs</item>
+        <item name="android:textColor">@color/rule_text_secondary</item>
+    </style>
+    <style name="Text.App.SectionLabel.RuleEditor" parent="@style/Text.App.SectionLabel">
+        <item name="android:layout_marginTop">@dimen/space_sm</item>
+        <item name="android:layout_marginBottom">@dimen/space_sm</item>
+        <item name="android:drawableStart">@drawable/ic_rule_section</item>
+        <item name="android:drawablePadding">@dimen/space_xs</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textSize">@dimen/text_body_sm</item>
+        <item name="android:textColor">@color/rule_text</item>
+    </style>
+    <style name="Widget.App.Bar.RuleEditor" parent="@style/Widget.App.Bar">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/bar_top_height</item>
+        <item name="android:paddingStart">@dimen/rule_page_gutter</item>
+        <item name="android:paddingEnd">@dimen/rule_page_gutter</item>
+        <item name="android:background">@color/rule_canvas</item>
+    </style>
+
+    <!-- 输入框至少保留 48dp 触控高度，文字可随系统字号增长。 -->
+    <style name="Widget.App.Field.RuleEditor" parent="@style/Widget.App.Field">
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:background">@drawable/bg_field</item>
+        <item name="android:textColor">@color/field_text</item>
+        <item name="android:textColorHint">@color/rule_text_disabled</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.BodyMd</item>
+    </style>
+    <style name="Widget.App.Field.RuleInline" parent="@style/Widget.App.Field.RuleEditor">
+        <item name="android:layout_width">@dimen/rule_inline_field_width</item>
+        <item name="android:gravity">center</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">@dimen/text_caption</item>
+        <item name="android:lineHeight">@dimen/line_caption</item>
+    </style>
+    <!-- 紧凑矩形输入框保留参考尺寸，内容或字体增大时扩展。 -->
+    <style name="Widget.App.Field.RuleCompact" parent="@style/Widget.App.Field.RuleInline">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:minWidth">@dimen/rule_duration_field_width</item>
+        <item name="android:minHeight">@dimen/rule_duration_field_height</item>
+        <item name="android:background">@drawable/bg_rule_input</item>
+        <item name="android:paddingStart">@dimen/space_xxs</item>
+        <item name="android:paddingEnd">@dimen/space_xxs</item>
+        <item name="android:paddingTop">@dimen/space_xxs</item>
+        <item name="android:paddingBottom">@dimen/space_xxs</item>
+        <item name="android:textSize">@dimen/text_caption</item>
+        <item name="android:lineHeight">@dimen/line_caption</item>
+        <item name="android:fontFamily">@string/font_ui_medium</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+    <style name="Widget.App.Field.RuleTime" parent="@style/Widget.App.Field.RuleCompact">
+        <item name="android:minWidth">@dimen/rule_time_field_width</item>
+        <item name="android:minHeight">@dimen/rule_time_field_height</item>
+        <item name="android:singleLine">false</item>
+        <item name="android:maxLines">2</item>
+    </style>
+    <!-- 名称保留整行宽度，表面、字号和高度与数字输入共用。 -->
+    <style name="Widget.App.Field.RuleText" parent="@style/Widget.App.Field.RuleCompact">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:gravity">start|center_vertical</item>
+        <item name="android:paddingStart">@dimen/rule_parameter_padding</item>
+        <item name="android:paddingEnd">@dimen/rule_parameter_padding</item>
+        <item name="android:fontFamily">@string/font_ui</item>
+    </style>
+    <style name="Widget.App.RuleNumberTarget" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">@dimen/control_height</item>
+        <item name="android:minHeight">@dimen/control_height</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <!-- 按钮与星期操作共用圆角边框。 -->
+    <style name="Widget.App.Button.RuleEditor" parent="@style/Widget.App.Button.Secondary">
+        <item name="android:minHeight">@dimen/rule_row_height</item>
+        <item name="android:background">@drawable/bg_button_secondary</item>
+        <item name="android:backgroundTint">@null</item>
+        <item name="android:textColor">@color/button_secondary_text</item>
+        <item name="android:paddingStart">@dimen/space_sm</item>
+        <item name="android:paddingEnd">@dimen/space_sm</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.ButtonMd</item>
+    </style>
+    <style name="Widget.App.Button.RuleAddWindow" parent="@style/Widget.App.Button.RuleEditor">
+        <item name="android:background">@drawable/bg_rule_add_window</item>
+        <item name="android:paddingTop">@dimen/space_xs</item>
+        <item name="android:paddingBottom">@dimen/space_xs</item>
+        <item name="android:textSize">@dimen/text_caption</item>
+        <item name="android:lineHeight">@dimen/line_caption</item>
+    </style>
+    <style name="Text.App.WeekdayAction" parent="@style/Text.App.BarAction">
+        <item name="android:background">@drawable/bg_button_secondary</item>
+        <item name="android:textColor">@color/rule_text_secondary</item>
+    </style>
+    <style name="Text.App.RuleAction" parent="@style/Text.App.BarAction">
+        <item name="android:minWidth">@dimen/rule_row_height</item>
+        <item name="android:minHeight">@dimen/rule_row_height</item>
+        <item name="android:padding">@dimen/space_xxs</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.ButtonMd</item>
+        <item name="android:textColor">@color/rule_text_secondary</item>
+    </style>
+    <style name="Widget.App.Switch.RuleEditor" parent="@style/Widget.App.Switch">
+    </style>
+</resources>

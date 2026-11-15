@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout style="@style/Widget.App.SettingsCard">
+        <LinearLayout style="@style/Widget.App.SettingsItem.Static" android:gravity="top" android:baselineAligned="false">
+            <TextView style="@style/Text.App.SettingsTitle"
+                android:minHeight="@dimen/control_height"
+                android:gravity="center_vertical"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:labelFor="@id/field_word_catalog"
+                android:text="@string/settings_word_catalog_label" />
+            <Spinner android:id="@+id/field_word_catalog"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/control_height"
+                android:contentDescription="@string/settings_word_catalog_label"
+                android:popupBackground="@drawable/bg_settings_sheet"
+                android:backgroundTint="@color/body"
+                android:spinnerMode="dropdown" />
+        </LinearLayout>
+        <View style="@style/Widget.App.SettingsDivider" />
+        <LinearLayout style="@style/Widget.App.SettingsItem.Static" android:gravity="top" android:baselineAligned="false">
+            <TextView
+                style="@style/Text.App.SettingsTitle"
+                android:minHeight="@dimen/control_height"
+                android:gravity="center_vertical"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="@dimen/space_xs"
+                android:labelFor="@id/field_word_question_count"
+                android:text="@string/settings_word_question_count_label" />
+            <github.vhoom.zhijian.ui.component.input.InputFieldLayout
+                style="@style/Widget.App.InputField"
+                android:layout_width="wrap_content">
+                <LinearLayout
+                    android:id="@+id/stepper_word_question_count"
+                    style="@style/Widget.App.SettingsStepper">
+                    <TextView android:id="@+id/stepper_word_question_count_decrease"
+                        android:tag="settings_step_decrease"
+                        style="@style/Widget.App.SettingsStepButton"
+                        android:text="@string/settings_step_minus" />
+                    <EditText
+                        android:id="@+id/field_word_question_count"
+                        style="@style/Widget.App.SettingsStepField"
+                        android:contentDescription="@string/settings_word_question_count_label"
+                        android:inputType="number"
+                        android:imeOptions="actionNext" />
+                    <TextView android:id="@+id/stepper_word_question_count_increase"
+                        android:tag="settings_step_increase"
+                        style="@style/Widget.App.SettingsStepButton"
+                        android:text="@string/settings_step_plus" />
+                    <TextView style="@style/Text.App.Caption"
+                        android:layout_marginEnd="@dimen/space_xs"
+                        android:text="@string/settings_word_question_unit" />
+                </LinearLayout>
+                <TextView android:id="@+id/word_question_count_error"
+                    style="@style/Text.App.InputError" />
+            </github.vhoom.zhijian.ui.component.input.InputFieldLayout>
+        </LinearLayout>
+        <View style="@style/Widget.App.SettingsDivider" />
+        <LinearLayout style="@style/Widget.App.SettingsItem.Static" android:gravity="top" android:baselineAligned="false">
+            <TextView
+                style="@style/Text.App.SettingsTitle"
+                android:minHeight="@dimen/control_height"
+                android:gravity="center_vertical"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="@dimen/space_xs"
+                android:labelFor="@id/field_word_dwell_seconds"
+                android:text="@string/settings_word_dwell_label" />
+            <github.vhoom.zhijian.ui.component.input.InputFieldLayout
+                style="@style/Widget.App.InputField"
+                android:layout_width="wrap_content">
+                <LinearLayout
+                    android:id="@+id/stepper_word_dwell_seconds"
+                    style="@style/Widget.App.SettingsStepper">
+                    <TextView android:id="@+id/stepper_word_dwell_seconds_decrease"
+                        android:tag="settings_step_decrease"
+                        style="@style/Widget.App.SettingsStepButton"
+                        android:text="@string/settings_step_minus" />
+                    <EditText
+                        android:id="@+id/field_word_dwell_seconds"
+                        style="@style/Widget.App.SettingsStepField"
+                        android:contentDescription="@string/settings_word_dwell_label"
+                        android:inputType="numberDecimal"
+                        android:imeOptions="actionDone" />
+                    <TextView android:id="@+id/stepper_word_dwell_seconds_increase"
+                        android:tag="settings_step_increase"
+                        style="@style/Widget.App.SettingsStepButton"
+                        android:text="@string/settings_step_plus" />
+                    <TextView style="@style/Text.App.Caption"
+                        android:layout_marginEnd="@dimen/space_xs"
+                        android:text="@string/settings_seconds_unit" />
+                </LinearLayout>
+                <TextView android:id="@+id/word_dwell_seconds_error"
+                    style="@style/Text.App.InputError" />
+            </github.vhoom.zhijian.ui.component.input.InputFieldLayout>
+        </LinearLayout>
+        <View style="@style/Widget.App.SettingsDivider" />
+        <LinearLayout style="@style/Widget.App.SettingsItem.Static" android:gravity="top" android:baselineAligned="false">
+            <TextView style="@style/Text.App.SettingsTitle"
+                android:minHeight="@dimen/control_height"
+                android:gravity="center_vertical"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="@string/settings_total_min_duration" />
+            <TextView android:id="@+id/word_minimum_duration_value"
+                style="@style/Text.App.Mute"
+                android:accessibilityLiveRegion="polite"
+                android:fontFeatureSettings="tnum"
+                android:textColor="@color/body" />
+        </LinearLayout>
+    </github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout>
+    <TextView
+        style="@style/Text.App.SettingsDescription"
+        android:layout_marginTop="@dimen/space_sm"
+        android:text="@string/settings_word_challenge_hint" />
+</LinearLayout>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_temporary_pass_title">临时放行</string>
+    <string name="settings_temporary_pass_description">是否启用规则中的特殊放行</string>
+    <string name="settings_dynamic_buttons_title">动态按钮</string>
+    <string name="settings_dynamic_buttons_description">变化多端的样式</string>
+    <string name="settings_confirmation_title">再次确认</string>
+    <string name="settings_confirmation_description">挑战后的再次确认一下你</string>
+    <string name="settings_obstacle_pages_title">阻碍页面</string>
+    <string name="settings_obstacle_pages_description">给继续使用一点阻碍</string>
+    <string name="settings_wuwei_mode">无为</string>
+    <string name="settings_sheet_done">完成</string>
+    <string name="settings_repair_mode">@string/level_repair</string>
+    <string name="settings_mode_challenge_title">%1$s · %2$s</string>
+    <string name="settings_mode_option_toggle">%1$s模式的%2$s</string>
+    <string name="settings_last_challenge_toggle">%1$s，阻碍页面至少保留一种挑战</string>
+    <string name="settings_min_duration">最小时长</string>
+    <string name="settings_max_duration">最大时长</string>
+    <string name="settings_total_min_duration">整体保底时间</string>
+    <string name="settings_total_duration_pending">待计算</string>
+    <string name="settings_step_decrease">减少%1$s</string>
+    <string name="settings_step_increase">增加%1$s</string>
+    <string name="settings_step_minus" translatable="false">−</string>
+    <string name="settings_step_plus" translatable="false">+</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 复用全局主题角色；别名在深色配置中自动解析到夜间资源。 -->
+    <color name="interception_button_surface">@color/canvas_soft</color>
+    <color name="interception_button_surface_emphasis">@color/canvas_soft_2</color>
+    <color name="interception_button_text">@color/ink</color>
+    <color name="interception_button_outline">@color/hairline</color>
+</resources>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 无障碍已经工作但缺少用量权限时持续显示，避免规则看似开启却没有时长证据。 -->
+<github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/space_md"
+    android:layout_marginTop="@dimen/space_xs"
+    android:layout_marginEnd="@dimen/space_md"
+    android:background="@drawable/bg_permission_warning"
+    android:clickable="true"
+    android:contentDescription="@string/usage_access_warning_description"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="@dimen/space_sm"
+    android:visibility="gone"
+    android:accessibilityLiveRegion="polite">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/Text.App.Strong"
+            android:text="@string/usage_access_warning_title"
+            android:textColor="@color/warning_deep" />
+
+        <TextView
+            style="@style/Text.App.Supporting"
+            android:layout_width="match_parent"
+            android:layout_marginTop="@dimen/space_xxs"
+            android:text="@string/usage_access_warning_detail"
+            android:textColor="@color/body" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/usage_access_warning_action"
+        style="@style/Widget.App.Button.Settings"
+        android:layout_marginStart="@dimen/space_sm"
+        android:text="@string/usage_access_warning_action" />
+</github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout>

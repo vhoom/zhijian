@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/view_about_bar" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:padding="@dimen/space_md">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/Text.App.Supporting"
+                android:text="@string/developer_preview_detail" />
+
+            <Button
+                android:id="@+id/developer_interception_preview"
+                style="@style/Widget.App.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/space_md"
+                android:text="@string/developer_interception_preview" />
+
+            <include layout="@layout/view_poem_preview" />
+
+            <TextView
+                style="@style/Text.App.Section"
+                android:accessibilityHeading="true"
+                android:text="@string/setup_preview_section" />
+
+            <Button
+                android:id="@+id/setup_preview_choose"
+                style="@style/Widget.App.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/space_xs"
+                android:text="@string/setup_preview_choose" />
+
+            <TextView
+                android:id="@+id/setup_preview_scenario"
+                style="@style/Text.App.Supporting"
+                android:layout_marginTop="@dimen/space_xs"
+                android:accessibilityLiveRegion="polite" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/setup_preview_previous"
+                    style="@style/Widget.App.Button.Secondary"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/space_xxs"
+                    android:text="@string/setup_preview_previous" />
+
+                <Button
+                    android:id="@+id/setup_preview_next"
+                    style="@style/Widget.App.Button.Secondary"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="@dimen/space_xxs"
+                    android:text="@string/setup_preview_next" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/setup_preview_layout"
+                style="@style/Widget.App.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/space_xs" />
+
+            <FrameLayout
+                android:id="@+id/setup_preview_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/setup_preview_description"
+                style="@style/Widget.App.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/space_sm"
+                android:text="@string/setup_preview_description" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

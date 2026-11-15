@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/poem_preview_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/Text.App.Section"
+        android:accessibilityHeading="true"
+        android:text="@string/poem_preview_section" />
+
+    <TextView
+        style="@style/Text.App.Supporting"
+        android:layout_marginTop="@dimen/space_xs"
+        android:text="@string/poem_preview_detail" />
+
+    <EditText
+        android:id="@+id/poem_preview_text"
+        style="@style/Widget.App.Field"
+        android:gravity="top|start"
+        android:hint="@string/poem_preview_hint"
+        android:inputType="text|textMultiLine"
+        android:imeOptions="flagNoExtractUi"
+        android:minLines="2"
+        android:maxLines="6"
+        android:saveEnabled="false"
+        android:scrollbars="vertical"
+        android:scrollHorizontally="false"
+        android:selectAllOnFocus="false" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/poem_preview_random"
+            style="@style/Widget.App.Button.Secondary"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/space_xxs"
+            android:layout_weight="1"
+            android:text="@string/poem_preview_random" />
+
+        <Button
+            android:id="@+id/poem_preview_longest"
+            style="@style/Widget.App.Button.Secondary"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/space_xxs"
+            android:layout_weight="1"
+            android:text="@string/poem_preview_longest" />
+    </LinearLayout>
+
+    <LinearLayout style="@style/Widget.App.Card">
+        <include layout="@layout/view_strength_stage" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/poem_preview_metrics"
+        style="@style/Text.App.Caption"
+        android:layout_marginTop="@dimen/space_xs" />
+</LinearLayout>

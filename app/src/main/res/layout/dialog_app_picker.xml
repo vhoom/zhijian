@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/dialog_content_padding"
+    android:paddingEnd="@dimen/dialog_content_padding"
+    android:paddingBottom="@dimen/space_sm">
+
+    <EditText
+        android:id="@+id/picker_search"
+        style="@style/Widget.App.Field"
+        android:hint="@string/search_hint"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:maxLines="1" />
+
+    <!-- 保留列表的期望高度，窗口不足时按权重收缩；弹窗采用 wrap_content。 -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/picker_height"
+        android:layout_weight="1"
+        android:layout_marginTop="@dimen/space_sm"
+        tools:ignore="InefficientWeight">
+
+        <ListView
+            android:id="@+id/picker_list"
+            style="@style/Widget.App.List"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/picker_empty"
+            style="@style/Text.App.Mute"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/rule_picker_empty" />
+    </FrameLayout>
+</LinearLayout>

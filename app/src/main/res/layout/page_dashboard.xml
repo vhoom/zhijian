@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<github.vhoom.zhijian.ui.component.navigation.PullRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/dashboard_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/space_md"
+            android:paddingRight="@dimen/space_md"
+            android:paddingBottom="@dimen/space_xl">
+
+            <include layout="@layout/view_setup_guide" />
+
+            <LinearLayout android:id="@+id/strength_card" style="@style/Widget.App.Card">
+
+                <!-- 与开发者预览共用，长诗句和较大字体可自然撑开高度。 -->
+                <include layout="@layout/view_strength_stage" />
+
+                <!-- 额度来自规则组，没有规则组时整块隐藏，不显示推算出来的剩余时间。 -->
+                <LinearLayout
+                    android:id="@+id/quota_block"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/strength_remaining"
+                        style="@style/Text.App.Strong" />
+
+                    <ProgressBar
+                        android:id="@+id/strength_progress"
+                        style="@style/Widget.App.Progress"
+                        android:max="100" />
+
+                    <LinearLayout style="@style/Widget.App.Row">
+
+                        <TextView
+                            android:id="@+id/strength_quota"
+                            style="@style/Text.App.Caption"
+                            android:layout_width="0dp"
+                            android:layout_weight="1" />
+
+                        <TextView
+                            android:id="@+id/strength_percent"
+                            style="@style/Text.App.Caption" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/usage_card" style="@style/Widget.App.Card">
+
+                <!-- 原先这组上面挂的是「今日应用使用时长」分组标题，现在由这一行固定的总时长顶掉它的位置。 -->
+                <LinearLayout
+                    android:id="@+id/usage_total_row"
+                    style="@style/Widget.App.Row">
+
+                    <TextView
+                        android:id="@+id/usage_screen_total_label"
+                        style="@style/Text.App.Strong"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:text="@string/usage_screen_total" />
+
+                    <TextView
+                        android:id="@+id/usage_screen_total_value"
+                        style="@style/Text.App.Strong" />
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/usage_total_divider"
+                    style="@style/Widget.App.Divider" />
+
+                <FrameLayout
+                    android:id="@+id/usage_rows_slot"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <github.vhoom.zhijian.ui.component.usage.UsageListScrollView
+                        android:id="@+id/usage_rows_scroll"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:overScrollMode="ifContentScrolls"
+                        android:scrollbars="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/usage_rows"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical" />
+                    </github.vhoom.zhijian.ui.component.usage.UsageListScrollView>
+
+                    <TextView
+                        android:id="@+id/usage_notice"
+                        style="@style/Text.App.Mute"
+                        android:paddingTop="@dimen/space_sm"
+                        android:paddingBottom="@dimen/space_sm" />
+
+                </FrameLayout>
+
+                <View
+                    android:id="@+id/usage_calendar_spacer"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:importantForAccessibility="no" />
+
+                <github.vhoom.zhijian.ui.component.usage.UsageDateSelector
+                    android:id="@+id/usage_date_selector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <!-- 权限没开就读不到任何时长，申请入口跟在提示后面。 -->
+                <Button
+                    android:id="@+id/btn_usage_access"
+                    style="@style/Widget.App.Button.Secondary"
+                    android:layout_width="match_parent"
+                    android:text="@string/usage_grant_request"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</github.vhoom.zhijian.ui.component.navigation.PullRefreshLayout>

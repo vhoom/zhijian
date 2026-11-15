@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 深蓝色已写入图片像素，安装器直接加载也能正确显示。 -->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/ic_launcher_artwork"
+    android:gravity="fill"
+    android:filter="true" />

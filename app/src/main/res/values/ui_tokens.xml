@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 字体名称不参与翻译；中文由 Android 系统字体回退补齐。 -->
+    <string name="font_ui" translatable="false">sans-serif</string>
+    <string name="font_ui_medium" translatable="false">sans-serif-medium</string>
+    <string name="font_reading" translatable="false">serif</string>
+    <string name="font_code" translatable="false">monospace</string>
+    <!-- 系统窗口按 float 读取遮罩；dimen 仅作资源分类，值不能带 % 或 dp。 -->
+    <item name="dialog_dim_amount" type="dimen" format="float">0.4</item>
+    <fraction name="sheet_max_height">80%</fraction>
+</resources>

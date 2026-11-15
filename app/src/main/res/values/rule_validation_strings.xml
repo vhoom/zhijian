@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rule_value_invalid">无效，请修改</string>
+    <string name="rule_value_too_large">数值过大</string>
+</resources>

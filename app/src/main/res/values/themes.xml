@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 深色版本在 values-night/themes.xml：同名不同父，配色靠 @color 引用自动翻面。 -->
+    <style name="Theme.Zhijian" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:colorAccent">@color/primary</item>
+        <item name="android:windowBackground">@color/canvas</item>
+        <item name="android:statusBarColor">@color/canvas</item>
+        <item name="android:navigationBarColor">@color/canvas</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:colorControlNormal">@color/body</item>
+        <item name="android:colorControlActivated">@color/primary</item>
+        <item name="android:colorControlHighlight">@color/control_highlight</item>
+        <item name="android:textColorPrimary">@color/ink</item>
+        <item name="android:textColorSecondary">@color/body</item>
+        <item name="android:textColorHint">@color/mute</item>
+        <item name="android:listDivider">@color/hairline</item>
+        <item name="android:switchStyle">@style/Widget.App.Switch</item>
+        <item name="android:alertDialogTheme">@style/Theme.Zhijian.Dialog</item>
+        <item name="android:datePickerDialogTheme">@style/Theme.Zhijian.Dialog</item>
+        <item name="android:timePickerDialogTheme">@style/Theme.Zhijian.Dialog</item>
+        <item name="android:fontFamily">@string/font_ui</item>
+        <item name="android:textViewStyle">@style/Widget.App.Text</item>
+        <item name="android:buttonStyle">@style/Widget.App.Button.Secondary</item>
+    </style>
+
+    <style name="Theme.Zhijian.Dialog" parent="android:style/Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorAccent">@color/primary</item>
+        <item name="android:windowBackground">@drawable/bg_dialog</item>
+        <item name="android:fontFamily">@string/font_ui</item>
+        <item name="android:textViewStyle">@style/Widget.App.Text</item>
+        <item name="android:textAppearanceLarge">@style/TextAppearance.App.DialogTitle</item>
+        <item name="android:windowTitleStyle">@style/Text.App.DialogTitle</item>
+        <item name="android:dialogPreferredPadding">@dimen/dialog_content_padding</item>
+        <item name="android:datePickerStyle">@style/Widget.App.DatePicker</item>
+        <item name="android:timePickerStyle">@style/Widget.App.TimePicker</item>
+        <item name="android:calendarViewStyle">@style/Widget.App.CalendarView</item>
+        <item name="android:textAppearanceMedium">@style/TextAppearance.App.BodyMd</item>
+        <item name="android:textAppearanceSmall">@style/TextAppearance.App.BodySm</item>
+        <item name="android:textAppearanceListItem">@style/TextAppearance.App.BodyMd</item>
+        <item name="android:textAppearanceListItemSmall">@style/TextAppearance.App.BodyMd</item>
+        <item name="android:listPreferredItemHeightSmall">@dimen/control_height</item>
+        <item name="android:buttonStyle">@style/Widget.App.DialogButton</item>
+        <item name="android:buttonBarButtonStyle">@style/Widget.App.DialogButton</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/Widget.App.DialogButton</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/Widget.App.DialogButton</item>
+        <item name="android:buttonBarNeutralButtonStyle">@style/Widget.App.DialogButton</item>
+        <item name="android:backgroundDimAmount">@dimen/dialog_dim_amount</item>
+        <item name="android:windowElevation">@dimen/space_xs</item>
+        <item name="android:colorControlNormal">@color/body</item>
+        <item name="android:colorControlActivated">@color/primary</item>
+        <item name="android:colorControlHighlight">@color/control_highlight</item>
+        <item name="android:textColorPrimary">@color/ink</item>
+        <item name="android:textColorSecondary">@color/body</item>
+        <item name="android:textColorHint">@color/mute</item>
+        <item name="android:switchStyle">@style/Widget.App.Switch</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+
+    <style name="Theme.Zhijian.Interception" parent="@style/Theme.Zhijian">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+</resources>

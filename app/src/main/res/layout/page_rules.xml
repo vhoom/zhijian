@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="@dimen/space_xs"
+    android:paddingLeft="@dimen/space_md"
+    android:paddingRight="@dimen/space_md">
+
+    <TextView
+        style="@style/Text.App.Section"
+        android:text="@string/section_level" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_sm"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/seg_mortal"
+            style="@style/Widget.App.Segment"
+            android:text="@string/level_mortal" />
+
+        <TextView
+            android:id="@+id/seg_repair"
+            style="@style/Widget.App.Segment.Active"
+            android:layout_marginLeft="@dimen/space_xxs"
+            android:layout_marginRight="@dimen/space_xxs"
+            android:text="@string/level_repair" />
+
+        <TextView
+            android:id="@+id/seg_seal"
+            style="@style/Widget.App.Segment"
+            android:text="@string/level_seal" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/search_field"
+        style="@style/Widget.App.Field"
+        android:hint="@string/search_hint"
+        android:importantForAutofill="no"
+        android:inputType="text" />
+
+    <LinearLayout
+        android:id="@+id/apps_count_row"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:minWidth="@dimen/control_height"
+        android:minHeight="@dimen/control_height"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/apps_refresh"
+            style="@style/Widget.App.IconButton"
+            android:layout_width="@dimen/action_icon_size"
+            android:padding="0dp"
+            android:contentDescription="@string/apps_refresh"
+            android:src="@drawable/ic_apps_refresh" />
+
+        <TextView
+            android:id="@+id/apps_count"
+            style="@style/Text.App.Caption"
+            android:layout_width="0dp"
+            android:layout_marginStart="@dimen/space_xxs"
+            android:layout_weight="1"
+            tools:text="@string/apps_count" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/app_list"
+        style="@style/Widget.App.List"
+        android:layout_marginTop="@dimen/space_sm" />
+</LinearLayout>

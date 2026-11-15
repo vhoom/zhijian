@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/canvas">
+
+    <LinearLayout style="@style/Widget.App.Bar" android:background="@color/canvas">
+        <TextView
+            android:id="@+id/btn_back"
+            style="@style/Text.App.BarAction"
+            android:text="@string/icon_back"
+            android:textSize="@dimen/text_display_md" />
+        <TextView
+            android:id="@+id/page_title"
+            style="@style/Text.App.Heading"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
+        <LinearLayout
+            android:id="@+id/settings_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/space_md"
+            android:paddingEnd="@dimen/space_md"
+            android:paddingBottom="@dimen/space_xl">
+
+            <TextView
+                style="@style/Text.App.SectionLabel"
+                android:accessibilityHeading="true"
+                android:text="@string/settings_appearance_home" />
+
+            <github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout style="@style/Widget.App.SettingsCard">
+                <LinearLayout
+                    android:id="@+id/row_theme"
+                    style="@style/Widget.App.SettingsItem">
+                    <TextView
+                        style="@style/Text.App.SettingsTitle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/settings_theme_title"
+                        android:textColor="@color/ink" />
+                    <TextView
+                        android:id="@+id/theme_value"
+                        style="@style/Text.App.Mute"
+                        android:textColor="@color/body" />
+                    <TextView
+                        style="@style/Text.App.Mute"
+                        android:layout_marginStart="@dimen/space_xs"
+                        android:importantForAccessibility="no"
+                        android:text="@string/icon_forward" />
+                </LinearLayout>
+
+                <View style="@style/Widget.App.SettingsDivider" />
+
+                <Switch
+                    android:id="@+id/switch_show_guide"
+                    android:paddingStart="@dimen/space_md"
+                    android:paddingEnd="@dimen/space_md"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="56dp"
+                    android:paddingTop="@dimen/space_xs"
+                    android:paddingBottom="@dimen/space_xs"
+                    android:switchPadding="@dimen/space_sm"
+                    android:text="@string/settings_show_guide"
+                    android:textAppearance="@style/TextAppearance.App.BodyMd"
+                    android:textColor="@color/ink" />
+
+                <View style="@style/Widget.App.SettingsDivider" />
+
+                <Switch
+                    android:id="@+id/switch_show_daily_poem"
+                    android:paddingStart="@dimen/space_md"
+                    android:paddingEnd="@dimen/space_md"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="56dp"
+                    android:paddingTop="@dimen/space_xs"
+                    android:paddingBottom="@dimen/space_xs"
+                    android:switchPadding="@dimen/space_sm"
+                    android:text="@string/settings_show_daily_poem"
+                    android:textAppearance="@style/TextAppearance.App.BodyMd"
+                    android:textColor="@color/ink" />
+
+                <View style="@style/Widget.App.SettingsDivider" />
+
+                <LinearLayout
+                    android:id="@+id/row_usage_limit"
+                    style="@style/Widget.App.SettingsItem">
+                    <TextView
+                        style="@style/Text.App.SettingsTitle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/settings_rows_title"
+                        android:textColor="@color/ink" />
+                    <TextView
+                        android:id="@+id/rows_value"
+                        style="@style/Text.App.Mute"
+                        android:textColor="@color/body" />
+                    <TextView
+                        style="@style/Text.App.Mute"
+                        android:layout_marginStart="@dimen/space_xs"
+                        android:importantForAccessibility="no"
+                        android:text="@string/icon_forward" />
+                </LinearLayout>
+            </github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout>
+
+            <TextView
+                style="@style/Text.App.SectionLabel"
+                android:accessibilityHeading="true"
+                android:text="@string/settings_wuwei_title" />
+
+            <github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout style="@style/Widget.App.SettingsCard">
+                <LinearLayout style="@style/Widget.App.SettingsItem.Static">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView style="@style/Text.App.SettingsTitle"
+                            android:text="@string/settings_temporary_pass_title" />
+                        <TextView style="@style/Text.App.SettingsDescription"
+                            android:text="@string/settings_temporary_pass_description" />
+                    </LinearLayout>
+                    <Switch
+                        android:id="@+id/switch_wuwei_temporary_pass"
+                        style="@style/Widget.App.Switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_sm"
+                        android:contentDescription="@string/settings_temporary_pass_title" />
+                </LinearLayout>
+                <LinearLayout style="@style/Widget.App.SettingsItem.Static">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView style="@style/Text.App.SettingsTitle"
+                            android:text="@string/settings_dynamic_buttons_title" />
+                        <TextView style="@style/Text.App.SettingsDescription"
+                            android:text="@string/settings_dynamic_buttons_description" />
+                    </LinearLayout>
+                    <Switch
+                        android:id="@+id/switch_wuwei_dynamic_buttons"
+                        style="@style/Widget.App.Switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_sm"
+                        android:contentDescription="@string/settings_dynamic_buttons_title" />
+                </LinearLayout>
+            </github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout>
+
+            <TextView
+                style="@style/Text.App.SectionLabel"
+                android:accessibilityHeading="true"
+                android:text="@string/settings_xiuxin_title" />
+
+            <github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout style="@style/Widget.App.SettingsCard">
+                <LinearLayout style="@style/Widget.App.SettingsItem.Static">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView style="@style/Text.App.SettingsTitle"
+                            android:text="@string/settings_temporary_pass_title" />
+                        <TextView style="@style/Text.App.SettingsDescription"
+                            android:text="@string/settings_temporary_pass_description" />
+                    </LinearLayout>
+                    <Switch
+                        android:id="@+id/switch_repair_temporary_pass"
+                        style="@style/Widget.App.Switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_sm"
+                        android:contentDescription="@string/settings_temporary_pass_title" />
+                </LinearLayout>
+            </github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout>
+
+            <github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout
+                style="@style/Widget.App.SettingsCard"
+                android:layout_marginTop="@dimen/space_md">
+                <LinearLayout style="@style/Widget.App.SettingsItem.Static">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView style="@style/Text.App.SettingsTitle"
+                            android:text="@string/settings_obstacle_pages_title" />
+                        <TextView style="@style/Text.App.SettingsDescription"
+                            android:text="@string/settings_obstacle_pages_description" />
+                    </LinearLayout>
+                    <Switch
+                        android:id="@+id/switch_repair_obstacle_pages"
+                        style="@style/Widget.App.Switch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_sm"
+                        android:contentDescription="@string/settings_obstacle_pages_title" />
+                </LinearLayout>
+
+                <github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout
+                    android:id="@+id/settings_repair_hold_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_sm"
+                    android:layout_marginEnd="@dimen/space_sm"
+                    android:layout_marginBottom="@dimen/space_sm"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_subsection">
+                    <LinearLayout style="@style/Widget.App.SettingsItem.Static">
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView style="@style/Text.App.SettingsTitle"
+                                android:text="@string/settings_confirmation_title" />
+                            <TextView style="@style/Text.App.SettingsDescription"
+                                android:text="@string/settings_confirmation_description" />
+                        </LinearLayout>
+                        <Switch
+                            android:id="@+id/switch_repair_confirmation"
+                            style="@style/Widget.App.Switch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_sm"
+                            android:contentDescription="@string/settings_confirmation_title" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/row_hold_range"
+                        style="@style/Widget.App.SettingsItem">
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/label_repair_hold"
+                                style="@style/Text.App.SettingsTitle"
+                                android:text="@string/settings_challenge_hold_title" />
+                            <TextView
+                                android:id="@+id/hold_range_value"
+                                style="@style/Text.App.SettingsDescription" />
+                        </LinearLayout>
+                        <Switch
+                            android:id="@+id/switch_repair_hold"
+                            style="@style/Widget.App.Switch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_sm"
+                            android:contentDescription="@string/settings_challenge_hold_title" />
+                    </LinearLayout>
+                    <View style="@style/Widget.App.SettingsDivider" />
+                    <LinearLayout
+                        android:id="@+id/row_word_challenge"
+                        style="@style/Widget.App.SettingsItem">
+                        <LinearLayout
+                            android:id="@+id/settings_repair_word_group"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/label_repair_word"
+                                style="@style/Text.App.SettingsTitle"
+                                android:text="@string/settings_challenge_word_title" />
+                            <TextView
+                                android:id="@+id/word_challenge_value"
+                                style="@style/Text.App.SettingsDescription" />
+                        </LinearLayout>
+                        <Switch
+                            android:id="@+id/switch_repair_word"
+                            style="@style/Widget.App.Switch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_sm"
+                            android:contentDescription="@string/settings_challenge_word_title" />
+                    </LinearLayout>
+                    <View style="@style/Widget.App.SettingsDivider" />
+                    <LinearLayout
+                        android:id="@+id/row_sudoku_challenge"
+                        style="@style/Widget.App.SettingsItem">
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                style="@style/Text.App.SettingsTitle"
+                                android:text="@string/settings_challenge_sudoku_title" />
+                            <TextView
+                                android:id="@+id/sudoku_difficulty_value"
+                                style="@style/Text.App.SettingsDescription"
+                                android:text="@string/settings_sudoku_easy" />
+                        </LinearLayout>
+                        <Switch
+                            android:id="@+id/switch_repair_sudoku"
+                            style="@style/Widget.App.Switch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_sm"
+                            android:contentDescription="@string/settings_challenge_sudoku_title" />
+                    </LinearLayout>
+                </github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout>
+            </github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout>
+
+            <TextView
+                style="@style/Text.App.SectionLabel"
+                android:accessibilityHeading="true"
+                android:text="@string/settings_biguan_title" />
+
+            <github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout style="@style/Widget.App.SettingsCard">
+                <LinearLayout
+                    android:id="@+id/row_daily_reset"
+                    style="@style/Widget.App.SettingsItem">
+                    <TextView
+                        style="@style/Text.App.SettingsTitle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/settings_daily_reset_title"
+                        android:textColor="@color/ink" />
+                    <TextView
+                        android:id="@+id/daily_reset_value"
+                        style="@style/Text.App.Mute"
+                        android:textColor="@color/body" />
+                    <TextView
+                        style="@style/Text.App.Mute"
+                        android:layout_marginStart="@dimen/space_xs"
+                        android:importantForAccessibility="no"
+                        android:text="@string/icon_forward" />
+                </LinearLayout>
+            </github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout>
+
+            <include layout="@layout/view_setup_settings" />
+            <include layout="@layout/view_settings_about" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

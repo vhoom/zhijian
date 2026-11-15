@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/rule_row_height"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/app_icon"
+        android:layout_width="@dimen/rule_app_icon_size"
+        android:layout_height="@dimen/rule_app_icon_size"
+        android:contentDescription="@null" />
+
+    <TextView
+        android:id="@+id/app_label"
+        style="@style/Text.App.RuleBody"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_marginStart="@dimen/space_xs"
+        android:maxLines="2"
+        android:ellipsize="end" />
+
+    <TextView
+        android:id="@+id/btn_remove"
+        style="@style/Text.App.RuleAction"
+        android:text="@string/rule_remove"
+        android:textColor="@color/rule_text_secondary" />
+</LinearLayout>

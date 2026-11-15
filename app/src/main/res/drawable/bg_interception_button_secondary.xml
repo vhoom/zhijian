@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 次操作和单词选项使用主题卡片表面与细边框，降低视觉强调。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/interception_button_surface" />
+    <stroke android:width="@dimen/divider_height" android:color="@color/interception_button_outline" />
+    <corners android:radius="@dimen/radius_md" />
+</shape>

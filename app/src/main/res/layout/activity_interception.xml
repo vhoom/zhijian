@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/interception_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/canvas"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/space_lg"
+    android:paddingTop="@dimen/space_xl"
+    android:paddingEnd="@dimen/space_lg"
+    android:paddingBottom="@dimen/space_lg">
+
+    <!-- 休息状态文本，不在页面显示。 -->
+    <TextView
+        android:id="@+id/interception_countdown"
+        style="@style/Text.App.InterceptionCountdown"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- 只装配当前独立页面，页面私有控件由其实现负责。 -->
+        <FrameLayout
+            android:id="@+id/interception_page_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- 保存结果时使用独立状态页，避免借用任一业务页面的标题控件。 -->
+        <LinearLayout
+            android:id="@+id/interception_page_saving"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                style="@style/Text.App.InterceptionHero"
+                android:layout_width="match_parent"
+                android:text="@string/interception_saving" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

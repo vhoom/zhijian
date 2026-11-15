@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/dialog_content_padding"
+    android:paddingEnd="@dimen/dialog_content_padding"
+    android:paddingBottom="@dimen/space_xs">
+
+    <github.vhoom.zhijian.ui.component.input.InputFieldLayout
+        style="@style/Widget.App.InputField"
+        android:layout_width="match_parent">
+        <EditText
+            android:id="@+id/field_rows"
+            style="@style/Widget.App.Field"
+            android:hint="@string/settings_rows_title"
+            android:importantForAutofill="no"
+            android:inputType="number"
+            android:selectAllOnFocus="true"
+            android:singleLine="true" />
+        <TextView android:id="@+id/input_error"
+            style="@style/Text.App.InputError" />
+    </github.vhoom.zhijian.ui.component.input.InputFieldLayout>
+
+    <TextView
+        android:id="@+id/usage_rows_capacity"
+        style="@style/Text.App.Supporting"
+        android:layout_width="match_parent"
+        android:layout_marginTop="@dimen/space_sm"
+        android:accessibilityLiveRegion="polite"
+        android:text="@string/settings_rows_loading" />
+
+    <TextView
+        style="@style/Text.App.Supporting"
+        android:layout_marginTop="@dimen/space_sm"
+        android:text="@string/settings_rows_hint"
+        android:textColor="@color/body" />
+</LinearLayout>

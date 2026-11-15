@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout style="@style/Widget.App.Bar">
+
+        <TextView
+            android:id="@+id/btn_back"
+            style="@style/Text.App.BarAction"
+            android:text="@string/icon_back"
+            android:textSize="@dimen/text_display_md" />
+
+        <TextView
+            style="@style/Text.App.Title"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/rules_group_title" />
+
+        <TextView
+            android:id="@+id/btn_new_rule"
+            style="@style/Text.App.BarAction"
+            android:text="@string/new_rule" />
+    </LinearLayout>
+
+    <View style="@style/Widget.App.Divider" />
+
+    <TextView
+        style="@style/Text.App.Caption"
+        android:layout_width="match_parent"
+        android:paddingStart="@dimen/space_md"
+        android:paddingEnd="@dimen/space_md"
+        android:paddingTop="@dimen/space_sm"
+        android:paddingBottom="@dimen/space_sm"
+        android:textColor="@color/body"
+        android:text="@string/rule_group_priority_hint" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@+id/rule_groups"
+            style="@style/Widget.App.List"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="@dimen/space_md"
+            android:paddingRight="@dimen/space_md" />
+
+        <TextView
+            android:id="@+id/rules_empty"
+            style="@style/Text.App.Mute"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="@dimen/space_xl"
+            android:layout_marginRight="@dimen/space_xl"
+            android:gravity="center"
+            android:text="@string/rules_empty" />
+    </FrameLayout>
+</LinearLayout>

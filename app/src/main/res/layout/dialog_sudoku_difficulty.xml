@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sudoku_difficulty_options"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <RadioButton
+        android:id="@+id/sudoku_difficulty_easy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/control_height"
+        android:textAppearance="@style/TextAppearance.App.BodyMd"
+        android:text="@string/settings_sudoku_easy" />
+    <RadioButton
+        android:id="@+id/sudoku_difficulty_medium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/control_height"
+        android:textAppearance="@style/TextAppearance.App.BodyMd"
+        android:text="@string/settings_sudoku_medium" />
+    <RadioButton
+        android:id="@+id/sudoku_difficulty_hard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/control_height"
+        android:textAppearance="@style/TextAppearance.App.BodyMd"
+        android:text="@string/settings_sudoku_hard" />
+</RadioGroup>

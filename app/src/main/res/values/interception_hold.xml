@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 动态文案库 2：按压挑战主句，按压前与按压中共用。 -->
+    <string-array name="interception_hold_headlines">
+        <item>先把注意力收回来。\n从按住按钮开始。</item>
+        <item>把这个空隙留住。\n按住按钮，停一会儿。</item>
+        <item>让这次选择慢一点。\n先按住按钮。</item>
+        <item>再看看“已经够了”的感觉。\n先按住按钮。</item>
+        <item>先留住原来的目的。\n按住按钮，想一想。</item>
+        <item>给屏幕之外的事情一点位置。\n先按住按钮。</item>
+        <item>把节奏放慢一点。\n按住按钮，停留片刻。</item>
+        <item>把这次停顿留给自己。\n按住按钮，慢一点。</item>
+        <item>给原来的计划一点时间。\n先按住按钮。</item>
+        <item>把这一刻留给自己。\n先按住按钮。</item>
+        <item>先想想手头的事情。\n按住按钮，留一点时间。</item>
+        <item>给接下来的时间做个安排。\n先按住按钮。</item>
+    </string-array>
+
+    <!-- 固定操作提示：%1$d 为需要按住的秒数，措辞不轮换。 -->
+    <string name="interception_hold_idle_hint">按住 %1$d 秒</string>
+    <string name="interception_hold_active_hint">还需按住 %1$d 秒</string>
+    <!-- 固定完成反馈。 -->
+    <string name="interception_hold_completed">按压已完成</string>
+</resources>

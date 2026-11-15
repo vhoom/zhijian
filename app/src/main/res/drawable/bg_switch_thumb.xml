@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 用透明视口留白，避免 InsetDrawable 的 opticalInsets 让系统缩小轨道、露出端部颜色。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/switch_thumb_size"
+    android:height="@dimen/switch_track_height"
+    android:viewportWidth="26"
+    android:viewportHeight="30">
+    <path android:fillColor="@color/switch_knob"
+        android:pathData="M13,2 A13,13 0,1 0,13,28 A13,13 0,1 0,13,2 Z" />
+</vector>

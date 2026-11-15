@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- XML 与动态按钮共用主题表面、文字和细边框，不按禁用状态降低可读性。 -->
+    <style name="Widget.App.Button.Interception" parent="@style/Widget.App.Button">
+        <item name="android:minHeight">@dimen/interception_action_height</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.BodyMd</item>
+        <item name="android:textColor">@color/interception_button_text</item>
+        <item name="android:paddingTop">@dimen/space_md</item>
+        <item name="android:paddingBottom">@dimen/space_md</item>
+    </style>
+    <style name="Widget.App.Button.InterceptionPrimary" parent="@style/Widget.App.Button.Interception">
+        <item name="android:background">@drawable/bg_interception_button_primary</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.ButtonLg</item>
+    </style>
+    <style name="Widget.App.Button.InterceptionSecondary" parent="@style/Widget.App.Button.Interception">
+        <item name="android:background">@drawable/bg_interception_button_secondary</item>
+    </style>
+
+    <!-- 按压控件完成后仍使用主按钮配色，只停止输入。 -->
+    <style name="Widget.App.Button.HoldChallenge" parent="@style/Widget.App.Button.InterceptionPrimary" />
+
+    <!-- 单词选项保留正文排版和按压缩放，背景及词性文字不再淡化。 -->
+    <style name="Widget.App.Button.WordOption" parent="@style/Widget.App.Button.InterceptionSecondary">
+        <item name="android:gravity">start|center_vertical</item>
+        <item name="android:minHeight">@dimen/word_option_height</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.BodyMd</item>
+        <item name="android:stateListAnimator">@animator/word_option_press</item>
+    </style>
+    <style name="Widget.App.Button.WordAction" parent="@style/Widget.App.Button.InterceptionSecondary">
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <!-- Debug 预览入口保持原紧凑尺寸，配色与拦截次按钮一致。 -->
+    <style name="Widget.App.Button.InterceptionPreview" parent="@style/Widget.App.Button.InterceptionSecondary">
+        <item name="android:minHeight">@dimen/control_height</item>
+        <item name="android:paddingTop">@dimen/space_xs</item>
+        <item name="android:paddingBottom">@dimen/space_xs</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.BodySm</item>
+        <item name="android:textColor">@color/body</item>
+    </style>
+
+    <!-- 挑战进度使用主题正文色和细分隔色，按压与单词页保持一致。 -->
+    <style name="Widget.App.InterceptionProgress" parent="@android:style/Widget.Material.ProgressBar.Horizontal">
+        <item name="android:max">1000</item>
+        <item name="android:progressDrawable">@drawable/word_wait_line</item>
+        <item name="android:progressTint">@color/body</item>
+        <item name="android:progressBackgroundTint">@color/hairline</item>
+    </style>
+
+    <!-- 共享文字层级，主句允许自然换行，长文案由内容区滚动。 -->
+    <style name="Text.App.InterceptionHero" parent="@style/Text.App.Title">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textSize">@dimen/word_hero_size</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:lineHeight">@dimen/line_interception</item>
+        <item name="android:textColor">@color/ink</item>
+        <item name="android:gravity">start</item>
+        <item name="android:textAlignment">viewStart</item>
+    </style>
+    <style name="Text.App.InterceptionCountdown" parent="@style/Text.App.Caption">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:gravity">end</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.BodySm</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:textColor">@color/body</item>
+    </style>
+</resources>

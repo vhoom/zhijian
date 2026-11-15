@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 动态文案库 6：退出控件文案。 -->
+    <string-array name="interception_exit_actions">
+        <!-- 原有文案 -->
+        <item>先放下一会儿</item>
+        <item>把时间还给自己</item>
+        <item>去看看屏幕之外</item>
+        <item>给自己留点空白</item>
+        <item>这次就到这里</item>
+        <item>让眼睛歇一歇</item>
+        <item>退出</item>
+
+        <!-- 温柔自然型 -->
+        <item>暂时离开应用</item>
+        <item>先退出一会儿</item>
+        <item>结束本次使用</item>
+        <item>暂时放下手机</item>
+        <item>去休息一会儿</item>
+        <item>先离开这里</item>
+
+        <!-- 坚定果断型 -->
+        <item>现在就退出</item>
+        <item>停止本次使用</item>
+        <item>立即结束使用</item>
+        <item>不再继续浏览</item>
+        <item>结束当前使用</item>
+
+        <!-- 修心自律型 -->
+        <item>主动选择退出</item>
+        <item>结束本次浏览</item>
+        <item>停止无目的浏览</item>
+        <item>退出并开始休息</item>
+        <item>暂时中断使用</item>
+
+        <!-- 幽默轻松型 -->
+        <item>今天就刷到这</item>
+        <item>退出去透透气</item>
+        <item>结束刷屏时间</item>
+        <item>撤离屏幕世界</item>
+
+        <!-- 简短直接型 -->
+        <item>离开应用</item>
+        <item>结束使用</item>
+        <item>立即退出</item>
+        <item>停止浏览</item>
+    </string-array>
+
+    <!-- 动态文案库 7：继续使用控件文案，临时放行共用此库。 -->
+    <string-array name="interception_continue_actions">
+        <!-- 原有文案 -->
+        <item>继续安抚手机</item>
+        <item>回到刚才的应用</item>
+        <item>我决定继续使用</item>
+        <item>接着往下看</item>
+        <item>这次选择继续</item>
+        <item>继续</item>
+
+        <!-- 温和自然型 -->
+        <item>再使用一会儿</item>
+        <item>暂时继续使用</item>
+        <item>返回应用继续</item>
+        <item>继续当前内容</item>
+        <item>再看一会儿</item>
+
+        <!-- 理性确认型 -->
+        <item>确认继续使用</item>
+        <item>允许本次继续</item>
+        <item>申请继续使用</item>
+        <item>继续本次浏览</item>
+        <item>继续当前操作</item>
+
+        <!-- 坚定自主型 -->
+        <item>由我决定继续</item>
+        <item>我选择继续使用</item>
+        <item>继续完成当前任务</item>
+        <item>返回并继续使用</item>
+
+        <!-- 幽默轻松型 -->
+        <item>再刷最后一会儿</item>
+        <item>再逛一小会儿</item>
+        <item>继续探索内容</item>
+        <item>再看最后一眼</item>
+
+        <!-- 简短直接型 -->
+        <item>继续浏览</item>
+        <item>返回应用</item>
+        <item>允许继续</item>
+        <item>继续使用</item>
+    </string-array>
+
+    <!-- 动态文案库 8：前往挑战控件文案。 -->
+    <string-array name="interception_challenge_actions">
+        <!-- 原有文案 -->
+        <item>先过这一关</item>
+        <item>给这份念头一点考验</item>
+        <item>先停一步，再作决定</item>
+        <item>让我试着慢下来</item>
+        <item>给我点事做</item>
+        <item>我偏不</item>
+        <item>我不服</item>
+        <item>我不要</item>
+        <item>不要</item>
+
+        <!-- 挑战激励型 -->
+        <item>开始自律挑战</item>
+        <item>挑战坚持不使用</item>
+        <item>开始意志力挑战</item>
+        <item>挑战暂停刷屏</item>
+        <item>接受自控力考验</item>
+        <item>开始专注挑战</item>
+
+        <!-- 修心反思型 -->
+        <item>开始静心挑战</item>
+        <item>挑战克制冲动</item>
+        <item>开始延迟满足</item>
+        <item>练习控制使用欲望</item>
+        <item>挑战暂时放下手机</item>
+
+        <!-- 坚定热血型 -->
+        <item>开始挑战</item>
+        <item>我要战胜这次冲动</item>
+        <item>证明我的自控力</item>
+        <item>现在开始改变</item>
+        <item>迎接这次考验</item>
+
+        <!-- 幽默轻松型 -->
+        <item>和手机比比定力</item>
+        <item>挑战不刷手机</item>
+        <item>今天试试不继续</item>
+        <item>开启戒刷挑战</item>
+
+        <!-- 简短直接型 -->
+        <item>进入挑战</item>
+        <item>开始考验</item>
+        <item>挑战一下</item>
+        <item>立即开始挑战</item>
+    </string-array>
+
+    <!-- 动态文案库 9：盲盒控件文案，显示揭晓动作。 -->
+    <string-array name="interception_blind_box_actions">
+        <!-- 原有文案 -->
+        <item>滑动开启结果的盲盒</item>
+        <item>这次去留，滑动揭晓</item>
+        <item>滑到终点，看看结果</item>
+        <item>停下或继续，滑动揭晓</item>
+        <item>滑动抽取这次的去留</item>
+        <item>滑一下就知道了</item>
+
+        <!-- 悬念期待型 -->
+        <item>滑动揭晓本次去留</item>
+        <item>滑动看看最终结果</item>
+        <item>滑动开启本次选择</item>
+        <item>滑动揭晓使用结果</item>
+        <item>滑到终点揭晓答案</item>
+
+        <!-- 游戏互动型 -->
+        <item>滑动抽取本次结果</item>
+        <item>滑动开启随机结果</item>
+        <item>滑动抽取今日选择</item>
+        <item>滑动开启选择盲盒</item>
+        <item>滑动看看抽中什么</item>
+
+        <!-- 修心哲思型 -->
+        <item>滑动决定本次去留</item>
+        <item>滑动选择停下或继续</item>
+        <item>滑动确认本次选择</item>
+        <item>滑动开启自律考验</item>
+
+        <!-- 幽默轻松型 -->
+        <item>滑动看看今天的运气</item>
+        <item>滑动抽取今日去留</item>
+        <item>滑动开奖，看看结果</item>
+        <item>滑动决定再刷多久</item>
+
+        <!-- 简短直接型 -->
+        <item>滑动揭晓</item>
+        <item>滑动抽取</item>
+        <item>交给运气</item>
+        <item>滑动开启</item>
+    </string-array>
+</resources>

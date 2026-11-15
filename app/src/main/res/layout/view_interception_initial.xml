@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 无为、修心共用首屏；主句居中偏上，底部按方案装配一个或两个控件。 -->
+<github.vhoom.zhijian.ui.interception.page.support.HeadlineScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/interception_general_title"
+            style="@style/Text.App.InterceptionHero" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:minHeight="@dimen/space_3xl" />
+
+        <LinearLayout
+            android:id="@+id/interception_general_actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </LinearLayout>
+</github.vhoom.zhijian.ui.interception.page.support.HeadlineScrollView>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/interception_page_sudoku"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <github.vhoom.zhijian.ui.interception.page.support.SudokuPanelLayout
+        android:id="@+id/interception_sudoku_panel"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="@dimen/space_xs"
+        android:layout_marginBottom="@dimen/space_xs">
+        <github.vhoom.zhijian.ui.interception.page.support.SudokuGridView
+            android:id="@+id/interception_sudoku_grid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <GridLayout
+            android:id="@+id/interception_sudoku_keys"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layoutDirection="ltr"
+            android:columnCount="3"
+            android:rowCount="3" />
+        <TextView
+            android:id="@+id/interception_sudoku_completion_message"
+            style="@style/Text.App.InterceptionHero"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:accessibilityLiveRegion="polite"
+            android:visibility="gone" />
+    </github.vhoom.zhijian.ui.interception.page.support.SudokuPanelLayout>
+    <Button
+        android:id="@+id/interception_sudoku_retry"
+        style="@style/Widget.App.Button.InterceptionSecondary"
+        android:layout_width="match_parent"
+        android:text="@string/interception_sudoku_retry"
+        android:visibility="gone" />
+    <LinearLayout
+        android:id="@+id/interception_sudoku_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <Button
+            android:id="@+id/interception_sudoku_exit"
+            style="@style/Widget.App.Button.InterceptionSecondary"
+            android:layout_width="match_parent" />
+    </LinearLayout>
+</LinearLayout>

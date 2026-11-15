@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 页面由目录动态装配，根标识不再依赖 Activity 中的 include。 -->
+    <item name="interception_page_general" type="id" />
+    <item name="interception_page_confirmation" type="id" />
+    <item name="interception_page_hold" type="id" />
+    <item name="interception_page_word" type="id" />
+    <item name="interception_page_forbidden" type="id" />
+    <!-- 动态首屏控件各自有唯一标识，双退出不能复用同一个 ID。 -->
+    <item name="interception_general_exit" type="id" />
+    <item name="interception_general_continue" type="id" />
+    <item name="interception_general_exit_secondary" type="id" />
+    <item name="interception_general_blind_box" type="id" />
+    <item name="interception_confirmation_exit" type="id" />
+    <item name="interception_confirmation_continue" type="id" />
+    <!-- 旧详情标识；完成状态不增加单独的详情控件。 -->
+    <item name="interception_hold_detail" type="id" />
+    <!-- 原挑战页完成后新增的继续操作，退出按钮保留原标识。 -->
+    <item name="interception_hold_continue" type="id" />
+    <item name="interception_word_continue" type="id" />
+</resources>

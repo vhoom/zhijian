@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="HeadlineScrollView">
+        <!-- 为主句下方的挑战一起留位；普通选择页继续只按主句居中。 -->
+        <attr name="fitChallenge" format="boolean" />
+    </declare-styleable>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rule_type_window_count">时段限次</string>
+    <string name="rule_hint_window_count">指定时段内打开应用的次数</string>
+    <string name="rule_type_frequency_count">全天频率限次</string>
+    <string name="rule_hint_frequency_count">指定一个连续时间内打开次数频率</string>
+    <string name="rule_frequency_middle">分钟内最多打开</string>
+    <string name="rule_frequency_window_description">全天频率限次的统计窗口，单位为分钟</string>
+    <string name="rule_frequency_count_description">全天频率限次的最多打开次数</string>
+    <string name="rule_window_count_description">第 %1$d 个时段的最多打开次数</string>
+    <string name="rule_value_window_count">最多打开</string>
+</resources>

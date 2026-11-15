@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- 仅随测试 APK 安装的目标应用页面，用于回放真实的前台与拦截返回。 -->
+        <activity
+            android:name="github.vhoom.zhijian.fixture.UsageTargetActivity"
+            android:exported="true"
+            android:label="@string/usage_test_target">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

@@ -1,0 +1,45 @@
+# IDE 与系统文件
+*.iml
+.idea/
+.DS_Store
+
+# 构建缓存与生成目录
+.gradle/
+.kotlin/
+.externalNativeBuild/
+.cxx/
+build/
+/gen/
+/out/
+obj/
+release/
+
+# 安装包与混淆映射
+*.apk
+*.aab
+mapping.txt
+
+# 本机配置与发布签名
+local.properties
+signing.properties
+*.jks
+*.keystore
+*.p12
+*.pfx
+release-private/
+
+# 调试记录与临时文件
+captures/
+*.log
+*.hprof
+*.orig
+*.rej
+work/
+
+# 仓库根目录的临时图片；子目录中的项目图片继续纳入版本控制
+/*.jpg
+/*.jpeg
+/*.png
+/*.gif
+/*.webp
+/*.svg

@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Widget.App.Text" parent="@android:style/Widget.Material.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.App.BodyMd</item>
+        <item name="android:textColor">@color/body</item>
+    </style>
+
+    <style name="Text.App.Title" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.DisplayMd</item>
+        <item name="android:textColor">@color/ink</item>
+    </style>
+
+    <style name="Text.App.Heading" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.BodyLg</item>
+        <item name="android:textColor">@color/ink</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Text.App.Strong" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.BodyMdStrong</item>
+        <item name="android:textColor">@color/ink</item>
+    </style>
+
+    <style name="Text.App.Body" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.BodyMd</item>
+        <item name="android:textColor">@color/body</item>
+    </style>
+
+    <style name="Text.App.Mute" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.BodySm</item>
+        <item name="android:textColor">@color/mute</item>
+    </style>
+
+    <style name="Text.App.Caption" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.Caption</item>
+        <item name="android:textColor">@color/mute</item>
+    </style>
+
+    <style name="Text.App.Supporting" parent="@style/Text.App.Mute">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:textColor">@color/body</item>
+    </style>
+
+    <style name="Text.App.Error" parent="@style/Text.App.Supporting">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_marginTop">@dimen/space_xxs</item>
+        <item name="android:textColor">@color/error_deep</item>
+        <item name="android:accessibilityLiveRegion">polite</item>
+    </style>
+
+    <style name="Text.App.InputError" parent="@style/Text.App.Error">
+        <item name="android:visibility">gone</item>
+        <item name="android:gravity">start</item>
+    </style>
+
+    <style name="Widget.App.InputField" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:baselineAligned">false</item>
+    </style>
+
+    <style name="Text.App.Section" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.BodySmStrong</item>
+        <item name="android:textColor">@color/mute</item>
+        <item name="android:layout_marginTop">@dimen/space_lg</item>
+    </style>
+
+    <style name="Widget.App.Card" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/space_md</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@drawable/bg_card</item>
+        <item name="android:padding">@dimen/space_md</item>
+    </style>
+
+    <style name="Widget.App.Row" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:minHeight">@dimen/control_height</item>
+        <item name="android:paddingTop">@dimen/space_sm</item>
+        <item name="android:paddingBottom">@dimen/space_sm</item>
+    </style>
+
+    <style name="Widget.App.Tag" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/bg_tag</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.BodySm</item>
+        <item name="android:textColor">@color/body</item>
+        <item name="android:paddingStart">@dimen/space_xs</item>
+        <item name="android:paddingEnd">@dimen/space_xs</item>
+        <item name="android:paddingTop">@dimen/space_xxs</item>
+        <item name="android:paddingBottom">@dimen/space_xxs</item>
+    </style>
+
+    <style name="Widget.App.Button" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">@dimen/control_height</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:backgroundTint">@null</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:paddingStart">@dimen/space_md</item>
+        <item name="android:paddingEnd">@dimen/space_md</item>
+        <item name="android:paddingTop">@dimen/space_xs</item>
+        <item name="android:paddingBottom">@dimen/space_xs</item>
+    </style>
+
+    <style name="Widget.App.Button.Primary" parent="@style/Widget.App.Button">
+        <item name="android:background">@drawable/bg_button_primary</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.ButtonLg</item>
+        <item name="android:textColor">@color/button_primary_text</item>
+    </style>
+
+    <style name="Widget.App.Button.Secondary" parent="@style/Widget.App.Button">
+        <item name="android:background">@drawable/bg_button_secondary</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.ButtonLg</item>
+        <item name="android:textColor">@color/button_secondary_text</item>
+    </style>
+
+    <style name="Widget.App.Button.Settings" parent="@style/Widget.App.Button.Secondary">
+        <item name="android:minWidth">96dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.ButtonMd</item>
+    </style>
+
+    <style name="Widget.App.IconButton" parent="@android:style/Widget.Material.ImageButton">
+        <item name="android:layout_width">@dimen/control_height</item>
+        <item name="android:layout_height">@dimen/control_height</item>
+        <item name="android:padding">@dimen/space_sm</item>
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="android:backgroundTint">@null</item>
+        <item name="android:tint">@color/button_secondary_text</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+
+    <style name="Widget.App.Segment" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:foreground">@drawable/fg_segment_feedback</item>
+        <item name="android:minHeight">@dimen/control_height</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.ButtonMd</item>
+        <item name="android:textColor">@color/mute</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="Widget.App.Segment.Active" parent="@style/Widget.App.Segment">
+        <item name="android:background">@drawable/bg_pill_level</item>
+        <item name="android:textColor">@color/level_selected_text</item>
+    </style>
+
+    <style name="Widget.App.Field" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/space_md</item>
+        <item name="android:minHeight">@dimen/control_height</item>
+        <item name="android:background">@drawable/bg_field</item>
+        <item name="android:backgroundTint">@null</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.BodyMd</item>
+        <item name="android:textColor">@color/field_text</item>
+        <item name="android:textColorHint">@color/mute</item>
+        <item name="android:paddingStart">@dimen/space_sm</item>
+        <item name="android:paddingEnd">@dimen/space_sm</item>
+        <item name="android:paddingTop">@dimen/space_xs</item>
+        <item name="android:paddingBottom">@dimen/space_xs</item>
+        <item name="android:selectAllOnFocus">true</item>
+    </style>
+
+    <style name="Widget.App.Switch" parent="@android:style/Widget.Material.CompoundButton.Switch">
+        <item name="android:thumb">@drawable/bg_switch_thumb</item>
+        <item name="android:track">@drawable/bg_switch_track</item>
+        <item name="android:splitTrack">false</item>
+        <item name="android:switchMinWidth">@dimen/switch_track_width</item>
+        <item name="android:thumbTint">@color/switch_thumb</item>
+        <item name="android:trackTint">@color/switch_track</item>
+        <item name="android:showText">false</item>
+        <item name="android:minWidth">52dp</item>
+        <item name="android:minHeight">@dimen/control_height</item>
+    </style>
+
+    <style name="Widget.App.Progress" parent="@android:style/Widget.Material.ProgressBar.Horizontal">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/space_sm</item>
+        <item name="android:progressTint">@color/primary</item>
+        <item name="android:progressBackgroundTint">@color/hairline</item>
+    </style>
+
+    <style name="Widget.App.Divider" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/divider_height</item>
+        <item name="android:background">@color/hairline</item>
+    </style>
+
+    <style name="Widget.App.Bar" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">@dimen/bar_top_height</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">@dimen/space_md</item>
+        <item name="android:paddingEnd">@dimen/space_md</item>
+    </style>
+
+    <style name="Text.App.BarAction" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">@dimen/control_height</item>
+        <item name="android:minHeight">@dimen/control_height</item>
+        <item name="android:background">@drawable/bg_button_text</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">@dimen/space_xs</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.ButtonMd</item>
+        <item name="android:textColor">@color/button_secondary_text</item>
+    </style>
+
+    <style name="Text.App.PageTab" parent="@style/Text.App.Mute">
+        <item name="android:minWidth">@dimen/control_height</item>
+        <item name="android:minHeight">@dimen/control_height</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textColor">@color/body</item>
+    </style>
+
+    <style name="Widget.App.SetupTile" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:minHeight">@dimen/setup_tile_height</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:padding">@dimen/space_sm</item>
+        <item name="android:background">@drawable/bg_setup_tile</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="Widget.App.List" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:divider">@color/hairline</item>
+        <item name="android:dividerHeight">@dimen/divider_height</item>
+        <item name="android:scrollbars">none</item>
+    </style>
+
+    <style name="Widget.App.InlineField" parent="@style/Widget.App.Field">
+        <item name="android:layout_width">88dp</item>
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="Widget.App.SettingsRow" parent="@style/Widget.App.Row">
+        <item name="android:minHeight">56dp</item>
+        <item name="android:paddingTop">@dimen/space_xs</item>
+        <item name="android:paddingBottom">@dimen/space_xs</item>
+    </style>
+
+    <style name="Widget.App.SettingsGroup" parent="@style/Widget.App.Card">
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:paddingTop">@dimen/space_xxs</item>
+        <item name="android:paddingBottom">@dimen/space_xxs</item>
+    </style>
+
+    <style name="Widget.App.SettingsAction" parent="@style/Widget.App.SettingsRow">
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="Text.App.SectionLabel" parent="@style/Text.App.Caption">
+        <item name="android:textAppearance">@style/TextAppearance.App.BodySmStrong</item>
+        <item name="android:layout_marginTop">@dimen/space_lg</item>
+        <item name="android:layout_marginBottom">@dimen/space_xs</item>
+        <item name="android:textColor">@color/body</item>
+    </style>
+
+    <style name="Widget.App.SettingsChallengeSwitch" parent="@style/Widget.App.Switch">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:switchPadding">@dimen/space_sm</item>
+        <item name="android:textAppearance">@style/TextAppearance.App.BodyMd</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/ink</item>
+    </style>
+</resources>

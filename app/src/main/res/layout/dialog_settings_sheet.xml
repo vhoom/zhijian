@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_settings_sheet"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/space_md"
+    android:paddingTop="@dimen/space_sm"
+    android:paddingBottom="@dimen/space_lg">
+
+    <View
+        android:layout_width="@dimen/settings_sheet_handle_width"
+        android:layout_height="@dimen/space_xxs"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_settings_handle"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/space_xs"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/settings_sheet_title"
+            style="@style/Text.App.DialogTitle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:accessibilityHeading="true" />
+        <TextView
+            android:id="@+id/settings_sheet_done"
+            style="@style/Text.App.BarAction"
+            android:text="@string/settings_sheet_done"
+            android:textColor="@color/button_secondary_text" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:scrollbars="none">
+        <FrameLayout
+            android:id="@+id/settings_sheet_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/settings_sheet_restore"
+        style="@style/Text.App.BarAction"
+        android:layout_width="match_parent"
+        android:layout_marginTop="@dimen/space_xs"
+        android:text="@string/settings_restore_default"
+        android:textColor="@color/button_secondary_text"
+        android:visibility="gone" />
+</LinearLayout>

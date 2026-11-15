@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/setup_card"
+    style="@style/Widget.App.Card"
+    android:padding="0dp">
+
+    <LinearLayout
+        android:id="@+id/setup_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/control_height"
+        android:background="?android:attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/space_md"
+        android:paddingTop="@dimen/space_md"
+        android:paddingEnd="@dimen/space_md">
+
+        <TextView
+            android:id="@+id/setup_heading"
+            style="@style/Text.App.Heading"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:accessibilityHeading="true"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/setup_title"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/setup_function_status"
+            style="@style/Text.App.Caption"
+            android:layout_marginStart="@dimen/space_xs"
+            android:layout_marginEnd="@dimen/space_sm"
+            android:maxLines="2"
+            android:text="@string/setup_function_missing_permission"
+            android:textColor="@color/error_deep" />
+
+        <TextView
+            android:id="@+id/setup_toggle"
+            style="@style/Text.App.BarAction"
+            android:background="@null"
+            android:text="@string/setup_collapse"
+            android:textColor="@color/body"
+            android:textStyle="normal" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/setup_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/space_md"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_sm"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/space_md"
+            android:paddingEnd="@dimen/space_md">
+
+            <include
+                android:id="@+id/setup_accessibility"
+                layout="@layout/item_setup_tile"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="@dimen/space_xxs" />
+
+            <include
+                android:id="@+id/setup_usage"
+                layout="@layout/item_setup_tile"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/space_xxs" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/space_md"
+            android:paddingEnd="@dimen/space_md">
+
+            <include
+                android:id="@+id/setup_battery"
+                layout="@layout/item_setup_tile"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="@dimen/space_xxs" />
+
+            <include
+                android:id="@+id/setup_autostart"
+                layout="@layout/item_setup_tile"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/space_xxs" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/space_md"
+            android:paddingEnd="@dimen/space_md">
+
+            <include
+                android:id="@+id/setup_background"
+                layout="@layout/item_setup_tile"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+    </LinearLayout>
+</github.vhoom.zhijian.ui.component.layout.RoundedLinearLayout>

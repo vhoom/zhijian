@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        style="@style/Widget.App.Bar"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/bar_top_height">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:baselineAligned="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title_dashboard"
+                style="@style/Text.App.PageTab"
+                android:layout_marginEnd="@dimen/space_md"
+                android:text="@string/title_today" />
+
+            <TextView
+                android:id="@+id/title_control"
+                style="@style/Text.App.PageTab"
+                android:text="@string/title_rules_center" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/btn_action"
+            style="@style/Text.App.BarAction"
+            android:text="@string/rules_entry_button"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/btn_settings"
+            style="@style/Text.App.BarAction"
+            android:text="@string/bar_settings" />
+
+    </LinearLayout>
+
+    <View style="@style/Widget.App.Divider" />
+
+    <!-- 权限引导卡可被用户隐藏，因此关键的权限组合缺失在页面宿主层持续提醒。 -->
+    <include
+        android:id="@+id/usage_access_warning"
+        layout="@layout/view_usage_access_warning" />
+
+    <github.vhoom.zhijian.ui.component.navigation.SwipePager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <include
+            android:id="@+id/page_dashboard"
+            layout="@layout/page_dashboard"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <include
+            layout="@layout/page_rules"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </github.vhoom.zhijian.ui.component.navigation.SwipePager>
+</LinearLayout>

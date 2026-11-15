@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextAppearance.App" parent="@android:style/TextAppearance.Material.Body1">
+        <item name="android:fontFamily">@string/font_ui</item>
+        <item name="android:textColor">@color/body</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <style name="TextAppearance.App.DisplayMd" parent="@style/TextAppearance.App">
+        <item name="android:textSize">@dimen/text_display_md</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineHeight">@dimen/line_display</item>
+        <item name="android:textColor">@color/ink</item>
+    </style>
+
+    <style name="TextAppearance.App.DialogTitle" parent="@style/TextAppearance.App">
+        <item name="android:textSize">@dimen/text_title</item>
+        <item name="android:lineHeight">@dimen/line_title</item>
+        <item name="android:fontFamily">@string/font_ui_medium</item>
+        <item name="android:textColor">@color/ink</item>
+    </style>
+
+    <style name="TextAppearance.App.BodyLg" parent="@style/TextAppearance.App">
+        <item name="android:textSize">@dimen/text_body_lg</item>
+        <item name="android:lineHeight">@dimen/line_title</item>
+    </style>
+
+    <style name="TextAppearance.App.BodyMd" parent="@style/TextAppearance.App">
+        <item name="android:textSize">@dimen/text_body_md</item>
+        <item name="android:lineHeight">@dimen/line_body</item>
+    </style>
+
+    <style name="TextAppearance.App.BodyMdStrong" parent="@style/TextAppearance.App.BodyMd">
+        <item name="android:fontFamily">@string/font_ui_medium</item>
+        <item name="android:textColor">@color/ink</item>
+    </style>
+
+    <style name="TextAppearance.App.BodySm" parent="@style/TextAppearance.App">
+        <item name="android:textSize">@dimen/text_body_sm</item>
+        <item name="android:lineHeight">@dimen/line_small</item>
+    </style>
+
+    <style name="TextAppearance.App.BodySmStrong" parent="@style/TextAppearance.App.BodySm">
+        <item name="android:fontFamily">@string/font_ui_medium</item>
+        <item name="android:textColor">@color/ink</item>
+    </style>
+
+    <style name="TextAppearance.App.Caption" parent="@style/TextAppearance.App">
+        <item name="android:textSize">@dimen/text_caption</item>
+        <item name="android:lineHeight">@dimen/line_caption</item>
+    </style>
+
+    <style name="TextAppearance.App.ButtonLg" parent="@style/TextAppearance.App.BodyMdStrong">
+    </style>
+
+    <style name="TextAppearance.App.ButtonMd" parent="@style/TextAppearance.App.BodySmStrong">
+    </style>
+</resources>

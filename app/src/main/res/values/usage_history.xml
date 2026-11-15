@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="usage_weekday_height">24dp</dimen>
+    <dimen name="usage_row_height">52dp</dimen>
+    <integer name="usage_date_snap_duration_ms">160</integer>
+    <string-array name="usage_weekdays">
+        <item>一</item><item>二</item><item>三</item><item>四</item><item>五</item><item>六</item><item>日</item>
+    </string-array>
+    <string name="usage_today_short">今</string>
+    <string name="usage_dates_description">选择使用日期，左右滑动切换星期，长按日期跳转</string>
+    <string name="usage_date_select">%1$s，查看使用时长</string>
+    <string name="usage_date_selected">%1$s，已选择</string>
+    <string name="usage_date_future">%1$s，未来日期不可选</string>
+    <string name="usage_history_total">%1$s屏幕使用时长</string>
+    <string name="usage_history_empty">当天暂无满 1 分钟的应用记录</string>
+    <string name="usage_history_missing">当天暂无保存的使用记录</string>
+    <string name="usage_history_loading">正在读取当天使用记录…</string>
+    <string name="usage_history_failed">使用记录读取失败，请下拉重试</string>
+    <string name="usage_today_filtered_empty">今日暂无满 1 分钟的应用记录</string>
+</resources>

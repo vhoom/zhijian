@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <TextView
+        android:id="@+id/weekday_title"
+        style="@style/Text.App.SectionLabel.RuleEditor"
+        android:accessibilityHeading="true"
+        android:text="@string/rule_weekdays_title" />
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        android:scrollbars="none">
+        <LinearLayout
+            android:id="@+id/weekday_choices"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_xs"
+        android:fillViewport="true"
+        android:scrollbars="none">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/weekday_copy_previous"
+                style="@style/Text.App.WeekdayAction"
+                android:layout_marginEnd="@dimen/space_xxs"
+                android:layout_width="wrap_content"
+                android:gravity="center"
+                android:text="@string/rule_weekdays_copy_previous"
+                android:textSize="@dimen/text_body_sm" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+            <TextView
+                android:id="@+id/weekday_save"
+                android:textColor="@color/button_secondary_text"
+                style="@style/Text.App.WeekdayAction"
+                android:layout_marginEnd="@dimen/space_xxs"
+                android:layout_width="wrap_content"
+                android:gravity="center"
+                android:text="@string/rule_weekday_confirm"
+                android:textSize="@dimen/text_body_sm" />
+            <TextView
+                android:id="@+id/weekday_clear"
+                style="@style/Text.App.WeekdayAction"
+                android:layout_width="wrap_content"
+                android:gravity="center"
+                android:text="@string/rule_weekday_clear"
+                android:textSize="@dimen/text_body_sm" />
+        </LinearLayout>
+    </HorizontalScrollView>
+</LinearLayout>

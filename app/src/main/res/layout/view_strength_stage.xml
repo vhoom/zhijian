@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/strength_stage_height"
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:importantForAccessibility="no" />
+
+    <TextView
+        android:id="@+id/strength_mode"
+        style="@style/Text.App.Title"
+        android:layout_width="match_parent"
+        android:textSize="@dimen/text_display_md"
+        android:gravity="center" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:importantForAccessibility="no" />
+
+    <TextView
+        android:id="@+id/strength_poem"
+        style="@style/Text.App.Body"
+        android:layout_width="match_parent"
+        android:layout_marginTop="@dimen/space_xs"
+        android:gravity="center"
+        android:textColor="@color/ink" />
+</LinearLayout>

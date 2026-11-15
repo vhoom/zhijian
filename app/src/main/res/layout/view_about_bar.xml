@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Widget.App.Bar">
+    <TextView android:id="@+id/btn_back"
+        style="@style/Text.App.BarAction"
+        android:text="@string/icon_back"
+        android:contentDescription="@string/about_back"
+        android:textSize="@dimen/text_display_md" />
+    <TextView android:id="@+id/page_title"
+        style="@style/Text.App.Heading"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:accessibilityHeading="true"
+        android:textStyle="bold" />
+</LinearLayout>
+

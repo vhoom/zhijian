@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="word_catalog_junior_high">初中</string>
+    <string name="word_catalog_senior_high">高中</string>
+    <string name="word_catalog_cet4">英语四级</string>
+    <string name="word_catalog_cet6">英语六级</string>
+    <string name="word_catalog_postgraduate">考研</string>
+    <string name="word_catalog_sat" translatable="false">SAT</string>
+    <string name="word_catalog_toefl">托福</string>
+    <string name="settings_word_catalog_label">词库</string>
+    <string name="settings_word_catalog_value">%1$s · %2$s</string>
+</resources>

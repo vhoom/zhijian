@@ -1,0 +1,22 @@
+# release 构建加载本文件；Room 使用依赖与生成代码自带的规则，Manifest 入口由 AAPT 保留。
+# 不保留整个 data/domain 包：实体、DAO 和业务实现仍允许 R8 优化与重命名。
+
+# 这些枚举名称用于设置键、JSON、Bundle 或词性存储，必须跨 debug/release 和升级保持稳定。
+# 只保留枚举常量和名称转换入口；枚举类名仍允许混淆。
+-keepclassmembers,allowoptimization enum
+    github.vhoom.zhijian.data.model.policy.ControlLevel,
+    github.vhoom.zhijian.data.model.policy.RuleType,
+    github.vhoom.zhijian.data.model.interception.InterceptionMode,
+    github.vhoom.zhijian.data.model.interception.InterceptionChallenge,
+    github.vhoom.zhijian.data.model.interception.InterceptionStage,
+    github.vhoom.zhijian.domain.interception.InterceptionDecision$Kind,
+    github.vhoom.zhijian.domain.interception.InterceptionDecision$Trigger,
+    github.vhoom.zhijian.domain.interception.word.WordEntry$PartOfSpeech {
+    public static final <fields>;
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile

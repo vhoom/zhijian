@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical">
+
+    <LinearLayout style="@style/Widget.App.Bar.RuleEditor">
+        <TextView
+            android:id="@+id/btn_back"
+            style="@style/Text.App.BarAction"
+            android:text="@string/icon_back"
+            android:textSize="@dimen/text_display_md" />
+        <TextView
+            android:id="@+id/rule_editor_title"
+            style="@style/Text.App.Heading"
+            android:textColor="@color/rule_text"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:text="@string/rule_new_title" />
+        <TextView
+            android:id="@+id/btn_save"
+            style="@style/Text.App.BarAction"
+            android:textColor="@color/ink"
+            android:textSize="@dimen/text_body_sm"
+            android:text="@string/rule_save" />
+    </LinearLayout>
+
+    <View style="@style/Widget.App.Divider" android:background="@color/rule_border" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/rule_page_gutter"
+            android:paddingEnd="@dimen/rule_page_gutter"
+            android:paddingTop="@dimen/rule_page_gutter"
+            android:paddingBottom="@dimen/rule_page_bottom">
+
+            <LinearLayout style="@style/Widget.App.Card.RuleEditor">
+                <TextView
+                    style="@style/Text.App.RuleTitle"
+                    android:labelFor="@id/field_name"
+                    android:text="@string/rule_name_label" />
+                <github.vhoom.zhijian.ui.component.input.InputFieldLayout
+                    style="@style/Widget.App.InputField"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="@dimen/space_sm">
+                    <FrameLayout
+                        style="@style/Widget.App.RuleNumberTarget"
+                        android:layout_width="match_parent">
+                        <EditText
+                            android:id="@+id/field_name"
+                            style="@style/Widget.App.Field.RuleText"
+                            android:inputType="text"
+                            android:importantForAutofill="no"
+                            android:saveEnabled="false" />
+                    </FrameLayout>
+                    <TextView android:id="@+id/input_error"
+                        style="@style/Text.App.InputError" />
+                </github.vhoom.zhijian.ui.component.input.InputFieldLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/group_apps_section"
+                style="@style/Widget.App.Card.RuleEditor">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <TextView
+                        style="@style/Text.App.RuleTitle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:accessibilityHeading="true"
+                        android:text="@string/rule_section_apps" />
+                    <Button
+                        android:id="@+id/btn_add_app"
+                        style="@style/Widget.App.Button.RuleEditor"
+                        android:text="@string/rule_manage_apps"
+                        android:textSize="@dimen/text_body_sm" />
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/selected_apps_count"
+                    style="@style/Text.App.Caption"
+                    android:layout_marginTop="@dimen/space_xxs"
+                    android:layout_marginBottom="@dimen/space_xxs"
+                    android:textColor="@color/rule_text_secondary" />
+                <github.vhoom.zhijian.ui.component.rule.RuleAppListScrollView
+                    android:id="@+id/group_apps_scroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_xs"
+                    android:background="@drawable/bg_subsection"
+                    android:paddingStart="@dimen/space_xs"
+                    android:paddingEnd="@dimen/space_xs"
+                    android:scrollbars="vertical">
+                    <LinearLayout
+                        android:id="@+id/app_rows"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </github.vhoom.zhijian.ui.component.rule.RuleAppListScrollView>
+                <TextView
+                    android:id="@+id/apps_error"
+                    style="@style/Text.App.Error"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/weekday_editor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+            <TextView
+                android:id="@+id/rule_section_title"
+                style="@style/Text.App.SectionLabel.RuleEditor"
+                android:layout_marginBottom="@dimen/space_xxs"
+                android:accessibilityHeading="true"
+                android:text="@string/rule_reminders_title" />
+            <TextView
+                android:id="@+id/rule_shared_quota_hint"
+                style="@style/Text.App.Caption"
+                android:layout_width="match_parent"
+                android:layout_marginBottom="@dimen/space_sm"
+                android:textColor="@color/rule_text_secondary"
+                android:text="@string/rule_group_shared_quota_hint" />
+            <LinearLayout
+                android:id="@+id/type_rows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <TextView style="@style/Text.App.SectionLabel.RuleEditor"
+                android:accessibilityHeading="true"
+                android:text="@string/rule_pass_title" />
+            <include layout="@layout/view_rule_pass" />
+
+            <Button
+                android:id="@+id/btn_reset"
+                style="@style/Widget.App.Button.RuleEditor"
+                android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/space_md"
+                android:text="@string/rule_reset_all" />
+
+            <Button
+                android:id="@+id/btn_delete"
+                style="@style/Widget.App.Button.RuleEditor"
+                android:layout_width="match_parent"
+                android:layout_marginTop="@dimen/space_md"
+                android:text="@string/rule_delete"
+                android:textColor="@color/error_deep"
+                android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

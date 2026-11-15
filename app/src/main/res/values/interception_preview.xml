@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Debug 预览菜单 -->
+    <string name="interception_preview_open">预览</string>
+    <string name="interception_preview_title">%1$d/%2$d · %3$s · %4$s</string>
+    <string name="interception_preview_pages">选择页面</string>
+    <string name="interception_preview_kind">切换为%1$s</string>
+    <string name="interception_preview_previous">上一页</string>
+    <string name="interception_preview_next">下一页</string>
+    <string name="interception_preview_resample">重新抽样</string>
+    <string name="interception_preview_presentation">控件呈现：%1$s</string>
+    <string name="interception_preview_close">结束预览</string>
+    <string name="interception_preview_block">禁用</string>
+    <string name="interception_preview_reminder">提醒</string>
+    <string name="interception_preview_wuwei">无为首屏</string>
+    <string name="interception_preview_repair">修心首屏</string>
+    <string name="interception_preview_hold">按压挑战</string>
+    <string name="interception_preview_word">单词挑战</string>
+    <string name="interception_preview_hold_completed">按压挑战 · 已完成</string>
+    <string name="interception_preview_word_completed">单词挑战 · 已完成</string>
+    <string name="interception_preview_confirmation">二次询问</string>
+    <string name="interception_preview_seal">闭关</string>
+    <!-- Debug 控件样例 -->
+    <string name="interception_preview_random">随机</string>
+    <string name="interception_preview_buttons">按钮 / 按钮</string>
+    <string name="interception_preview_sliders">滑块 / 滑块</string>
+    <string name="interception_preview_button_slider">按钮 / 滑块</string>
+    <string name="interception_preview_slider_button">滑块 / 按钮</string>
+    <string name="interception_preview_double_exit">双退出</string>
+    <string name="interception_preview_blind_exit">盲盒 · 退出</string>
+    <string name="interception_preview_blind_pass">盲盒 · 放行</string>
+    <string name="interception_preview_result_exit">预览结果：退出</string>
+    <string name="interception_preview_result_pass">预览结果：限时放行</string>
+    <string name="interception_preview_result_resume">预览结果：休息完成，恢复使用</string>
+    <!-- Debug 浮动入口标识 -->
+    <item name="interception_preview_launcher" type="id" />
+</resources>

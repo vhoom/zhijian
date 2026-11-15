@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/control_highlight">
+    <item>
+        <!-- 40dp 视觉块外保留 4dp 触控留白。 -->
+        <inset android:inset="4dp">
+            <selector>
+                <item android:state_activated="true" android:state_selected="true">
+                    <shape>
+                        <solid android:color="@color/rule_primary_soft" />
+                        <stroke android:width="@dimen/divider_height" android:color="@color/rule_primary" />
+                        <corners android:radius="@dimen/radius_lg" />
+                    </shape>
+                </item>
+                <item android:state_activated="true">
+                    <shape>
+                        <solid android:color="@color/rule_primary_soft" />
+                        <corners android:radius="@dimen/radius_lg" />
+                    </shape>
+                </item>
+                <item android:state_selected="true">
+                    <shape>
+                        <solid android:color="@color/rule_primary_soft" />
+                        <stroke android:width="@dimen/divider_height" android:color="@color/rule_primary" />
+                        <corners android:radius="@dimen/radius_lg" />
+                    </shape>
+                </item>
+                <item>
+                    <shape>
+                        <solid android:color="@color/rule_card" />
+                        <corners android:radius="@dimen/radius_lg" />
+                    </shape>
+                </item>
+            </selector>
+        </inset>
+    </item>
+</ripple>
