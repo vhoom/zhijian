@@ -22,9 +22,21 @@ import static org.junit.Assert.*;
 /**
  * 使用独立偏好验证忽略落盘、重新进入边界及过期页面隔离。
  *
- * 维护日期：2026年11月14日
+ * 维护日期：2026年11月16日
  */
 public class BlockContinuationStoreTest {
+    /** 一次确认覆盖本次访问全部禁用，窗口或类型不同也不会再次要求挑战。 */
+    @Test public void oneConfirmationCoversAllBlockReasonsInSameVisit() {
+        BlockContinuationStore store = new BlockContinuationStore(isolatedContext());
+        PendingInterception shown = pending("test.app");
+        assertTrue(store.ignore(shown, shown.decision, 2_000L));
+        BlockContinuation visit = store.read("test.app", "boot").get(0);
+        assertTrue(visit.matches(decision(InterceptionDecision.Trigger.DAILY_LIMIT, "", 1L)));
+        assertTrue(visit.matches(decision(InterceptionDecision.Trigger.DAILY_COUNT, "", 1L)));
+        assertTrue(visit.matches(decision(InterceptionDecision.Trigger.WINDOW_BAN, "later", 1L)));
+        assertFalse(visit.matches(decision(InterceptionDecision.Trigger.DAILY_LIMIT, "", 2L)));
+    }
+
     /** 重建读取保留忽略，止间窗口不清除，离开原应用后返回恢复禁用。 */
     @Test public void persistedContinuationEndsOnRealApplicationDeparture() {
         Context context = isolatedContext();

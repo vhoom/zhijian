@@ -6,9 +6,9 @@ import github.vhoom.zhijian.domain.interception.InterceptionDecision;
 import java.util.Objects;
 
 /**
- * 无为或修心完成继续后，本次应用访问中忽略的单条禁用；不代表限时放行或休息完成。
+ * 无为或修心完成继续后，本次应用访问中忽略全部禁用；连续提醒仍独立生效。
  *
- * 维护日期：2026年11月13日
+ * 维护日期：2026年11月16日
  */
 public final class BlockContinuation {
     public final String packageName, policyId, windowId, bootId;
@@ -45,12 +45,11 @@ public final class BlockContinuation {
         }
     }
 
-    /** @param decision 本次候选规则 @return 是否仅命中同应用、同档位、同版本的这条已确认禁用 */
+    /** @param decision 本次候选规则 @return 是否属于同应用、同档位、同版本下本次访问的禁用 */
     public boolean matches(InterceptionDecision decision) {
         return decision.level == level && decision.kind == InterceptionDecision.Kind.BLOCK
                 && packageName.equals(decision.packageName) && policyId.equals(decision.policyId)
-                && policyRevision == decision.policyRevision && trigger == decision.trigger
-                && windowId.equals(decision.windowId);
+                && policyRevision == decision.policyRevision;
     }
 
     /** @param other 待清理的原快照 @return 是否同一条规则的同次访问，旧复查不清新访问 */
