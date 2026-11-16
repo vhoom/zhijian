@@ -113,7 +113,7 @@ public class PendingInterceptionStoreTest {
             PendingInterception otherTarget = recreated.rests(policy).get(0).forTarget(target + ".second");
             assertFalse("Navigation cannot satisfy shared rest", ReminderRestPolicy.satisfied(otherTarget, cycle));
             assertEquals("Only continuing may defer the same-group reminder", continued ? 60_000L : 0L,
-                    ReminderRepeatPolicy.remainingUsage(otherTarget, cycle, level));
+                    ReminderRepeatPolicy.remainingUsage(otherTarget, cycle, level, otherTarget.decision.limitValue));
             ContinuousUsageCycle rested = new ContinuousUsageCycle(seed.bootId, seed.startedAtMs,
                     seed.startedElapsedMs, 65_000L, 30_000L, null, "", 2L);
             assertTrue("Full shared rest must still release the reminder", ReminderRestPolicy.satisfied(otherTarget, rested));

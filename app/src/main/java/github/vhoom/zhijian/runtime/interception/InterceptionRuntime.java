@@ -39,7 +39,7 @@ import java.util.Collections;
 /**
  * 规则模块的 Android 运行入口：组合配置快照、系统用量和持久化放行。
  *
- * 维护日期：2026年11月15日
+ * 维护日期：2026年11月16日
  */
 public final class InterceptionRuntime {
     private static final long MINUTE_MS = 60_000L;
@@ -138,7 +138,7 @@ public final class InterceptionRuntime {
         while (iterator.hasNext()) {
             PendingInterception rest = iterator.next();
             if (usage.rested(rest)) {
-                resumeAfterRest(currentRest(rest, packageName, policyId, revision, policies.level(),
+                resumeAfterRest(currentRest(rest, policy, packageName, policyId, revision, policies.level(),
                         ReminderSchedule.passDurationMillis(policy, rest.decision, passDurationMillis(policy))),
                         nowWall, nowElapsed);
                 pendingStore.clear(rest.decision.packageName, rest.sessionId);
@@ -217,7 +217,8 @@ public final class InterceptionRuntime {
         PendingInterception selected = null;
         long nextCheck = current.recheckAfterMs;
         for (PendingInterception rest : rests) {
-            long remainingUsage = ReminderRepeatPolicy.remainingUsage(rest, usage.cycle(rest), policies.level());
+            long remainingUsage = ReminderRepeatPolicy.remainingUsage(rest, usage.cycle(rest), policies.level(),
+                    ReminderRepeatPolicy.limitMillis(rest, policy));
             if (remainingUsage > 0L) {
                 nextCheck = Math.min(nextCheck, remainingUsage);
                 continue;
@@ -225,7 +226,7 @@ public final class InterceptionRuntime {
             if (selected == null || usage.remaining(rest) > usage.remaining(selected)) selected = rest;
         }
         if (selected != null) {
-            PendingInterception normalized = currentRest(selected, packageName, policyId, revision,
+            PendingInterception normalized = currentRest(selected, policy, packageName, policyId, revision,
                     policies.level(), ReminderSchedule.passDurationMillis(
                             policy, selected.decision, passDurationMillis(policy)));
             return present(policies, normalized.decision, presentation, selected, usage.cycle(selected),
@@ -254,15 +255,17 @@ public final class InterceptionRuntime {
     }
 
     /**
-     * 原休息保留阈值及发生时刻，展示应用统一休息下限，审计使用当前配置身份。
-     * @param rest 原休息 @param target 当前应用 @param policyId 当前策略 @param revision 当前修订
+     * 原休息保留要求及发生时刻，展示使用最新使用阈值与配置身份。
+     * @param rest 原休息 @param policy 当前已解析规则 @param target 当前应用
+     * @param policyId 当前策略 @param revision 当前修订
      * @param level 当前强度 @param pass 当前临时时长 @return 当前版本下的休息事实
      */
-    private static PendingInterception currentRest(PendingInterception rest, String target, String policyId,
-            long revision, github.vhoom.zhijian.data.model.policy.ControlLevel level, long pass) {
+    private static PendingInterception currentRest(PendingInterception rest, RuleGroup policy, String target,
+            String policyId, long revision, ControlLevel level, long pass) {
         InterceptionDecision old = rest.decision;
         InterceptionDecision decision = new InterceptionDecision(target, policyId, revision, old.kind,
-                old.trigger, level, old.windowId, old.currentValue, old.limitValue, 0L, pass,
+                old.trigger, level, old.windowId, old.currentValue,
+                ReminderRepeatPolicy.limitMillis(rest, policy), 0L, pass,
                 ContinuousRestPolicy.requiredRestMillis(policyId, old.minimumInterruptionPauseDurationMs));
         return new PendingInterception(decision, rest.sessionId, rest.bootId, rest.startedAtMs,
                 rest.startedElapsedMs, rest.cycleGeneration, rest.occurredAtMs, rest.continuousKey,
@@ -290,7 +293,8 @@ public final class InterceptionRuntime {
             if (rest != null) {
                 PendingInterception latest = pendingStore.restFor(rest);
                 if (latest == null || !latest.sessionId.equals(rest.sessionId)) return InterceptionEvaluation.allow(1L);
-                long remainingUsage = ReminderRepeatPolicy.remainingUsage(latest, cycle, policies.level());
+                long remainingUsage = ReminderRepeatPolicy.remainingUsage(latest, cycle, policies.level(),
+                        decision.limitValue);
                 // 处理标记在本次计算期间变化，立即复查全部规则，避免推迟即将生效的禁用。
                 if (remainingUsage > 0L) return InterceptionEvaluation.allow(1L);
             }

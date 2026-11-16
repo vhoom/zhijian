@@ -4,7 +4,7 @@ date: 2026-11-16
 
 # 测试目录与运行说明
 
-本目录对应当前工作区的测试组织。审查结论与已修正问题见[测试有效性审查](测试有效性审查.md)，历史运行结果见[真机验证](真机验证.md)。测试清单分别见[本地单元测试](本地单元测试.md)和[设备测试](设备测试.md)。源码声明数量为74个本地测试类、51个设备测试类，共746个 `@Test` 方法；循环组合不额外计数。这些数字表示测试清单，不表示通过数量或覆盖率。
+本目录对应当前工作区的测试组织。审查结论与已修正问题见[测试有效性审查](测试有效性审查.md)，历史运行结果见[真机验证](真机验证.md)。测试清单分别见[本地单元测试](本地单元测试.md)和[设备测试](设备测试.md)。源码声明数量为74个本地测试类、52个设备测试类，共751个 `@Test` 方法；循环组合不额外计数。这些数字表示测试清单，不表示通过数量或覆盖率。
 
 ## 源码组织
 
@@ -46,6 +46,7 @@ date: 2026-11-16
 | 跨日生效与计算耗时后的复查期限 | `InterceptionEvaluationTest`、`WeekdayRuleScheduleTest` | `ForegroundEvaluationTest` 的午夜、延迟回调及额度到期用例 |
 | 随心与修心禁用继续、冻结开关与真实重进 | `BlockContinuationPolicyTest`、`UsageTimelineTest`、`ReminderRepeatPolicyTest` | `BlockContinuationStoreTest`、`RepairContinuationTest`、`InterceptionReentryTest#wuweiContinueAfterReusedPageDoesNotImmediatelyBlockAgain`、`ForegroundEvaluationTest` |
 | 连续提醒退出与明确继续、同组提醒间隔 | `ReminderRepeatPolicyTest` | `PendingInterceptionStoreTest` 的退出与继续用例，覆盖两档强度及全天、时段提醒的正式写入和共享休息读取；本次未运行 |
+| 修改使用阈值后的再次提醒与原休息保留 | `ReminderRepeatPolicyTest` | `ReminderThresholdRuntimeTest` 的全天阈值升降、同组换应用及同窗口参数更新，覆盖正式提交与最终展示检查；本次未运行 |
 | 持久化、归档与授权 | `PolicySnapshotTest`、`UsageBucketsTest`、`PassGrantTest` | 存储系列、`UsageArchiveStoreTest`、`PendingInterceptionStoreTest` |
 | 设备夹具初始化与恢复 | — | `FixtureCleanupTest`、使用两个设备会话夹具的真实链路用例 |
 | 拦截页面与挑战 | `InterceptionFlowTest`、`InitialActionPlanTest`、按压、单词与数独系列 | `ui/interception` 系列、`SudokuProgressStoreTest`、`WordProgressStoreTest` |
@@ -67,7 +68,7 @@ date: 2026-11-16
 
 ## 当前审查结论
 
-清单与源码数量一致：74 个本地测试类、448 个方法；51 个设备测试类、298 个方法。设备目录另有 7 个共享夹具 Java 文件，Debug 预览入口不计入 JUnit 清单。循环中的多个档位和参数组合不额外计数。
+清单与源码数量一致：74 个本地测试类、450 个方法；52 个设备测试类、301 个方法。设备目录另有 7 个共享夹具 Java 文件，Debug 预览入口不计入 JUnit 清单。循环中的多个档位和参数组合不额外计数。
 
 已将脱离正式调用链的优先级辅助类测试替换为 `RuleEnginePriorityTest`，直接验证当前规则入口；设备优先级夹具现在分别保存展示、休息事实和周期，断言新禁用优先展示且原休息保留。前台调度测试补齐真实启动请求、旧结果不启动、独立初始化与静心分支断言，并清理测试组自己的限制事实。
 
@@ -77,7 +78,7 @@ date: 2026-11-16
 
 提交 `828006b` 的真机运行修正了分组服务用例的单成员非法夹具，以及挑战用例重新查找已移除按钮、对当时按压候选规则的错误假定。当前独立挑战开关已允许仅选择单词；相关用例仍通过正式设置和会话选择策略准备输入。
 
-没有发现 `@Ignore`。一个档位切换用例使用 `Assume`，条件不满足时属于跳过，不是通过。截图开关只控制辅助函数的文件导出，不会绕过主测试断言。预览测试、独立组件测试和真实服务测试的覆盖边界不同，不能互相替代。
+没有发现 `@Ignore`。档位切换用例与提醒阈值运行用例使用 `Assume`，条件不满足时属于跳过，不是通过。截图开关只控制辅助函数的文件导出，不会绕过主测试断言。预览测试、独立组件测试和真实服务测试的覆盖边界不同，不能互相替代。
 
 ## 本次验证范围
 
@@ -85,7 +86,7 @@ date: 2026-11-16
 
 项目命名调整已同步生产和测试中的 `ZhijianApplication`、`ZhijianStorage`、`ZhijianDatabase`、`ZhijianAccessibilityService`、主题资源引用、测试参数及 `zhijian.usage` 导出格式断言。本次仅做静态引用核对，未编译或执行测试；数据库启用新的 `zhijian.db`，旧安装的无障碍服务授权需重新开启，不能沿用此前版本的运行结果作为验证。
 
-静态核对涉及测试文件与方法清单、文档数量、正式资源 ID、挑战枚举接线、页面重建和文件保存边界，不代表全部 746 个方法已运行或通过。
+静态核对涉及测试文件与方法清单、文档数量、正式资源 ID、挑战枚举接线、页面重建和文件保存边界，不代表全部 751 个方法已运行或通过。提醒阈值回归新增 2 个本地方法及 3 个设备方法，仅完成静态核对；尚未编译、执行或安装到手机验证。
 
 当前挑战变更新增 10 个本地方法和 17 个设备方法，覆盖三档数独题目、难度确认与取消、九键填入／替换／清空、给定格不可选、未开始退出重进刷新、已答题进度恢复、单词重启时钟与旧写入拒绝，以及完成后继续流程。正式单词操作夹具等待每次答案落盘，并备份恢复用户单词文件。昼夜配色只做资源与对比度静态核对；所有新用例均未运行，未编译或进行真机验证。实现边界见[数独挑战与进度](../architecture/数独挑战与进度.md)和[挑战进度与重新进入](../architecture/挑战进度与重新进入.md)。
 
