@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 /**
  * 再次提醒只依赖新增实际用量，不能重置使用、伪造休息或屏蔽独立禁用。
  *
- * 维护日期：2026年11月13日
+ * 维护日期：2026年11月16日
  */
 public class ReminderRepeatPolicyTest {
     private static final long THRESHOLD_MS = 20_000L;
@@ -36,7 +36,8 @@ public class ReminderRepeatPolicyTest {
             assertEquals(THRESHOLD_MS + added, original.continuousMs);
             assertEquals(added, adjusted.continuousMs);
             assertEquals(Math.max(0L, THRESHOLD_MS - added),
-                    ReminderRepeatPolicy.remainingUsage(rest, cycle(THRESHOLD_MS + added), ControlLevel.MORTAL));
+                    ReminderRepeatPolicy.remainingUsage(rest, cycle(THRESHOLD_MS + added), ControlLevel.MORTAL,
+                            ReminderRepeatPolicy.limitMillis(rest, policy)));
             if (added < THRESHOLD_MS) {
                 assertNull(result.decision);
                 assertEquals(THRESHOLD_MS - added, result.recheckAfterMs);
@@ -54,7 +55,7 @@ public class ReminderRepeatPolicyTest {
                     evidence(at(10, 0) + elapsed, THRESHOLD_MS), Collections.singletonList(rest), ControlLevel.MORTAL);
             assertNull(evaluate(policy(), adjusted).decision);
             assertEquals(THRESHOLD_MS,
-                    ReminderRepeatPolicy.remainingUsage(rest, cycle(THRESHOLD_MS), ControlLevel.MORTAL));
+                    ReminderRepeatPolicy.remainingUsage(rest, cycle(THRESHOLD_MS), ControlLevel.MORTAL, THRESHOLD_MS));
         }
     }
 
@@ -89,7 +90,7 @@ public class ReminderRepeatPolicyTest {
             UsageEvidence adjusted = ReminderRepeatPolicy.forEvaluation(evidence, Collections.singletonList(rest), level);
             assertEquals(level == ControlLevel.SEAL ? THRESHOLD_MS : 0L, adjusted.continuousMs);
             assertEquals(level == ControlLevel.SEAL ? 0L : THRESHOLD_MS,
-                    ReminderRepeatPolicy.remainingUsage(rest, cycle, level));
+                    ReminderRepeatPolicy.remainingUsage(rest, cycle, level, THRESHOLD_MS));
         }
     }
 
@@ -109,7 +110,7 @@ public class ReminderRepeatPolicyTest {
                     assertEquals(repeats ? 5_000L : THRESHOLD_MS + 5_000L,
                             window ? adjusted.windowContinuousMs("active") : adjusted.continuousMs);
                     assertEquals(repeats ? THRESHOLD_MS - 5_000L : 0L,
-                            ReminderRepeatPolicy.remainingUsage(rest, cycle(THRESHOLD_MS + 5_000L), level));
+                            ReminderRepeatPolicy.remainingUsage(rest, cycle(THRESHOLD_MS + 5_000L), level, THRESHOLD_MS));
                     assertFalse(ReminderRepeatPolicy.isDirectReminder(InterceptionDecision.Kind.BLOCK, level, pass));
                     assertEquals(repeats && !pass, ReminderRepeatPolicy.isDirectReminder(InterceptionDecision.Kind.INTERRUPT, level, pass));
                 }
@@ -153,9 +154,9 @@ public class ReminderRepeatPolicyTest {
     /** 缺少新证据不会凭时间重弹，接近长整数上限也不会因加法溢出提前提醒。 */
     @Test public void missingEvidenceAndCounterLimitsDoNotInventUsage() {
         PendingInterception rest = rest(InterceptionDecision.Trigger.CONTINUOUS, "", Long.MAX_VALUE - 10L);
-        assertEquals(THRESHOLD_MS, ReminderRepeatPolicy.remainingUsage(rest, null, ControlLevel.MORTAL));
+        assertEquals(THRESHOLD_MS, ReminderRepeatPolicy.remainingUsage(rest, null, ControlLevel.MORTAL, THRESHOLD_MS));
         assertEquals(THRESHOLD_MS - 10L,
-                ReminderRepeatPolicy.remainingUsage(rest, cycle(Long.MAX_VALUE), ControlLevel.MORTAL));
+                ReminderRepeatPolicy.remainingUsage(rest, cycle(Long.MAX_VALUE), ControlLevel.MORTAL, THRESHOLD_MS));
     }
 
     /** 同组换目标继承同一提醒起点，新一轮未处理提醒仍正常触发。 */
@@ -164,11 +165,81 @@ public class ReminderRepeatPolicyTest {
         PendingInterception moved = rest.forTarget("app.second");
         assertEquals(THRESHOLD_MS, moved.acknowledgedUsageMs);
         assertEquals(rest.continuousKey, moved.continuousKey);
-        assertEquals(THRESHOLD_MS, ReminderRepeatPolicy.remainingUsage(moved, cycle(THRESHOLD_MS), ControlLevel.MORTAL));
+        assertEquals(THRESHOLD_MS, ReminderRepeatPolicy.remainingUsage(moved, cycle(THRESHOLD_MS), ControlLevel.MORTAL,
+                THRESHOLD_MS));
         PendingInterception fresh = rest(InterceptionDecision.Trigger.CONTINUOUS, "", -1L);
-        assertEquals(0L, ReminderRepeatPolicy.remainingUsage(fresh, cycle(THRESHOLD_MS), ControlLevel.MORTAL));
+        assertEquals(0L, ReminderRepeatPolicy.remainingUsage(fresh, cycle(THRESHOLD_MS), ControlLevel.MORTAL, THRESHOLD_MS));
         UsageEvidence evidence = evidence(at(10, 0), THRESHOLD_MS);
         assertSame(evidence, ReminderRepeatPolicy.forEvaluation(evidence, Collections.singletonList(fresh), ControlLevel.MORTAL));
+    }
+
+    /** 修改全天或时段阈值后，规则引擎与再次提醒使用同一新边界，原用量与休息保持。 */
+    @Test public void changedThresholdMatchesRuleEngineForBothReminderTypes() {
+        for (InterceptionDecision.Trigger trigger : new InterceptionDecision.Trigger[]{
+                InterceptionDecision.Trigger.CONTINUOUS, InterceptionDecision.Trigger.WINDOW_CONTINUOUS}) {
+            boolean window = trigger == InterceptionDecision.Trigger.WINDOW_CONTINUOUS;
+            for (long oldLimit : new long[]{900_000L, 60_000L}) {
+                long updatedLimit = oldLimit == 900_000L ? 60_000L : 900_000L;
+                RuleGroup policy = policy();
+                policy.continuousLimitMillis = updatedLimit;
+                policy.interruptionPauseMillis = 180_000L;
+                if (window) {
+                    policy.types.clear();
+                    policy.types.add(RuleType.WINDOW_CONTINUOUS);
+                    RuleWindow active = new RuleWindow("active", RuleType.WINDOW_CONTINUOUS, 540, 660, updatedLimit);
+                    active.interruptionPauseMillis = 180_000L;
+                    policy.windows.add(active);
+                }
+                for (ControlLevel level : new ControlLevel[]{ControlLevel.MORTAL, ControlLevel.FRICTION}) {
+                    InterceptionDecision old = new InterceptionDecision("app.test", "group:1", 1L,
+                            InterceptionDecision.Kind.INTERRUPT, trigger, level, window ? "active" : "",
+                            oldLimit, oldLimit, 0L, PASS_MS, 600_000L);
+                    PendingInterception rest = new PendingInterception(old, "old-reminder", "boot", 1_000L, 1_000L,
+                            2L, 1_000L, window ? "window:active" : "group:1", 0L, oldLimit);
+                    long limit = ReminderRepeatPolicy.limitMillis(rest, policy);
+                    assertEquals(updatedLimit, limit);
+                    for (long added : new long[]{updatedLimit - 1L, updatedLimit, updatedLimit + 1L}) {
+                        ContinuousUsageCycle cycle = cycle(oldLimit + added);
+                        UsageEvidence original = evidence(at(10, 0), cycle.usedMs)
+                                .withWindowContinuousMillis(Collections.singletonMap("active", cycle.usedMs));
+                        UsageEvidence adjusted = ReminderRepeatPolicy.forEvaluation(original, Collections.singletonList(rest), level);
+                        InterceptionEvaluation result = RuleEngine.evaluate("app.test", "group:1", 2L, policy,
+                                level, adjusted, PASS_MS);
+                        assertEquals(Math.max(0L, updatedLimit - added),
+                                ReminderRepeatPolicy.remainingUsage(rest, cycle, level, limit));
+                        if (added < updatedLimit) {
+                            assertNull(result.decision);
+                            assertEquals(1L, result.recheckAfterMs);
+                        } else {
+                            assertNotNull(result.decision);
+                            assertEquals(updatedLimit, result.decision.limitValue);
+                        }
+                        assertEquals(oldLimit + added, cycle.usedMs);
+                        assertEquals(0L, cycle.restMs);
+                        assertEquals(oldLimit, rest.acknowledgedUsageMs);
+                        assertEquals(oldLimit, rest.decision.limitValue);
+                        assertEquals(600_000L, rest.decision.minimumInterruptionPauseDurationMs);
+                        assertEquals(1_000L, rest.occurredAtMs);
+                    }
+                }
+            }
+        }
+    }
+
+    /** 当前日期没有原规则或同名窗口时，历史未完成休息沿用原阈值，不借用其他窗口参数。 */
+    @Test public void missingCurrentRuleKeepsOriginalThreshold() {
+        RuleGroup policy = policy();
+        policy.types.clear();
+        policy.types.add(RuleType.WINDOW_CONTINUOUS);
+        policy.windows.add(new RuleWindow("other", RuleType.WINDOW_CONTINUOUS, 540, 660, 60_000L));
+        for (InterceptionDecision.Trigger trigger : new InterceptionDecision.Trigger[]{
+                InterceptionDecision.Trigger.CONTINUOUS, InterceptionDecision.Trigger.WINDOW_CONTINUOUS}) {
+            PendingInterception rest = rest(trigger, trigger == InterceptionDecision.Trigger.CONTINUOUS ? "" : "expired",
+                    THRESHOLD_MS);
+            long limit = ReminderRepeatPolicy.limitMillis(rest, policy);
+            assertEquals(THRESHOLD_MS, limit);
+            assertEquals(THRESHOLD_MS, ReminderRepeatPolicy.remainingUsage(rest, null, ControlLevel.MORTAL, limit));
+        }
     }
 
     /** @return 带连续提醒和原放行配置的测试规则 */

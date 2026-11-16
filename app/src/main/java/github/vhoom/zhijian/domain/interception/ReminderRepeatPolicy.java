@@ -1,6 +1,9 @@
 package github.vhoom.zhijian.domain.interception;
 
 import github.vhoom.zhijian.data.model.policy.ControlLevel;
+import github.vhoom.zhijian.data.model.policy.RuleGroup;
+import github.vhoom.zhijian.data.model.policy.RuleType;
+import github.vhoom.zhijian.data.model.policy.RuleWindow;
 import github.vhoom.zhijian.data.model.runtime.PendingInterception;
 import github.vhoom.zhijian.domain.usage.ContinuousUsageCycle;
 import java.util.List;
@@ -8,7 +11,7 @@ import java.util.List;
 /**
  * 未启用临时放行的提醒按新增实际用量再次触发；不修改真实周期、休息或禁用额度。
  *
- * 维护日期：2026年11月13日
+ * 维护日期：2026年11月16日
  */
 public final class ReminderRepeatPolicy {
     /** 纯判定策略不持有系统状态。 */
@@ -44,17 +47,36 @@ public final class ReminderRepeatPolicy {
     }
 
     /**
+     * 从当前已生效配置读取原提醒对应的使用阈值，不修改原休息事实。
+     * @param rest 原提醒，包含触发类型及稳定时段身份
+     * @param policy 已按当前日期解析的规则；没有对应规则时保留原提醒阈值
+     * @return 再次提醒及展示共用的使用阈值，单位为毫秒，至少为一
+     */
+    public static long limitMillis(PendingInterception rest, RuleGroup policy) {
+        if (rest.decision.trigger == InterceptionDecision.Trigger.CONTINUOUS
+                && policy.has(RuleType.CONTINUOUS)) {
+            return Math.max(1L, policy.continuousLimitMillis);
+        }
+        if (rest.decision.trigger == InterceptionDecision.Trigger.WINDOW_CONTINUOUS) {
+            RuleWindow window = ReminderSchedule.window(policy, rest.decision.windowId);
+            if (window != null) return Math.max(1L, window.limitDurationMillis);
+        }
+        return Math.max(1L, rest.decision.limitValue);
+    }
+
+    /**
      * 原休息尚未满足时，判断同一提醒是否已累计足够的新用量。
      * @param rest 尚未完成的原休息事实
      * @param cycle 已验证的连续周期，缺失时不虚构新增用量
      * @param level 当前强度
+     * @param limitMs 本次生效使用阈值，单位为毫秒，非正值按一毫秒处理
      * @return 距离再次提醒尚需实际使用的毫秒数，零表示应展示
      */
     public static long remainingUsage(PendingInterception rest, ContinuousUsageCycle cycle,
-            ControlLevel level) {
+            ControlLevel level, long limitMs) {
         if (!acknowledged(rest, level)) return 0L;
         long used = cycle == null ? rest.acknowledgedUsageMs : cycle.usedMs;
-        return Math.max(0L, Math.max(1L, rest.decision.limitValue)
+        return Math.max(0L, Math.max(1L, limitMs)
                 - sinceAcknowledged(used, rest.acknowledgedUsageMs));
     }
 
