@@ -26,6 +26,7 @@ import github.vhoom.zhijian.data.model.word.BuiltInWordCatalog;
 import github.vhoom.zhijian.data.store.word.BuiltInWordCatalogStore;
 import github.vhoom.zhijian.domain.interception.word.WordEntry;
 import github.vhoom.zhijian.domain.interception.RetreatChangePolicy;
+import github.vhoom.zhijian.domain.interception.RuleConfigurationComparison;
 import github.vhoom.zhijian.util.concurrent.TaskQueue;
 import github.vhoom.zhijian.util.diagnostics.DiagnosticLog;
 import github.vhoom.zhijian.util.time.DecimalDuration;
@@ -316,8 +317,10 @@ public final class ZhijianStorage {
             long id = draft.id;
             String key = PolicyCodec.groupKey(id);
             PolicyEntity old = dao.policy(key);
+            RuleGroup previous = state.policies.configuredPolicies().get(key);
             PolicyEntity row = PolicyCodec.entity(draft, key, "group",
-                    old == null ? 1 : Math.addExact(old.revision, 1),
+                    old == null ? 1 : RuleConfigurationComparison.sameBehavior(previous, draft)
+                            ? old.revision : Math.addExact(old.revision, 1),
                     old == null ? dao.nextCreationOrder() : old.creationOrder);
             row.groupId = id;
             PolicyCodec.write(dao, row, draft);
@@ -341,8 +344,10 @@ public final class ZhijianStorage {
             requireValidDraft(draft);
             String key = PolicyCodec.appKey(pkg);
             PolicyEntity old = db.policies().policy(key);
+            RuleGroup previous = state.policies.configuredPolicies().get(key);
             PolicyEntity row = PolicyCodec.entity(draft, key, "app",
-                    old == null ? 1 : Math.addExact(old.revision, 1), 0);
+                    old == null ? 1 : RuleConfigurationComparison.sameBehavior(previous, draft)
+                            ? old.revision : Math.addExact(old.revision, 1), 0);
             row.groupId = -1;
             PolicyCodec.write(db.policies(), row, draft);
             return null;
