@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * 拦截结果提交实现：挑战只描述审计，允许行为由状态机决定。
  *
- * 维护日期：2026年11月15日
+ * 维护日期：2026年11月16日
  */
 public final class InterceptionOutcomeWriter {
     private final Context context;
@@ -46,7 +46,7 @@ public final class InterceptionOutcomeWriter {
     }
 
     /**
-     * 按冻结选项保存结果；无临时放行的提醒只保存再次提醒起点，真实休息和用量不变。
+     * 按冻结选项保存结果；无临时放行的提醒仅在明确继续时保存再次提醒起点，退出保留原休息要求。
      * @param decision 原拦截决定
      * @param sessionId 稳定会话标识
      * @param occurredAtMs 原触发墙钟时间
@@ -88,7 +88,9 @@ public final class InterceptionOutcomeWriter {
                 decision.kind.name().toLowerCase(Locale.ROOT), decision.level.code, decision.trigger.code,
                 challengeCode, outcome, occurredAtMs, Math.max(occurredAtMs, nowWall));
         CompletableFuture<Void> saved = runtime.recordInterception(record, grant);
-        if (directReminder) return saved.thenRun(() -> acknowledgeReminder(decision.packageName, sessionId));
+        if (directReminder && effect == InterceptionEffect.RETURN_TO_TARGET) {
+            return saved.thenRun(() -> acknowledgeReminder(decision.packageName, sessionId));
+        }
         if (effect == InterceptionEffect.RETURN_TO_TARGET && decision.level != ControlLevel.SEAL
                 && decision.kind == InterceptionDecision.Kind.BLOCK) {
             return saved.thenRun(() -> acknowledgeBlock(decision, sessionId, nowWall));

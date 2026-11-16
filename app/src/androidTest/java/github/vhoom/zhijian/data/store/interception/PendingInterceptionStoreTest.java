@@ -24,6 +24,8 @@ import github.vhoom.zhijian.data.store.ZhijianStorage;
 import github.vhoom.zhijian.data.store.RuntimeStateStore;
 import github.vhoom.zhijian.data.store.settings.InteractionSettingsStore;
 import github.vhoom.zhijian.domain.interception.InterceptionDecision;
+import github.vhoom.zhijian.domain.interception.ReminderRepeatPolicy;
+import github.vhoom.zhijian.domain.interception.ReminderRestPolicy;
 import github.vhoom.zhijian.runtime.interception.InterceptionRuntime;
 import github.vhoom.zhijian.util.time.BootIdentity;
 import github.vhoom.zhijian.data.store.usage.ContinuousUsageStore;
@@ -40,57 +42,92 @@ import static org.junit.Assert.*;
 /**
  * 验证实际磁盘恢复、旧完成回调隔离及跨存储完成一致性。
  *
- * 维护日期：2026年11月15日
+ * 维护日期：2026年11月16日
  */
 public class PendingInterceptionStoreTest {
-    /** 无为和修心关闭临时放行后，两种导航都保存提醒起点，不创建授权或清零真实用量。 */
-    @Test public void reminderNavigationPersistsAcknowledgementWithoutGrantOrUsageReset() {
+    /** 随心和修心明确继续后才保存组共享提醒起点，不创建授权或清零真实用量。 */
+    @Test public void continuingReminderPersistsSharedAcknowledgementWithoutGrantOrUsageReset() {
+        assertReminderNavigation(InterceptionEffect.RETURN_TO_TARGET);
+    }
+
+    /** 提醒页退出后同组其他应用仍须休息，不能获得新一轮使用间隔。 */
+    @Test public void abandoningReminderKeepsSameGroupReminderDueUntilRested() {
+        assertReminderNavigation(InterceptionEffect.RETURN_HOME);
+    }
+
+    /** @param effect 本次明确继续或退出，覆盖两档交互强度及全天、时段连续提醒 */
+    private static void assertReminderNavigation(InterceptionEffect effect) {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         ZhijianStorage.get(context).ready().join();
         for (ControlLevel level : new ControlLevel[]{ControlLevel.MORTAL, ControlLevel.REPAIR}) {
-            for (InterceptionEffect effect : new InterceptionEffect[]{
-                    InterceptionEffect.RETURN_HOME, InterceptionEffect.RETURN_TO_TARGET}) {
-                assertReminderNavigation(context, level, effect);
+            for (InterceptionDecision.Trigger trigger : new InterceptionDecision.Trigger[]{
+                    InterceptionDecision.Trigger.CONTINUOUS, InterceptionDecision.Trigger.WINDOW_CONTINUOUS}) {
+                assertReminderNavigation(context, level, trigger, effect);
             }
         }
     }
 
-    /** @param context 已就绪的测试上下文 @param level 可交互强度 @param effect 本次导航结果 */
-    private static void assertReminderNavigation(Context context, ControlLevel level, InterceptionEffect effect) {
-        String policy = "test.ack." + UUID.randomUUID();
-        String target = policy + ".app";
+    /** @param context 已就绪的测试上下文 @param level 可交互强度
+     * @param trigger 全天或时段连续提醒 @param effect 本次导航结果 */
+    private static void assertReminderNavigation(Context context, ControlLevel level,
+            InterceptionDecision.Trigger trigger, InterceptionEffect effect) {
+        String target = "test.ack." + UUID.randomUUID();
+        String policy = "group:" + target;
+        String window = trigger == InterceptionDecision.Trigger.WINDOW_CONTINUOUS ? "active-window" : "";
+        String cycleKey = window.isEmpty() ? policy : policy + ":" + window;
+        boolean continued = effect == InterceptionEffect.RETURN_TO_TARGET;
         PendingInterception seed = pending(context, target, policy, 1L, level);
-        PendingInterception rest = new PendingInterception(seed.decision, UUID.randomUUID().toString(),
-                seed.bootId, seed.startedAtMs, seed.startedElapsedMs, 2L, seed.occurredAtMs, policy, 0L);
-        PendingInterception shown = new PendingInterception(seed.decision, UUID.randomUUID().toString(),
-                seed.bootId, seed.startedAtMs, seed.startedElapsedMs, 2L, seed.occurredAtMs, policy, 0L);
+        InterceptionDecision decision = new InterceptionDecision(target, policy, 1L,
+                InterceptionDecision.Kind.INTERRUPT, trigger, level, window,
+                60_000L, 60_000L, 0L, 60_000L, 30_000L);
+        PendingInterception rest = new PendingInterception(decision, UUID.randomUUID().toString(),
+                seed.bootId, seed.startedAtMs, seed.startedElapsedMs, 2L, seed.occurredAtMs, cycleKey, 0L);
+        PendingInterception shown = new PendingInterception(decision, UUID.randomUUID().toString(),
+                seed.bootId, seed.startedAtMs, seed.startedElapsedMs, 2L, seed.occurredAtMs, cycleKey, 0L);
         PendingInterceptionStore store = new PendingInterceptionStore(context);
         ContinuousUsageStore cycles = new ContinuousUsageStore(context);
         try {
             store.saveRest(rest);
             store.save(shown);
-            cycles.save(policy, new ContinuousUsageCycle(seed.bootId, seed.startedAtMs,
+            cycles.save(cycleKey, new ContinuousUsageCycle(seed.bootId, seed.startedAtMs,
                     seed.startedElapsedMs, 65_000L, 0L, target, "", 2L));
             new InterceptionOutcomeWriter(context).save(shown.decision, shown.sessionId, shown.occurredAtMs,
                     null, directSettings(context), effect).join();
             PendingInterceptionStore recreated = new PendingInterceptionStore(context);
-            assertNull(recreated.read(target));
+            if (continued) assertNull(recreated.read(target));
+            else {
+                assertNotNull(recreated.read(target));
+                assertEquals(shown.sessionId, recreated.read(target).sessionId);
+            }
             PendingInterception restored = recreated.restFor(rest);
             assertNotNull(restored);
-            assertEquals(65_000L, restored.acknowledgedUsageMs);
+            assertEquals(continued ? 65_000L : -1L, restored.acknowledgedUsageMs);
             assertEquals(rest.sessionId, restored.sessionId);
+            assertEquals(rest.occurredAtMs, restored.occurredAtMs);
+            assertEquals(cycleKey, restored.continuousKey);
             assertEquals(30_000L, restored.decision.minimumInterruptionPauseDurationMs);
-            assertEquals(65_000L, cycles.read(policy).usedMs);
-            assertEquals(0L, cycles.read(policy).restMs);
+            ContinuousUsageCycle cycle = cycles.read(cycleKey);
+            assertEquals(65_000L, cycle.usedMs);
+            assertEquals(0L, cycle.restMs);
+            assertEquals(1, recreated.rests(policy).size());
+            PendingInterception otherTarget = recreated.rests(policy).get(0).forTarget(target + ".second");
+            assertFalse("Navigation cannot satisfy shared rest", ReminderRestPolicy.satisfied(otherTarget, cycle));
+            assertEquals("Only continuing may defer the same-group reminder", continued ? 60_000L : 0L,
+                    ReminderRepeatPolicy.remainingUsage(otherTarget, cycle, level));
+            ContinuousUsageCycle rested = new ContinuousUsageCycle(seed.bootId, seed.startedAtMs,
+                    seed.startedElapsedMs, 65_000L, 30_000L, null, "", 2L);
+            assertTrue("Full shared rest must still release the reminder", ReminderRestPolicy.satisfied(otherTarget, rested));
             RuntimeStateStore runtime = new RuntimeStateStore(context);
             assertNull(runtime.grantFor(target));
             assertNull(runtime.checkpoint(RuntimeStateStore.continuousResumeKey(policy)));
-            recreated.acknowledgeReminder(shown, 90_000L);
-            assertEquals(65_000L, recreated.restFor(rest).acknowledgedUsageMs);
+            if (continued) {
+                recreated.acknowledgeReminder(shown, 90_000L);
+                assertEquals(65_000L, recreated.restFor(rest).acknowledgedUsageMs);
+            }
         } finally {
             store.clear(target, rest.sessionId);
             store.clearPresentation(shown.sessionId);
-            context.getSharedPreferences("continuous_usage_cycles", Context.MODE_PRIVATE).edit().remove(policy).commit();
+            context.getSharedPreferences("continuous_usage_cycles", Context.MODE_PRIVATE).edit().remove(cycleKey).commit();
         }
     }
 
