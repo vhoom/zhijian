@@ -66,6 +66,12 @@ public final class ReminderThresholdRuntimeTest {
                 MINUTE_MS + 1_000L, true, true);
     }
 
+    /** 同窗口改端点后，新窗口达到阈值仍首次提醒，旧确认不抵扣其用量。 */
+    @Test public void retimedActiveWindowDoesNotInheritOldAcknowledgement() throws Exception {
+        assertThresholdChange(RuleType.WINDOW_CONTINUOUS, MINUTE_MS, MINUTE_MS,
+                MINUTE_MS + 1_000L, true, true, true);
+    }
+
     /**
      * 保存旧提醒后实际提交新配置，再调用正式运行入口；仅清理本用例的独立组与周期。
      * @param type 全天或时段连续提醒
@@ -77,6 +83,13 @@ public final class ReminderThresholdRuntimeTest {
      */
     private static void assertThresholdChange(RuleType type, long originalLimitMs, long updatedLimitMs,
             long addedUsageMs, boolean shouldBlock, boolean switchMember) throws Exception {
+        assertThresholdChange(type, originalLimitMs, updatedLimitMs, addedUsageMs, shouldBlock, switchMember, false);
+    }
+
+    /** @param type 提醒类型 @param originalLimitMs 原阈值 @param updatedLimitMs 新阈值
+     * @param addedUsageMs 新用量 @param shouldBlock 是否拦截 @param switchMember 是否同组切换 @param retime 是否修改端点 */
+    private static void assertThresholdChange(RuleType type, long originalLimitMs, long updatedLimitMs,
+            long addedUsageMs, boolean shouldBlock, boolean switchMember, boolean retime) throws Exception {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         ZhijianStorage storage = ZhijianStorage.get(context);
         storage.ready().join();
@@ -111,6 +124,7 @@ public final class ReminderThresholdRuntimeTest {
         String cycleKey = window == null ? policyId
                 : ReminderSchedule.cycleKey(policyId, window, System.currentTimeMillis(), zoneId);
         String oldSession = "old-threshold-" + suffix;
+        String[] currentCycleKey = {cycleKey};
 
         try (FixtureCleanup cleanup = new FixtureCleanup()) {
             for (String pkg : group.apps) {
@@ -129,7 +143,7 @@ public final class ReminderThresholdRuntimeTest {
             cleanup.add(() -> groups.remove(group.id).join());
             cleanup.add(() -> assertTrue("Only the test group's cycles are removed", context
                     .getSharedPreferences("continuous_usage_cycles", Context.MODE_PRIVATE)
-                    .edit().remove(cycleKey).remove(policyId).commit()));
+                    .edit().remove(cycleKey).remove(currentCycleKey[0]).remove(policyId).commit()));
             cleanup.initialize(() -> groups.save(group).join());
 
             PolicySnapshot original = storage.snapshot();
@@ -155,6 +169,11 @@ public final class ReminderThresholdRuntimeTest {
             if (window != null) {
                 window.limitDurationMillis = updatedLimitMs;
                 window.interruptionPauseMillis = UPDATED_REST_MS;
+                if (retime) {
+                    int minute = LocalTime.now().getHour() * 60 + LocalTime.now().getMinute();
+                    window.startMinute = Math.floorMod(minute - 30, 1440);
+                    window.endMinute = (minute + 90) % 1440;
+                }
             }
             groups.save(group).join();
             PolicySnapshot latest = storage.snapshot();
@@ -162,8 +181,9 @@ public final class ReminderThresholdRuntimeTest {
             assertEquals(policyId, latest.effectivePolicyId(target));
             long wall = System.currentTimeMillis();
             long elapsed = SystemClock.elapsedRealtime();
-            long used = originalLimitMs + addedUsageMs;
-            cycles.save(cycleKey, new ContinuousUsageCycle(bootId, wall, elapsed, used, 0L, target, null, "", 2L, ORIGINAL_REST_MS),
+            currentCycleKey[0] = retime ? ReminderSchedule.cycleKey(policyId, window, wall, zoneId) : cycleKey;
+            long used = retime ? addedUsageMs : originalLimitMs + addedUsageMs;
+            cycles.save(currentCycleKey[0], new ContinuousUsageCycle(bootId, wall, elapsed, used, 0L, target, null, "", 2L, retime ? UPDATED_REST_MS : ORIGINAL_REST_MS),
                     latest.usageStart(policyId).id);
 
             InterceptionEvaluation result = new InterceptionRuntime(context).evaluate(target, wall);
@@ -173,7 +193,7 @@ public final class ReminderThresholdRuntimeTest {
                 assertEquals(updatedLimitMs, result.decision.limitValue);
                 assertEquals(latest.revisionOf(policyId), result.decision.policyRevision);
                 assertEquals(target, result.decision.packageName);
-                assertEquals(300_001L, result.decision.minimumInterruptionPauseDurationMs);
+                assertEquals(retime ? UPDATED_REST_MS : 300_001L, result.decision.minimumInterruptionPauseDurationMs);
             } else {
                 assertNull("The old shorter threshold must not trigger a page", result.decision);
                 assertTrue(result.recheckAfterMs > 0L);
@@ -185,7 +205,12 @@ public final class ReminderThresholdRuntimeTest {
             assertEquals(originalLimitMs, retained.acknowledgedUsageMs);
             assertEquals(originalLimitMs, retained.decision.limitValue);
             assertEquals(ORIGINAL_REST_MS, retained.decision.minimumInterruptionPauseDurationMs);
-            ContinuousUsageCycle persisted = cycles.read(cycleKey, latest.usageStart(policyId).id);
+            if (retime) {
+                assertEquals(2, pendingStore.rests(policyId).size());
+                assertTrue(retained.continuousCeilingMs <= wall);
+                assertEquals(cycleKey, retained.continuousKey);
+            }
+            ContinuousUsageCycle persisted = cycles.read(currentCycleKey[0], latest.usageStart(policyId).id);
             assertNotNull(persisted);
             assertTrue(persisted.usedMs >= used);
             assertEquals(2L, persisted.generation);

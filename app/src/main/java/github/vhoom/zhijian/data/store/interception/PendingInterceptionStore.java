@@ -137,10 +137,11 @@ public final class PendingInterceptionStore {
         }
     }
 
-    /** @param pending 提醒或其展示 @return 同策略、触发类型及窗口共用的休息键 */
+    /** @param pending 提醒或其展示 @return 同策略与窗口发生周期共用的休息键，配置更替不覆盖旧休息 */
     private static String restKey(PendingInterception pending) {
         return REST_PREFIX + pending.decision.policyId + ":" + pending.decision.trigger.code
-                + ":" + pending.decision.windowId;
+                + ":" + pending.decision.windowId + (pending.decision.trigger == InterceptionDecision.Trigger.WINDOW_CONTINUOUS
+                ? ":" + pending.continuousKey : "");
     }
 
     /** @param pending 原提醒或其展示 @return 该规则最新的休息事实，已解除时为空 */

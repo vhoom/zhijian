@@ -178,6 +178,34 @@ public class PendingInterceptionStoreTest {
         }
     }
 
+    /** 同窗口更替产生的新周期不能覆盖旧休息，也不能继承旧确认用量。 */
+    @Test public void changedWindowOccurrencesKeepIndependentRestFacts() {
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        String suffix = UUID.randomUUID().toString();
+        String policyId = "group:" + suffix;
+        InterceptionDecision decision = new InterceptionDecision("test.window." + suffix, policyId, 1L,
+                InterceptionDecision.Kind.INTERRUPT, InterceptionDecision.Trigger.WINDOW_CONTINUOUS,
+                ControlLevel.REPAIR, "same-window", 120_000L, 60_000L, 0L, 60_000L, 180_000L);
+        PendingInterception old = new PendingInterception(decision, "old-" + suffix, "boot", 1_000L,
+                1_000L, 0L, 1_000L, "old-occurrence", 0L, 120_000L, 100_000L);
+        PendingInterception next = new PendingInterception(decision, "new-" + suffix, "boot", 2_000L,
+                2_000L, 0L, 2_000L, "new-occurrence", 0L, -1L, 200_000L);
+        PendingInterceptionStore store = new PendingInterceptionStore(context);
+        try {
+            store.saveRest(old);
+            store.saveRest(next);
+            PendingInterceptionStore restored = new PendingInterceptionStore(context);
+            assertEquals(2, restored.rests(policyId).size());
+            assertEquals(120_000L, restored.restFor(old).acknowledgedUsageMs);
+            assertEquals(-1L, restored.restFor(next).acknowledgedUsageMs);
+            restored.clear(old.decision.packageName, old.sessionId);
+            assertNotNull(restored.restFor(next));
+        } finally {
+            store.clear(old.decision.packageName, old.sessionId);
+            store.clear(next.decision.packageName, next.sessionId);
+        }
+    }
+
     /** 禁用页面的直接返回只清展示，原禁用事实仍在且没有任何放行期限。 */
     @Test public void directReturnKeepsBlockRestrictionsWithoutGrant() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();

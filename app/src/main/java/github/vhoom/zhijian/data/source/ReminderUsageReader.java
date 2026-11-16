@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 提醒计时适配器：全天持续统计，活动时段与已触发的跨时段休息各自持久化。
@@ -80,6 +82,9 @@ public final class ReminderUsageReader {
             if (rest.decision.trigger == InterceptionDecision.Trigger.WINDOW_CONTINUOUS) {
                 RuleWindow window = ReminderSchedule.window(policy, rest.decision.windowId);
                 RuleWindowSchedule.Interval interval = RuleWindowSchedule.activeInterval(window, rest.occurredAtMs, zoneId);
+                if (interval == null || !key.equals(ReminderSchedule.cycleKey(policyId, window, rest.occurredAtMs, zoneId))) {
+                    snapshot.replacedOccurrences.add(rest.sessionId);
+                }
                 floor = !rest.continuousKey.isEmpty() ? rest.continuousFloorMs
                         : interval == null ? rest.startedAtMs : interval.startMs;
                 ceiling = rest.continuousCeilingMs;
@@ -150,6 +155,7 @@ public final class ReminderUsageReader {
         private final Map<String, Long> floors = new HashMap<>();
         private final Map<String, Long> ceilings = new HashMap<>();
         private final List<CompletedWindow> completedWindows = new ArrayList<>();
+        private final Set<String> replacedOccurrences = new HashSet<>();
         private String activeKey, activeWindowId, allDayKey;
         private ContinuousUsageCycle allDay;
 
@@ -170,6 +176,17 @@ public final class ReminderUsageReader {
         }
         /** @param rest 原未完成休息 @return 对应周期；缺权限时只使用已验证的存量进度 */
         public ContinuousUsageCycle cycle(PendingInterception rest) { return cycles.get(restKeys.get(rest.sessionId)); }
+        /** @param rest 原休息 @param decision 当前新提醒 @return 是否为同一次实际窗口或全天周期 */
+        public boolean sameOccurrence(PendingInterception rest, InterceptionDecision decision) {
+            return java.util.Objects.equals(restKeys.get(rest.sessionId), keyFor(decision));
+        }
+        /** @param rest 原休息 @return 是否可把已确认用量用于当前引擎的活动周期 */
+        public boolean appliesToCurrentUsage(PendingInterception rest) {
+            return java.util.Objects.equals(restKeys.get(rest.sessionId),
+                    rest.decision.trigger == InterceptionDecision.Trigger.WINDOW_CONTINUOUS ? activeKey : allDayKey);
+        }
+        /** @param rest 原提醒 @return 配置端点更替后只保留原休息，不继续原已确认提醒的重复计时 */
+        public boolean replacedOccurrence(PendingInterception rest) { return replacedOccurrences.contains(rest.sessionId); }
         /** @param decision 当次新触发 @return 对应当前活动周期 */
         public ContinuousUsageCycle cycle(InterceptionDecision decision) {
             return decision.trigger == InterceptionDecision.Trigger.WINDOW_CONTINUOUS ? cycles.get(activeKey) : allDay;
