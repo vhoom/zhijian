@@ -20,6 +20,7 @@ import github.vhoom.zhijian.data.model.interception.InterceptionMode;
 import github.vhoom.zhijian.data.model.settings.InteractionSettings;
 import github.vhoom.zhijian.data.model.settings.InterceptionOptions;
 import github.vhoom.zhijian.data.store.AppPolicyStore;
+import github.vhoom.zhijian.data.store.RuleGroupStore;
 import github.vhoom.zhijian.data.store.ZhijianStorage;
 import github.vhoom.zhijian.data.store.RuntimeStateStore;
 import github.vhoom.zhijian.data.store.settings.InteractionSettingsStore;
@@ -128,6 +129,52 @@ public class PendingInterceptionStoreTest {
             store.clear(target, rest.sessionId);
             store.clearPresentation(shown.sessionId);
             context.getSharedPreferences("continuous_usage_cycles", Context.MODE_PRIVATE).edit().remove(cycleKey).commit();
+        }
+    }
+
+    /** 快速同组切换保存当前目标后，正式继续确实创建该目标的访问确认。 */
+    @Test public void redirectedGroupBlockCanActuallyContinueCurrentTarget() {
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        ZhijianStorage storage = ZhijianStorage.get(context);
+        storage.ready().join();
+        org.junit.Assume.assumeTrue(storage.snapshot().level() != ControlLevel.SEAL);
+        RuleGroupStore groups = new RuleGroupStore(context);
+        RuleGroup group = groups.create();
+        String source = "test.redirect." + UUID.randomUUID();
+        String target = source + ".second";
+        group.apps.add(source);
+        group.apps.add(target);
+        group.types.add(RuleType.DAILY_COUNT);
+        group.count = 1;
+        groups.save(group).join();
+        PendingInterceptionStore pending = new PendingInterceptionStore(context);
+        String policyId = "group:" + group.id;
+        long wall = System.currentTimeMillis();
+        InterceptionDecision decision = new InterceptionDecision(source, policyId,
+                storage.snapshot().revisionOf(policyId), InterceptionDecision.Kind.BLOCK,
+                InterceptionDecision.Trigger.DAILY_COUNT, storage.snapshot().level(), "", 2L, 1L,
+                wall + 60_000L, 60_000L, 0L);
+        PendingInterception original = new PendingInterception(decision, UUID.randomUUID().toString(),
+                BootIdentity.read(context), wall, SystemClock.elapsedRealtime());
+        BlockContinuationStore continuations = new BlockContinuationStore(context);
+        try {
+            pending.save(original);
+            InterceptionRuntime runtime = new InterceptionRuntime(context);
+            runtime.observeForeground(target);
+            PendingInterception redirected = runtime.redirectSharedBlock(original, target);
+            assertNotNull(redirected);
+            assertEquals(original.sessionId, new PendingInterceptionStore(context).read(target).sessionId);
+            new InterceptionOutcomeWriter(context).save(redirected.decision, redirected.sessionId,
+                    redirected.occurredAtMs, null, directSettings(context), InterceptionEffect.RETURN_TO_TARGET).join();
+            assertNull(pending.read(target));
+            assertTrue(runtime.isContinuedBlock(redirected.decision));
+        } finally {
+            continuations.clear(target);
+            pending.clearPresentation(original.sessionId);
+            pending.clearBlock(original);
+            PendingInterception redirected = original.forTarget(target);
+            pending.clearBlock(redirected);
+            groups.remove(group.id).join();
         }
     }
 

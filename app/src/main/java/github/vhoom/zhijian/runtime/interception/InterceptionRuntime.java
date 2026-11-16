@@ -74,6 +74,31 @@ public final class InterceptionRuntime {
     /** @param packageName 真实前台包名，调用方在后台串行提交，拦截返回不结束访问 */
     public void observeForeground(String packageName) { continuations.observeForeground(packageName); }
 
+    /**
+     * 在后台持久化同组禁用的当前目标身份，完成落盘后才能启动页面或接受继续操作。
+     * @param original 已保存的原组员展示 @param target 当前组员包名
+     * @return 当前目标的完整展示；配置、原展示或放行变化时返回空
+     */
+    public PendingInterception redirectSharedBlock(PendingInterception original, String target) {
+        return ContinuousUsageReader.withCycleLock(() -> {
+            PolicySnapshot policies = storage.snapshot();
+            String policyId = policies.effectivePolicyId(target);
+            if (!policyId.startsWith("group:") || policies.level() == ControlLevel.SEAL
+                    || original.decision.kind != InterceptionDecision.Kind.BLOCK
+                    || !original.isCurrent(policyId, policies.revisionOf(policyId), policies.level(),
+                            System.currentTimeMillis())) return null;
+            PendingInterception current = pendingStore.read(original.decision.packageName);
+            if (current == null || !current.sessionId.equals(original.sessionId)
+                    || current.decision.trigger != original.decision.trigger
+                    || !current.decision.windowId.equals(original.decision.windowId)
+                    || current.decision.policyRevision != original.decision.policyRevision) return null;
+            PendingInterception selected = current.forTarget(target);
+            if (isPresentationSuppressed(selected.decision)) return null;
+            pendingStore.save(selected);
+            return selected;
+        });
+    }
+
     /** @param decision 候选展示 @return 是否属于同档位本次已确认禁用，后续开关变化不撤销确认 */
     public boolean isContinuedBlock(InterceptionDecision decision) {
         return decision.level != ControlLevel.SEAL

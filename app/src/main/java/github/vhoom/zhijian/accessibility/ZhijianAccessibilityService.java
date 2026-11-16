@@ -32,7 +32,7 @@ import java.util.concurrent.Executors;
 /**
  * 前台窗口事件的系统 Adapter；规则解释与交互流程分别交给运行模块和拦截页面。
  *
- * 维护日期：2026年11月14日
+ * 维护日期：2026年11月16日
  */
 public final class ZhijianAccessibilityService extends AccessibilityService {
     private static final String TAG = "ZhijianInterception";
@@ -262,7 +262,7 @@ public final class ZhijianAccessibilityService extends AccessibilityService {
             if (result != null && result.pending != null && packageFilter.accepts(foregroundPackage)) {
                 PendingInterception redirected = redirectSharedPending(result.pending);
                 if (redirected != null) {
-                    launchInterception(redirected, packageFilter.labelOf(foregroundPackage));
+                    persistSharedRedirect(result.pending, redirected.decision.packageName);
                     return;
                 }
             }
@@ -321,6 +321,27 @@ public final class ZhijianAccessibilityService extends AccessibilityService {
         if (grant != null && grant.covers(foregroundPackage, policyId)
                 && grant.remainingMs(runtime.bootId(), wall, SystemClock.elapsedRealtime()) > 0L) return null;
         return policyId.startsWith("group:") ? selected : null;
+    }
+
+    /** @param original 原组员展示 @param target 当前组员；串行落盘后复核真实前台，避免遗漏继续确认 */
+    private void persistSharedRedirect(PendingInterception original, String target) {
+        evaluating = true;
+        evaluationVersion = foregroundVersion;
+        try {
+            evaluator.execute(() -> {
+                try {
+                    PendingInterception saved = runtime.redirectSharedBlock(original, target);
+                    main.post(() -> completeEvaluation(target, saved == null
+                            ? InterceptionEvaluation.allow(1L) : InterceptionEvaluation.restore(saved),
+                            null, System.currentTimeMillis(), SystemClock.elapsedRealtime()));
+                } catch (Throwable failure) {
+                    main.post(() -> completeEvaluation(target, null, failure, 0L, 0L));
+                }
+            });
+        } catch (java.util.concurrent.RejectedExecutionException shuttingDown) {
+            evaluating = false;
+            if (!stopped) scheduleEvaluation(1L);
+        }
     }
 
     /**

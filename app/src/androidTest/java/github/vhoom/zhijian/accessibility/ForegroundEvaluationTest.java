@@ -43,7 +43,7 @@ import static org.junit.Assert.assertFalse;
 /**
  * 在主线程复现前台检查、闭关返回兜底及窗口回执等待之间的竞争。
  *
- * 维护日期：2026年11月14日
+ * 维护日期：2026年11月16日
  */
 public class ForegroundEvaluationTest {
     /** 在测试线程等待提交快照就绪，避免单独运行时依赖其他用例的初始化顺序。 */
@@ -149,9 +149,8 @@ public class ForegroundEvaluationTest {
                         assertTrue("A pass, stale reminder or seal mode must recheck before launching", launch == null);
                         assertScheduled(service);
                     } else {
-                        assertTrue("An exceeded group count must follow the current member", launch != null);
-                        assertTrue("test.current".equals(launch.getStringExtra("interception.package")));
-                        assertTrue(pending.sessionId.equals(launch.getStringExtra("interception.session")));
+                        assertTrue("The target must persist before launch", launch == null);
+                        assertTrue((boolean) read(service, "evaluating"));
                     }
                 } finally { service.onDestroy(); }
             });

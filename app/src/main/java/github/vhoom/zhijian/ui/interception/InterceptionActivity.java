@@ -55,7 +55,7 @@ import static github.vhoom.zhijian.ui.interception.request.InterceptionIntents.*
 /**
  * 全屏拦截协调层：接收请求、装配独立页面、执行状态机效果和保存结果。
  *
- * 维护日期：2026年11月14日
+ * 维护日期：2026年11月16日
  */
 public final class InterceptionActivity extends ThemedActivity {
     private static final String TAG = "ZhijianInterception";
@@ -649,7 +649,7 @@ public final class InterceptionActivity extends ThemedActivity {
                     }
                     PendingInterception updated = result.pending;
                     if (updated == null) { main.postDelayed(resetTick, 1_000L); return; }
-                    boolean sameReason = updated.decision.kind == decision.kind
+                    boolean sameReason = updated.sessionId.equals(sessionId) && updated.decision.kind == decision.kind
                             && updated.decision.policyId.equals(decision.policyId)
                             && updated.decision.policyRevision == decision.policyRevision
                             && updated.decision.trigger == decision.trigger
