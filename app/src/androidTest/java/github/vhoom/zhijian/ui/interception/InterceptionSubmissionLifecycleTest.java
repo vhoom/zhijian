@@ -43,6 +43,10 @@ public final class InterceptionSubmissionLifecycleTest {
         assertNotNull(activities);
         for (ActivityInfo activity : activities) assertEquals(activity.name,
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT, activity.screenOrientation);
+        if (android.os.Build.VERSION.SDK_INT >= 31) {
+            assertTrue(context.getPackageManager().getProperty(
+                    "android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY", context.getPackageName()).getBoolean());
+        }
     }
 
     /** 暂停后台完成点后重建，仍显示保存页；原任务完成后当前实例执行已确认的继续。 */

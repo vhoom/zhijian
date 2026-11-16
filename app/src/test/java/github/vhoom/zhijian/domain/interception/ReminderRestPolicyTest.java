@@ -86,6 +86,23 @@ public class ReminderRestPolicyTest {
         assertTrue(ReminderRestPolicy.satisfied(rest, full));
     }
 
+    /** 完成本轮有效要求后，原提醒代次解除，下一轮立即采用较小的新配置。 */
+    @Test public void completedOriginalRoundDoesNotKeepLargerRequirementInNextRound() {
+        PendingInterception rest = pending("group:1", 180_000L);
+        ContinuousUsageCycle partial = new ContinuousUsageCycle("boot", 1_000L, 1_000L,
+                120_000L, 0L, "other", "Main", "", 0L, 180_000L);
+        UsageTimeline timeline = new UsageTimeline("zhijian");
+        timeline.resumed("other", "Main", 1_000L);
+        timeline.resumed("a", "Main", 181_000L);
+        ContinuousUsageCycle next = partial.advance(timeline, "a"::equals, 191_000L, 191_000L, 60_000L);
+        assertTrue(ReminderRestPolicy.satisfied(rest, next));
+        assertEquals(10_000L, next.usedMs);
+        assertEquals(60_000L, next.requiredRestMs);
+        UsageTimeline nextRest = new UsageTimeline("zhijian");
+        nextRest.resumed("other", "Main", 191_000L);
+        assertEquals(0L, next.advance(nextRest, "a"::equals, 251_000L, 251_000L, 60_000L).usedMs);
+    }
+
     /** @return 已连续使用两分钟的检查点 */
     private static ContinuousUsageCycle used() { return new ContinuousUsageCycle("boot", 1_000L, 1_000L,
             120_000L, 0L, "a", "", 0L); }

@@ -77,7 +77,7 @@ public class RuleEngineTest {
     }
 
     /** 三档的单应用全天提醒保留原配置，由周期统一应用五分钟非使用边界。 */
-    @Test public void allLevelsUseSingleApplicationGraceForContinuousReminder() {
+    @Test public void allLevelsKeepConfiguredRestForContinuousReminder() {
         RuleGroup policy = policy(RuleType.CONTINUOUS);
         policy.continuousLimitMillis = 60_000L;
         for (ControlLevel level : ControlLevel.values()) {
@@ -113,7 +113,7 @@ public class RuleEngineTest {
         }
     }
 
-    /** 全局和规则组的提醒保留配置的短休息，单应用容错不会扩大其要求。 */
+    /** 全局和规则组的提醒保留配置的短休息，所有作用域使用相同非使用边界。 */
     @Test public void groupAndGlobalRemindersKeepConfiguredRestDuration() {
         RuleGroup policy = policy(RuleType.CONTINUOUS);
         policy.continuousLimitMillis = 60_000L;

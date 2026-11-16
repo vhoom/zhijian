@@ -11,6 +11,7 @@ import github.vhoom.zhijian.domain.interception.ReminderSchedule;
 import github.vhoom.zhijian.domain.interception.ReminderRestPolicy;
 import github.vhoom.zhijian.domain.interception.RuleWindowSchedule;
 import github.vhoom.zhijian.domain.usage.ContinuousUsageCycle;
+import github.vhoom.zhijian.domain.usage.ContinuousRestPolicy;
 import github.vhoom.zhijian.util.permission.PermissionStatusReader;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public final class ReminderUsageReader {
         long trackingFloor = policies.usageFloorMillis(policyId, bootId, wall, elapsed);
         if (ReminderSchedule.hasAllDay(source)) {
             scopes.put(policyId, new Scope(trackingFloor, Long.MAX_VALUE, policy.has(RuleType.CONTINUOUS)
-                    ? policy.interruptionPauseMillis : 300_001L, null));
+                    ? policy.interruptionPauseMillis : ContinuousRestPolicy.requiredRestMillis(policyId, 0L), null));
         }
         RuleWindow active = ReminderSchedule.activeWindow(policy, wall, zoneId);
         if (active != null) {
@@ -93,10 +94,9 @@ public final class ReminderUsageReader {
             long configuredRest = rest.decision.trigger == InterceptionDecision.Trigger.WINDOW_CONTINUOUS
                     ? latestWindow == null ? 0L : latestWindow.interruptionPauseMillis
                     : policy.has(RuleType.CONTINUOUS) ? policy.interruptionPauseMillis : 0L;
-            ContinuousUsageCycle saved = reader.saved(policies, policyId, key);
-            boolean completed = ReminderRestPolicy.satisfied(rest, saved);
-            long requirement = completed ? Math.max(1L, configuredRest)
-                    : Math.max(rest.decision.minimumInterruptionPauseDurationMs, configuredRest);
+            // 本轮有效要求由周期和原提醒保存；这里传入下一轮配置，完成后才能采用小值。
+            long requirement = Math.max(1L, configuredRest > 0L ? configuredRest
+                    : rest.decision.minimumInterruptionPauseDurationMs);
             scopes.put(key, new Scope(floor, ceiling, Math.max(requirement,
                     existing == null ? 0L : existing.restMs), rest));
             snapshot.restKeys.put(rest.sessionId, key);

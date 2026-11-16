@@ -131,6 +131,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Zhijian">
+        <!-- Android 16 大屏继续遵循页面方向限制，止间所有操作保持竖屏。 -->
+        <property
+            android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+            android:value="true" />
         <!-- 唯一对外 Activity 入口；其余 Activity 不对其他应用开放。 -->
         <activity
             android:screenOrientation="portrait"

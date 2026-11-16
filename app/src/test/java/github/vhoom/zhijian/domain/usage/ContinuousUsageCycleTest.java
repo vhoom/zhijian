@@ -227,6 +227,7 @@ public class ContinuousUsageCycleTest {
             assertEquals(30_000L, full.usedMs);
             assertEquals(1L, full.generation);
             assertEquals(30_000L, singleAppAfterSwitch(180_000L, 180_000L).usedMs);
+            assertEquals(30_000L, singleAppAfterSwitch(300_000L, 300_000L).usedMs);
         }
     }
 
@@ -276,8 +277,8 @@ public class ContinuousUsageCycleTest {
         }
     }
 
-    /** 五分钟边界跨检查点结算保持有效，达到边界不会提前开启代次。 */
-    @Test public void singleApplicationGraceSurvivesCheckpointRestoration() {
+    /** 连续非使用跨检查点保留，两次短间隔不会提前清零。 */
+    @Test public void partialNonUseSurvivesCheckpointRestoration() {
         long required = 600_000L;
         ContinuousUsageCycle saved = new ContinuousUsageCycle("boot", 61_000L, 61_000L,
                 60_000L, 0L, "other", "Main", "", 0L);

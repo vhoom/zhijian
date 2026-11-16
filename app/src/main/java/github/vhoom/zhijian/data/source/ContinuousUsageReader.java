@@ -17,6 +17,7 @@ import github.vhoom.zhijian.domain.usage.ContinuousRestPolicy;
 import github.vhoom.zhijian.domain.usage.ForegroundObservation;
 import github.vhoom.zhijian.domain.usage.UsageTimeline;
 import github.vhoom.zhijian.domain.usage.UsageTrackingStart;
+import github.vhoom.zhijian.domain.interception.ReminderRestPolicy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -172,6 +173,12 @@ public final class ContinuousUsageReader {
                     old.foregroundPackage, old.foregroundClass, queryStart);
             Set<String> homes = HomePackageSource.read(packages);
             Predicate<String> belongs = pkg -> belongs(policies, policyId, pkg, homes);
+            if (pending != null && old.usedMs > 0L && !ReminderRestPolicy.satisfied(pending, old)
+                    && pending.decision.minimumInterruptionPauseDurationMs > old.requiredRestMs) {
+                old = new ContinuousUsageCycle(old.bootId, old.wallMs, old.elapsedMs, old.usedMs, old.restMs,
+                        old.foregroundPackage, old.foregroundClass, old.resumeId, old.generation,
+                        pending.decision.minimumInterruptionPauseDurationMs);
+            }
             ContinuousUsageCycle next = old.advance(timeline, belongs,
                     ContinuousRestPolicy.forScope(belongs), nowWallMs, nowElapsedMs,
                     requiredRestMs, ceilingMs);
