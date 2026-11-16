@@ -7,11 +7,13 @@ import java.util.function.Predicate;
 /**
  * 一个生效策略的使用/休息周期；离组暂停累计，足额连续休息才清零。
  *
- * 维护日期：2026年11月11日
+ * 维护日期：2026年11月16日
  */
 public final class ContinuousUsageCycle {
     public final String bootId, foregroundPackage, foregroundClass, resumeId;
     public final long wallMs, elapsedMs, usedMs, restMs, generation;
+    /** 本轮有效休息配置，未开始使用时为零；增大立即接管，减小留到完成本轮后。 */
+    public final long requiredRestMs;
 
     /**
      * 保存可重放的周期检查点。
@@ -37,6 +39,15 @@ public final class ContinuousUsageCycle {
      */
     public ContinuousUsageCycle(String bootId, long wallMs, long elapsedMs, long usedMs,
             long restMs, String foregroundPackage, String foregroundClass, String resumeId, long generation) {
+        this(bootId, wallMs, elapsedMs, usedMs, restMs, foregroundPackage, foregroundClass, resumeId, generation, 0L);
+    }
+
+    /** @param bootId 启动身份 @param wallMs 墙钟边界 @param elapsedMs 单调边界 @param usedMs 使用毫秒
+     * @param restMs 连续非使用毫秒 @param foregroundPackage 前台包名 @param foregroundClass 页面类名
+     * @param resumeId 恢复身份 @param generation 已完成代次 @param requiredRestMs 本轮有效休息配置 */
+    public ContinuousUsageCycle(String bootId, long wallMs, long elapsedMs, long usedMs,
+            long restMs, String foregroundPackage, String foregroundClass, String resumeId, long generation,
+            long requiredRestMs) {
         this.bootId = Objects.requireNonNull(bootId);
         this.resumeId = Objects.requireNonNull(resumeId);
         this.wallMs = wallMs;
@@ -46,7 +57,8 @@ public final class ContinuousUsageCycle {
         this.foregroundPackage = foregroundPackage;
         this.foregroundClass = foregroundClass;
         this.generation = generation;
-        if (bootId.isEmpty() || wallMs < 0 || elapsedMs < 0 || usedMs < 0 || restMs < 0 || generation < 0) {
+        this.requiredRestMs = requiredRestMs;
+        if (bootId.isEmpty() || wallMs < 0 || elapsedMs < 0 || usedMs < 0 || restMs < 0 || generation < 0 || requiredRestMs < 0) {
             throw new IllegalArgumentException("Invalid continuous usage checkpoint");
         }
     }
@@ -79,7 +91,8 @@ public final class ContinuousUsageCycle {
         if (requiredRestMs <= 0 || nowElapsedMs < elapsedMs) {
             throw new IllegalArgumentException("Invalid continuous usage interval");
         }
-        Counter counter = new Counter(usedMs, restMs, requiredRestMs, generation);
+        long effectiveRest = usedMs > 0L ? Math.max(this.requiredRestMs, requiredRestMs) : requiredRestMs;
+        Counter counter = new Counter(usedMs, restMs, effectiveRest, requiredRestMs, generation);
         long realDelta = nowElapsedMs - elapsedMs;
         long wallDelta = nowWallMs - wallMs;
         if (wallDelta < 0 || Math.abs(wallDelta - realDelta) > 2_000L) {
@@ -105,7 +118,8 @@ public final class ContinuousUsageCycle {
         if (member(belongs, timeline.foregroundPackage())) counter.use(0L);
         else if (!canRest.test(timeline.foregroundPackage(), timeline.foregroundClass())) counter.interruptRest();
         return new ContinuousUsageCycle(bootId, nowWallMs, nowElapsedMs, counter.used,
-                counter.rest, timeline.foregroundPackage(), timeline.foregroundClass(), resumeId, counter.generation);
+                counter.rest, timeline.foregroundPackage(), timeline.foregroundClass(), resumeId, counter.generation,
+                counter.effectiveRest);
     }
 
     /** @param belongs 所属策略 @param pkg 可空包名 @return 是否属于组内使用 */
@@ -116,13 +130,17 @@ public final class ContinuousUsageCycle {
     /** 使用和休息的唯一转移实现，防止 UI 与服务各自维护不同的清零规则。 */
     private static final class Counter {
         private long used, rest, generation;
-        private final long required;
+        private long required, effectiveRest;
+        private final long configuredRest;
 
-        /** @param used 已用量 @param rest 连续休息 @param required 所需休息 @param generation 已完成周期 */
-        private Counter(long used, long rest, long required, long generation) {
+        /** @param used 已用量 @param rest 连续休息 @param effectiveRest 本轮要求
+         * @param configuredRest 下一轮配置 @param generation 已完成周期 */
+        private Counter(long used, long rest, long effectiveRest, long configuredRest, long generation) {
+            this.effectiveRest = effectiveRest;
+            this.configuredRest = configuredRest;
+            this.required = ContinuousRestPolicy.requiredRestMillis("", effectiveRest);
             this.used = used;
-            this.rest = Math.min(rest, required);
-            this.required = required;
+            this.rest = Math.min(rest, this.required);
             this.generation = generation;
         }
 
@@ -142,7 +160,11 @@ public final class ContinuousUsageCycle {
             rest = Math.min(required, add(rest, duration));
             if (rest >= required) {
                 used = 0L;
-                if (!completed) generation = add(generation, 1L);
+                if (!completed) {
+                    generation = add(generation, 1L);
+                    effectiveRest = configuredRest;
+                    required = ContinuousRestPolicy.requiredRestMillis("", configuredRest);
+                }
             }
         }
 

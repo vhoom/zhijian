@@ -10,7 +10,7 @@ import java.time.ZoneId;
 /**
  * 提醒范围策略：时段参数接管触发，已触发的休息不随时段结束取消。
  *
- * 维护日期：2026年11月08日
+ * 维护日期：2026年11月16日
  */
 public final class ReminderSchedule {
     /** 提醒策略不持有系统时钟或存储。 */
@@ -74,6 +74,6 @@ public final class ReminderSchedule {
     public static String cycleKey(String policyId, RuleWindow window, long occurredMs, String zoneId) {
         RuleWindowSchedule.Interval interval = RuleWindowSchedule.activeInterval(window, occurredMs, zoneId);
         if (interval == null) throw new IllegalArgumentException("Reminder must start in its window");
-        return policyId + ":window:" + window.id + ":" + interval.startMs;
+        return policyId + ":window:" + window.id + ":" + interval.startMs + ":" + interval.endMs;
     }
 }

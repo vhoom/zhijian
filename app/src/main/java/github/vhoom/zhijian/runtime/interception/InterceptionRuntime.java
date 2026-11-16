@@ -155,7 +155,7 @@ public final class InterceptionRuntime {
                 if (due == null) continue;
                 PendingInterception triggered = new PendingInterception(due, UUID.randomUUID().toString(),
                         bootId, nowWall, nowElapsed, cycle.generation, window.interval.endMs - 1L,
-                        window.cycleKey, window.interval.startMs);
+                         window.cycleKey, window.interval.startMs, -1L, window.interval.endMs);
                 if (!saveRest(policies, triggered)) return InterceptionEvaluation.allow(InterceptionEvaluation.DEFAULT_RECHECK_MS);
                 rests.add(triggered);
                 usage.track(triggered);
@@ -208,7 +208,8 @@ public final class InterceptionRuntime {
                 PendingInterception triggered = new PendingInterception(current.decision,
                         UUID.randomUUID().toString(), bootId, nowWall, nowElapsed,
                         cycle == null ? -1L : cycle.generation, nowWall,
-                        usage.keyFor(current.decision), usage.floorFor(current.decision));
+                        usage.keyFor(current.decision), usage.floorFor(current.decision), -1L,
+                        usage.ceilingFor(current.decision));
                 if (!saveRest(policies, triggered)) return InterceptionEvaluation.allow(InterceptionEvaluation.DEFAULT_RECHECK_MS);
                 rests.add(triggered);
                 usage.track(triggered);
@@ -266,10 +267,10 @@ public final class InterceptionRuntime {
         InterceptionDecision decision = new InterceptionDecision(target, policyId, revision, old.kind,
                 old.trigger, level, old.windowId, old.currentValue,
                 ReminderRepeatPolicy.limitMillis(rest, policy), 0L, pass,
-                ContinuousRestPolicy.requiredRestMillis(policyId, old.minimumInterruptionPauseDurationMs));
+                old.minimumInterruptionPauseDurationMs);
         return new PendingInterception(decision, rest.sessionId, rest.bootId, rest.startedAtMs,
                 rest.startedElapsedMs, rest.cycleGeneration, rest.occurredAtMs, rest.continuousKey,
-                rest.continuousFloorMs, rest.acknowledgedUsageMs);
+                rest.continuousFloorMs, rest.acknowledgedUsageMs, rest.continuousCeilingMs);
     }
 
     /**
@@ -304,20 +305,24 @@ public final class InterceptionRuntime {
                 if (samePresentation(shared, decision, rest)) reusable = shared;
             }
             boolean same = samePresentation(reusable, decision, rest);
-            long rested = cycle == null ? 0L : Math.min(cycle.restMs, decision.minimumInterruptionPauseDurationMs);
+            long rested = cycle == null ? 0L : Math.min(cycle.restMs,
+                    ContinuousRestPolicy.requiredRestMillis(decision.policyId,
+                            Math.max(decision.minimumInterruptionPauseDurationMs, cycle.requiredRestMs)));
             InterceptionDecision displayed = decision;
             if (rest != null && cycle != null) {
                 displayed = new InterceptionDecision(decision.packageName, decision.policyId, decision.policyRevision,
                         decision.kind, decision.trigger, decision.level, decision.windowId, cycle.usedMs,
                         decision.limitValue, decision.resetAtMs, decision.passDurationMs,
-                        decision.minimumInterruptionPauseDurationMs);
+                        ContinuousRestPolicy.requiredRestMillis(decision.policyId,
+                                Math.max(decision.minimumInterruptionPauseDurationMs, cycle.requiredRestMs)));
             }
             PendingInterception shown = new PendingInterception(displayed,
                     same ? reusable.sessionId : UUID.randomUUID().toString(), bootId,
                     Math.max(0L, wall - rested), Math.max(0L, elapsed - rested),
                     cycle == null ? -1L : cycle.generation,
                     rest == null ? same ? reusable.occurredAtMs : wall : rest.occurredAtMs,
-                    rest == null ? "" : rest.continuousKey, rest == null ? 0L : rest.continuousFloorMs);
+                    rest == null ? "" : rest.continuousKey, rest == null ? 0L : rest.continuousFloorMs,
+                    -1L, rest == null ? Long.MAX_VALUE : rest.continuousCeilingMs);
             pendingStore.save(shown);
             if (previous != null && !previous.sessionId.equals(shown.sessionId)) {
                 pendingStore.clearPresentation(previous.sessionId);

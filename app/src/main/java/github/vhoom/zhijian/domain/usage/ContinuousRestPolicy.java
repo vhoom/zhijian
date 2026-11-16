@@ -4,13 +4,13 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 /**
- * 三档共用离组休息策略；单应用短暂切换保留累计，较长休息配置继续生效。
+ * 三档和全部作用域共用离组休息策略，足额休息或非使用超过五分钟结束周期。
  *
- * 维护日期：2026年11月11日
+ * 维护日期：2026年11月16日
  */
 public final class ContinuousRestPolicy {
-    /** 单应用离开不超过两分钟再返回，仍属于原连续使用周期。 */
-    private static final long SINGLE_APP_SWITCH_GRACE_MS = 120_000L;
+    /** 全局连续非使用边界；恰好五分钟仍须检查本轮休息要求。 */
+    public static final long NON_USE_RESET_MS = 300_000L;
 
     /** 策略工厂不持有界面或系统对象。 */
     private ContinuousRestPolicy() { }
@@ -25,13 +25,13 @@ public final class ContinuousRestPolicy {
     }
 
     /**
-     * 单应用清零须同时超过两分钟切换容错并满足配置；组和全局仍按原休息配置。
-     * @param policyId 稳定策略主键，独立应用使用 app: 前缀，不传入时段周期键
+     * 满足本轮休息或连续非使用超过五分钟即可清零，各作用域使用相同边界。
+     * @param policyId 稳定策略主键，不影响全局非使用边界
      * @param configuredRestMs 本次周期或原提醒要求的连续休息毫秒数
-     * @return 清零和完成提醒共用的实际休息时长，精确两分钟仍保留单应用累计
+     * @return 清零和完成提醒共用的毫秒阈值，未配置休息时只采用非使用边界
      */
     public static long requiredRestMillis(String policyId, long configuredRestMs) {
-        return policyId.startsWith("app:")
-                ? Math.max(configuredRestMs, SINGLE_APP_SWITCH_GRACE_MS + 1L) : configuredRestMs;
+        return configuredRestMs > 0L ? Math.min(configuredRestMs, NON_USE_RESET_MS + 1L)
+                : NON_USE_RESET_MS + 1L;
     }
 }

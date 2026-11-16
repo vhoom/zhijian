@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 /**
  * 使用真实事件重放验证放行继续统计、休息被打断及完成后不重复休息。
  *
- * 维护日期：2026年11月14日
+ * 维护日期：2026年11月16日
  */
 public class ReminderRestPolicyTest {
     /** 无敌时间到期并不完成休息，组内切换仍继续累计。 */
@@ -59,36 +59,31 @@ public class ReminderRestPolicyTest {
         assertEquals(120_000L, ReminderRestPolicy.remaining(pending(), null));
     }
 
-    /** 已保存的单应用一分钟提醒也不能在两分钟边界完成，超过边界才结束原休息。 */
-    @Test public void singleApplicationReminderCannotCompleteAtTwoMinuteBoundary() {
-        PendingInterception rest = pending("app:a", 60_000L);
-        long required = ContinuousRestPolicy.requiredRestMillis(rest.decision.policyId,
-                rest.decision.minimumInterruptionPauseDurationMs);
-        assertEquals(120_001L, ReminderRestPolicy.remaining(rest, null));
-        UsageTimeline timeline = new UsageTimeline("zhijian");
-        timeline.resumed("other", "Main", 1_000L);
-        ContinuousUsageCycle boundary = used().advance(timeline, "a"::equals,
-                ContinuousRestPolicy.forScope("a"::equals), 121_000L, 121_000L, required, Long.MAX_VALUE);
-        assertEquals(120_000L, boundary.usedMs);
-        assertEquals(120_000L, boundary.restMs);
-        assertFalse(ReminderRestPolicy.satisfied(rest, boundary));
-        assertEquals(1L, ReminderRestPolicy.remaining(rest, boundary));
-        ContinuousUsageCycle full = boundary.advance(timeline, "a"::equals,
-                ContinuousRestPolicy.forScope("a"::equals), 121_001L, 121_001L, required, Long.MAX_VALUE);
-        assertTrue(ReminderRestPolicy.satisfied(rest, full));
-        assertEquals(0L, ReminderRestPolicy.remaining(rest, full));
+    /** 原提醒休息调大后，旧三分钟不能解除；五分钟严格边界统一生效。 */
+    @Test public void enlargedRestUsesCurrentRoundRequirement() {
+        for (String id : new String[]{"app:a", "group:1", "global"}) {
+            PendingInterception rest = pending(id, 180_000L);
+            ContinuousUsageCycle partial = new ContinuousUsageCycle("boot", 181_000L, 181_000L,
+                    120_000L, 180_000L, "other", "Main", "", 0L, 600_000L);
+            assertFalse(ReminderRestPolicy.satisfied(rest, partial));
+            assertEquals(120_001L, ReminderRestPolicy.remaining(rest, partial));
+            ContinuousUsageCycle exact = new ContinuousUsageCycle("boot", 301_000L, 301_000L,
+                    120_000L, 300_000L, "other", "Main", "", 0L, 600_000L);
+            assertFalse(ReminderRestPolicy.satisfied(rest, exact));
+            assertEquals(1L, ReminderRestPolicy.remaining(rest, exact));
+            ContinuousUsageCycle full = exact.advance(new UsageTimeline("zhijian"), "a"::equals,
+                    301_001L, 301_001L, 600_000L);
+            assertTrue(ReminderRestPolicy.satisfied(rest, full));
+        }
     }
 
-    /** 单应用原提醒要求更长休息时，两分钟容错不能代替尚未完成的完整休息。 */
-    @Test public void singleApplicationReminderKeepsLongerOriginalRestDuration() {
-        PendingInterception rest = pending("app:a", 600_000L);
-        UsageTimeline timeline = new UsageTimeline("zhijian");
-        timeline.resumed("other", "Main", 1_000L);
-        ContinuousUsageCycle cycle = used().advance(timeline, "a"::equals,
-                ContinuousRestPolicy.forScope("a"::equals), 121_001L, 121_001L,
-                ContinuousRestPolicy.requiredRestMillis(rest.decision.policyId, 600_000L), Long.MAX_VALUE);
-        assertFalse(ReminderRestPolicy.satisfied(rest, cycle));
-        assertEquals(479_999L, ReminderRestPolicy.remaining(rest, cycle));
+    /** 有效休息不足五分钟时，满足配置即完成，独立应用也相同。 */
+    @Test public void configuredShortRestCanCompleteBeforeFiveMinutes() {
+        PendingInterception rest = pending("app:a", 60_000L);
+        assertEquals(60_000L, ReminderRestPolicy.remaining(rest, null));
+        ContinuousUsageCycle full = new ContinuousUsageCycle("boot", 61_000L, 61_000L,
+                0L, 60_000L, "other", "", 1L);
+        assertTrue(ReminderRestPolicy.satisfied(rest, full));
     }
 
     /** @return 已连续使用两分钟的检查点 */

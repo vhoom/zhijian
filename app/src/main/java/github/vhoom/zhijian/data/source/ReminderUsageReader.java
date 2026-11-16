@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * 提醒计时适配器：全天持续统计，活动时段与已触发的跨时段休息各自持久化。
  *
- * 维护日期：2026年11月15日
+ * 维护日期：2026年11月16日
  */
 public final class ReminderUsageReader {
     private final Context context;
@@ -51,7 +51,8 @@ public final class ReminderUsageReader {
         Map<String, Scope> scopes = new HashMap<>();
         long trackingFloor = policies.usageFloorMillis(policyId, bootId, wall, elapsed);
         if (ReminderSchedule.hasAllDay(source)) {
-            scopes.put(policyId, new Scope(trackingFloor, Long.MAX_VALUE, Math.max(1L, policy.interruptionPauseMillis), null));
+            scopes.put(policyId, new Scope(trackingFloor, Long.MAX_VALUE, policy.has(RuleType.CONTINUOUS)
+                    ? policy.interruptionPauseMillis : 300_001L, null));
         }
         RuleWindow active = ReminderSchedule.activeWindow(policy, wall, zoneId);
         if (active != null) {
@@ -81,15 +82,24 @@ public final class ReminderUsageReader {
                 RuleWindowSchedule.Interval interval = RuleWindowSchedule.activeInterval(window, rest.occurredAtMs, zoneId);
                 floor = !rest.continuousKey.isEmpty() ? rest.continuousFloorMs
                         : interval == null ? rest.startedAtMs : interval.startMs;
-                ceiling = existing != null ? existing.ceilingMs : interval == null ? Long.MAX_VALUE : interval.endMs;
+                ceiling = rest.continuousCeilingMs;
             }
-            scopes.put(key, new Scope(floor, ceiling, Math.max(rest.decision.minimumInterruptionPauseDurationMs,
+            RuleWindow latestWindow = ReminderSchedule.window(policy, rest.decision.windowId);
+            long configuredRest = rest.decision.trigger == InterceptionDecision.Trigger.WINDOW_CONTINUOUS
+                    ? latestWindow == null ? 0L : latestWindow.interruptionPauseMillis
+                    : policy.has(RuleType.CONTINUOUS) ? policy.interruptionPauseMillis : 0L;
+            ContinuousUsageCycle saved = reader.saved(policies, policyId, key);
+            boolean completed = ReminderRestPolicy.satisfied(rest, saved);
+            long requirement = completed ? Math.max(1L, configuredRest)
+                    : Math.max(rest.decision.minimumInterruptionPauseDurationMs, configuredRest);
+            scopes.put(key, new Scope(floor, ceiling, Math.max(requirement,
                     existing == null ? 0L : existing.restMs), rest));
             snapshot.restKeys.put(rest.sessionId, key);
         }
         for (Map.Entry<String, Scope> entry : scopes.entrySet()) {
             Scope scope = entry.getValue();
             snapshot.floors.put(entry.getKey(), scope.floorMs);
+            snapshot.ceilings.put(entry.getKey(), scope.ceilingMs);
             snapshot.cycles.put(entry.getKey(), available ? reader.readScoped(policies, policyId, entry.getKey(),
                     scope.floorMs, scope.ceilingMs, scope.restMs, target, observedMs, bootId, wall, elapsed, scope.pending)
                     : reader.saved(policies, policyId, entry.getKey()));
@@ -138,6 +148,7 @@ public final class ReminderUsageReader {
         private final Map<String, ContinuousUsageCycle> cycles = new HashMap<>();
         private final Map<String, String> restKeys = new HashMap<>();
         private final Map<String, Long> floors = new HashMap<>();
+        private final Map<String, Long> ceilings = new HashMap<>();
         private final List<CompletedWindow> completedWindows = new ArrayList<>();
         private String activeKey, activeWindowId, allDayKey;
         private ContinuousUsageCycle allDay;
@@ -169,6 +180,8 @@ public final class ReminderUsageReader {
         }
         /** @param decision 新触发提醒 @return 原始窗口起点 */
         public long floorFor(InterceptionDecision decision) { return floors.getOrDefault(keyFor(decision), 0L); }
+        /** @param decision 新提醒 @return 触发时冻结的统计终点 */
+        public long ceilingFor(InterceptionDecision decision) { return ceilings.getOrDefault(keyFor(decision), Long.MAX_VALUE); }
         /** @param rest 本次新增的提醒事实，沿用已经重放的当前周期 */
         public void track(PendingInterception rest) {
             restKeys.put(rest.sessionId, rest.continuousKey.isEmpty() ? keyFor(rest.decision) : rest.continuousKey);

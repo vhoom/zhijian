@@ -145,7 +145,8 @@ public final class ReminderThresholdRuntimeTest {
                     original.level(), window == null ? "" : window.id,
                     originalLimitMs, originalLimitMs, 0L, group.passDurationMillis, ORIGINAL_REST_MS);
             PendingInterception oldRest = new PendingInterception(oldDecision, oldSession, bootId,
-                    occurredWall, occurredElapsed, 2L, occurredWall, cycleKey, floor, originalLimitMs);
+                    occurredWall, occurredElapsed, 2L, occurredWall, cycleKey, floor, originalLimitMs, window == null ? Long.MAX_VALUE
+                            : RuleWindowSchedule.activeInterval(window, occurredWall, zoneId).endMs);
             pendingStore.saveRest(oldRest);
             pendingStore.save(oldRest);
 
@@ -162,7 +163,7 @@ public final class ReminderThresholdRuntimeTest {
             long wall = System.currentTimeMillis();
             long elapsed = SystemClock.elapsedRealtime();
             long used = originalLimitMs + addedUsageMs;
-            cycles.save(cycleKey, new ContinuousUsageCycle(bootId, wall, elapsed, used, 0L, target, "", 2L),
+            cycles.save(cycleKey, new ContinuousUsageCycle(bootId, wall, elapsed, used, 0L, target, null, "", 2L, ORIGINAL_REST_MS),
                     latest.usageStart(policyId).id);
 
             InterceptionEvaluation result = new InterceptionRuntime(context).evaluate(target, wall);
@@ -172,7 +173,7 @@ public final class ReminderThresholdRuntimeTest {
                 assertEquals(updatedLimitMs, result.decision.limitValue);
                 assertEquals(latest.revisionOf(policyId), result.decision.policyRevision);
                 assertEquals(target, result.decision.packageName);
-                assertEquals(ORIGINAL_REST_MS, result.decision.minimumInterruptionPauseDurationMs);
+                assertEquals(300_001L, result.decision.minimumInterruptionPauseDurationMs);
             } else {
                 assertNull("The old shorter threshold must not trigger a page", result.decision);
                 assertTrue(result.recheckAfterMs > 0L);

@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNull;
 /**
  * 覆盖 RuleEngine 的边界输入、状态变化与回归行为。
  *
- * 维护日期：2026年11月11日
+ * 维护日期：2026年11月16日
  */
 public class RuleEngineTest {
     private static final String ZONE = "Asia/Shanghai";
@@ -76,7 +76,7 @@ public class RuleEngineTest {
         assertEquals(3 * 60_000L, result.decision.minimumInterruptionPauseDurationMs);
     }
 
-    /** 三档的单应用全天提醒共用两分钟容错，较长休息配置继续生效。 */
+    /** 三档的单应用全天提醒保留原配置，由周期统一应用五分钟非使用边界。 */
     @Test public void allLevelsUseSingleApplicationGraceForContinuousReminder() {
         RuleGroup policy = policy(RuleType.CONTINUOUS);
         policy.continuousLimitMillis = 60_000L;
@@ -87,7 +87,7 @@ public class RuleEngineTest {
                         policy, level, evidence(at(10, 0), 0L, 0L, 0L, 60_000L, null), PASS).decision;
                 assertEquals(InterceptionDecision.Trigger.CONTINUOUS, decision.trigger);
                 assertEquals(level, decision.level);
-                assertEquals(Math.max(120_001L, restMs), decision.minimumInterruptionPauseDurationMs);
+                assertEquals(restMs, decision.minimumInterruptionPauseDurationMs);
             }
         }
     }
@@ -108,7 +108,7 @@ public class RuleEngineTest {
                     2L, level, window, interval, 60_000L, interval.endMs, PASS);
             assertEquals(InterceptionDecision.Trigger.WINDOW_CONTINUOUS, active.trigger);
             assertEquals(active.trigger, completed.trigger);
-            assertEquals(120_001L, active.minimumInterruptionPauseDurationMs);
+            assertEquals(60_000L, active.minimumInterruptionPauseDurationMs);
             assertEquals(active.minimumInterruptionPauseDurationMs, completed.minimumInterruptionPauseDurationMs);
         }
     }

@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 /**
  * 纯规则模块：同一证据始终得到同一决定，不读取 Android 状态也不产生副作用。
  *
- * 维护日期：2026年11月13日
+ * 维护日期：2026年11月16日
  */
 public final class RuleEngine {
     private static final long MINUTE_MS = 60_000L;
@@ -216,7 +216,7 @@ public final class RuleEngine {
             long limit, long pass, long rest) {
         return InterceptionEvaluation.block(new InterceptionDecision(pkg, policyId, revision,
                 InterceptionDecision.Kind.INTERRUPT, trigger, level, windowId, used, limit, 0L, pass,
-                ContinuousRestPolicy.requiredRestMillis(policyId, rest)));
+                rest));
     }
 
     /**

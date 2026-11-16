@@ -16,6 +16,7 @@ import github.vhoom.zhijian.data.model.policy.BuiltInGroupPreset;
 import github.vhoom.zhijian.data.model.runtime.PendingInterception;
 import github.vhoom.zhijian.data.source.BuiltInGroupAppSource;
 import github.vhoom.zhijian.data.source.ContinuousUsageReader;
+import github.vhoom.zhijian.data.source.ContinuousRuleChangeCoordinator;
 import github.vhoom.zhijian.data.source.ReminderUsageReader;
 import github.vhoom.zhijian.data.source.RetreatProtectionReader;
 import github.vhoom.zhijian.data.store.settings.GlobalSettings;
@@ -41,7 +42,7 @@ import java.util.concurrent.RejectedExecutionException;
 /**
  * 一个进程一个实例；初始化与写入在同一后台队列，提交后才发布新配置。
  *
- * 维护日期：2026年11月15日
+ * 维护日期：2026年11月16日
  */
 public final class ZhijianStorage {
     private static volatile ZhijianStorage instance;
@@ -58,6 +59,7 @@ public final class ZhijianStorage {
     private final Context context;
     private final RetreatProtectionReader retreatProtection;
     private final PendingInterceptionStore pendingInterceptions;
+    private final ContinuousRuleChangeCoordinator continuousRuleChanges;
     private volatile State state;
     private ZhijianDatabase database;
     private Throwable initializationFailure;
@@ -98,9 +100,11 @@ public final class ZhijianStorage {
     ZhijianStorage(Context context, String databaseName, Supplier<List<String>> installedApps) {
         this.context = context;
         pendingInterceptions = new PendingInterceptionStore(context);
-        retreatProtection = new RetreatProtectionReader(context, new ReminderUsageReader(context,
+        ReminderUsageReader reminderReader = new ReminderUsageReader(context,
                 new ContinuousUsageReader(context, key -> state().runtime.checkpoint(key),
-                        this::snapshot)));
+                        this::snapshot));
+        retreatProtection = new RetreatProtectionReader(context, reminderReader);
+        continuousRuleChanges = new ContinuousRuleChangeCoordinator(reminderReader, pendingInterceptions);
         builtInWords = new BuiltInWordCatalogStore(context.getAssets());
         builtInGroups = installedApps == null ? null : new BuiltInRuleGroupStore(
                 context::getString, installedApps);
@@ -423,6 +427,7 @@ public final class ZhijianStorage {
             String bootId = BootIdentity.read(context), zoneId = ZoneId.systemDefault().getId();
             // 上次提交后即使清理中断，重新启用前仍以原已提交配置消除已取消事实。
             pendingInterceptions.clearCancelledReminders(previous, zoneId);
+            continuousRuleChanges.checkpoint(previous, bootId, wall, elapsed, zoneId);
             State next = db.runInTransaction(() -> {
                 List<PendingInterception> restrictions = previous.level() == ControlLevel.SEAL
                         ? retreatProtection.active(previous,
@@ -448,6 +453,8 @@ public final class ZhijianStorage {
             state = next;
             try {
                 pendingInterceptions.clearCancelledReminders(next.policies, zoneId);
+                pendingInterceptions.closeChangedWindowUsage(next.policies, wall, zoneId);
+                continuousRuleChanges.checkpoint(next.policies, bootId, wall, elapsed, zoneId);
             } catch (IllegalStateException cleanupFailure) {
                 // 数据库已经提交；保留成功语义，下次提交前或启动时按已提交配置重试清理。
                 DiagnosticLog.error("storage", "", "cancelled_reminder_cleanup_failed", cleanupFailure);
