@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 /**
  * 使用真实区间重放周期，覆盖统一离组休息、全局五分钟非使用及双时钟边界。
  *
- * 维护日期：2026年11月16日
+ * 维护日期：2026年11月17日
  */
 public class ContinuousUsageCycleTest {
     private static final Predicate<String> GROUP = pkg -> pkg.equals("a") || pkg.equals("b");
@@ -15,6 +15,43 @@ public class ContinuousUsageCycleTest {
     /** @return 固定时钟下的空周期 */
     private static ContinuousUsageCycle empty() {
         return new ContinuousUsageCycle("boot", 1_000L, 1_000L, 0L, 0L, null, "", 0L);
+    }
+
+    /** 挑战页静止、输入和完成阶段的页面交接都累计休息，返回组内才打断。 */
+    @Test public void challengePagesAndInteractionsCountAsRestUntilReturningToManagedApp() {
+        UsageTimeline timeline = new UsageTimeline("zhijian");
+        timeline.resumed("a", "Main", 1_000L);
+        timeline.resumed("zhijian", "InterceptionActivity", 61_000L);
+        ContinuousUsageCycle entered = empty().advance(timeline, GROUP,
+                ContinuousRestPolicy.forScope(GROUP), 61_000L, 61_000L, 180_000L, Long.MAX_VALUE);
+        timeline.resumed("zhijian", "WordChallengeActivity", 91_000L);
+        ContinuousUsageCycle answering = entered.advance(timeline, GROUP,
+                ContinuousRestPolicy.forScope(GROUP), 121_000L, 121_000L, 180_000L, Long.MAX_VALUE);
+        assertEquals(60_000L, answering.usedMs);
+        assertEquals(60_000L, answering.restMs);
+        timeline.resumed("zhijian", "SudokuChallengeActivity", 121_000L);
+        timeline.resumed("zhijian", "CompletedChallengeActivity", 151_000L);
+        ContinuousUsageCycle completed = answering.advance(timeline, GROUP,
+                ContinuousRestPolicy.forScope(GROUP), 181_000L, 181_000L, 180_000L, Long.MAX_VALUE);
+        assertEquals(60_000L, completed.usedMs);
+        assertEquals(120_000L, completed.restMs);
+        timeline.resumed("b", "Main", 191_000L);
+        ContinuousUsageCycle returned = completed.advance(timeline, GROUP,
+                ContinuousRestPolicy.forScope(GROUP), 201_000L, 201_000L, 180_000L, Long.MAX_VALUE);
+        assertEquals(70_000L, returned.usedMs);
+        assertEquals(0L, returned.restMs);
+    }
+
+    /** 留在挑战页完成足额休息即可结束周期，计时不要求退出或完成挑战。 */
+    @Test public void enoughTimeOnIdleChallengePageCompletesRest() {
+        UsageTimeline timeline = new UsageTimeline("zhijian");
+        timeline.resumed("a", "Main", 1_000L);
+        timeline.resumed("zhijian", "InterceptionActivity", 61_000L);
+        ContinuousUsageCycle rested = empty().advance(timeline, GROUP,
+                ContinuousRestPolicy.forScope(GROUP), 121_000L, 121_000L, 60_000L, Long.MAX_VALUE);
+        assertEquals(0L, rested.usedMs);
+        assertEquals(60_000L, rested.restMs);
+        assertEquals(1L, rested.generation);
     }
 
     /** 退出重开只暂停，不清零；离组期间使用其他应用不算本组使用。 */

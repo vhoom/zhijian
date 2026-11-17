@@ -4,7 +4,7 @@ date: 2026-11-17
 
 # 测试目录与运行说明
 
-本目录对应当前工作区的测试组织。审查结论与已修正问题见[测试有效性审查](测试有效性审查.md)，历史运行结果见[真机验证](真机验证.md)。本轮时段、配置更替及键盘窗口误判修复的静态核对见[时段规则修复核对](时段规则修复核对.md)。测试清单分别见[本地单元测试](本地单元测试.md)和[设备测试](设备测试.md)。源码声明数量为77个本地测试类、54个设备测试类，共775个 `@Test` 方法；循环组合不额外计数。这些数字表示测试清单，不表示通过数量或覆盖率。
+本目录对应当前工作区的测试组织。审查结论与已修正问题见[测试有效性审查](测试有效性审查.md)，历史运行结果见[真机验证](真机验证.md)。时段、配置更替及键盘窗口误判的修复依据见[时段规则修复核对](时段规则修复核对.md)，本次执行结果及挑战页休息验证见[前台窗口修复验证](前台窗口修复验证.md)。测试清单分别见[本地单元测试](本地单元测试.md)和[设备测试](设备测试.md)。源码声明数量为77个本地测试类、54个设备测试类，共778个 `@Test` 方法；循环组合不额外计数。这些数字表示测试清单，不表示通过数量或覆盖率。
 
 ## 源码组织
 
@@ -42,7 +42,8 @@ date: 2026-11-17
 | 手动规则输入与保存提示 | `RuleInputLimitsTest`、`RuleGroupValidatorTest` | `RuleInputBindingTest`、`RuleCountInputTest`、`RuleValidationUiTest`、`InputErrorTest` |
 | 限次范围与额度释放 | `CountRuleEvaluatorTest`、`RuleGroupValidatorTest`、`UsageTimelineTest`、`WeekdayRuleScheduleTest` | `WeekdayPolicyStoreTest`、`RuleCountInputTest`、`RuleGroupingTest`、`InterceptionRecoveryLifecycleTest` |
 | 前台观察、阈值与提醒 | `ForegroundObservationTest`、`ContinuousUsageCycleTest`、`RuleEngineTest`、`RuleEnginePriorityTest`、提醒系列 | `ForegroundEvaluationTest`、`runtime/interception` 系列 |
-| 有启动图标的输入法、其他浮层及真正前台切换 | — | `ForegroundWindowContinuationTest`；真实事件与独立偏好路径，系统组件元数据和前台查询回调采用可控输入，本次未运行 |
+| 有启动图标的输入法、其他浮层及真正前台切换 | — | `ForegroundWindowContinuationTest`；真实事件与独立偏好路径，系统组件元数据和前台查询回调采用可控输入，本次10个方法已通过 |
+| 挑战页静止、操作及完成后的连续休息 | `ContinuousUsageCycleTest` | `RepairContinuationTest#idleAndActiveChallengesPreserveContinuousRest`；真实按压、单词、数独页面及正式周期存储 |
 | 重装、首次生效起点与强度切换 | `UsageTrackingStartTest` | `UsageEvidenceReaderTest`、`UsageTrackingStoreTest`、`InstallationRestoreTest`、`RetreatStorageTest` |
 | 跨日生效与计算耗时后的复查期限 | `InterceptionEvaluationTest`、`WeekdayRuleScheduleTest` | `ForegroundEvaluationTest` 的午夜、延迟回调及额度到期用例 |
 | 随心与修心禁用继续、冻结开关与真实重进 | `BlockContinuationPolicyTest`、`UsageTimelineTest`、`ReminderRepeatPolicyTest` | `BlockContinuationStoreTest`、`RepairContinuationTest`、`InterceptionReentryTest#wuweiContinueAfterReusedPageDoesNotImmediatelyBlockAgain`、`ForegroundEvaluationTest` |
@@ -69,7 +70,7 @@ date: 2026-11-17
 
 ## 当前审查结论
 
-清单与源码数量一致：74 个本地测试类、450 个方法；52 个设备测试类、301 个方法。设备目录另有 7 个共享夹具 Java 文件，Debug 预览入口不计入 JUnit 清单。循环中的多个档位和参数组合不额外计数。
+清单与源码数量一致：77个本地测试类、458个方法；54个设备测试类、320个方法。共享夹具及Debug预览入口不计入JUnit清单。循环中的多个档位和参数组合不额外计数。本次实际执行结果以[前台窗口修复验证](前台窗口修复验证.md)为准。
 
 已将脱离正式调用链的优先级辅助类测试替换为 `RuleEnginePriorityTest`，直接验证当前规则入口；设备优先级夹具现在分别保存展示、休息事实和周期，断言新禁用优先展示且原休息保留。前台调度测试补齐真实启动请求、旧结果不启动、独立初始化与静心分支断言，并清理测试组自己的限制事实。
 
@@ -83,13 +84,13 @@ date: 2026-11-17
 
 ## 本次验证范围
 
-规则起点变更新增 4 个本地方法和 11 个设备方法，覆盖首次开启、旧历史裁剪、启用时已在前台、三档强度共享起点、数据库重建、安装身份隔离、连续周期身份及事务回滚。其中 `InstallationRestoreTest` 的 4 个方法通过正式初始化验证启动标识碰撞、来源墙钟较快、同次安装重启，以及偏好清理后数据库提交失败的重试。相关真实链路夹具保存周期时带入当前统计身份。本轮只做静态核对，未编译、运行测试或进行真机验证，详见[规则计时起点](../architecture/规则计时起点.md)。
+本次全部77类458个本地方法通过；9类69个设备方法通过，无失败或跳过。设备范围覆盖窗口识别、旧前台结果隔离、继续确认存储、三种挑战的正式继续与休息计时、真实重进、分组使用及额度、分组服务拦截，以及提醒阈值更新和窗口端点更替。调试包构建与Lint执行成功，Lint有71条警告。逐类结果、测试问题修正及设备授权恢复见[前台窗口修复验证](前台窗口修复验证.md)。
 
-项目命名调整已同步生产和测试中的 `ZhijianApplication`、`ZhijianStorage`、`ZhijianDatabase`、`ZhijianAccessibilityService`、主题资源引用、测试参数及 `zhijian.usage` 导出格式断言。本次仅做静态引用核对，未编译或执行测试；数据库启用新的 `zhijian.db`，旧安装的无障碍服务授权需重新开启，不能沿用此前版本的运行结果作为验证。
+`ReminderThresholdRuntimeTest` 的4个方法补测全部通过；端点更替夹具同时保存旧提醒及其匹配的旧周期，验证旧休息与新提醒分别保留。其他设备方法未在本次执行，安装恢复、完整主题及大屏方向仍须按相关任务验证。
 
-静态核对涉及测试文件与方法清单、文档数量、正式资源 ID、挑战枚举接线、页面重建和文件保存边界，不代表全部 751 个方法已运行或通过。提醒阈值回归新增 2 个本地方法及 3 个设备方法，仅完成静态核对；尚未编译、执行或安装到手机验证。
+窗口回归使用正式服务事件入口和独立偏好，组件及系统前台回调采用可控输入；真实服务和挑战回归使用正式页面与存储，并恢复测试设置。它们不能代替厂商输入法的手动验收或未执行的设备用例。
 
-当前挑战变更新增 10 个本地方法和 17 个设备方法，覆盖三档数独题目、难度确认与取消、九键填入／替换／清空、给定格不可选、未开始退出重进刷新、已答题进度恢复、单词重启时钟与旧写入拒绝，以及完成后继续流程。正式单词操作夹具等待每次答案落盘，并备份恢复用户单词文件。昼夜配色只做资源与对比度静态核对；所有新用例均未运行，未编译或进行真机验证。实现边界见[数独挑战与进度](../architecture/数独挑战与进度.md)和[挑战进度与重新进入](../architecture/挑战进度与重新进入.md)。
+实现边界分别见[规则计时起点](../architecture/规则计时起点.md)、[数独挑战与进度](../architecture/数独挑战与进度.md)和[挑战进度与重新进入](../architecture/挑战进度与重新进入.md)。
 
-提交 `828006b` 的本地 434 个通过及真机 39 个通过、1 个条件跳过记录见[真机验证](真机验证.md)。它们属于此前的拦截复查验证，不作为当前挑战开关、数独及夹具变更的通过证据。
+历史结果见[真机验证](真机验证.md)，不作为本次未执行事项的通过证据。
 

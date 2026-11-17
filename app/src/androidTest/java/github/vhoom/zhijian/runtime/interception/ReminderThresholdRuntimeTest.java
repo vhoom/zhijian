@@ -39,7 +39,7 @@ import static org.junit.Assume.assumeTrue;
 /**
  * 正式运行层读取旧提醒及更新后的规则，判定与最终展示共用新阈值，保留原休息。
  *
- * 维护日期：2026年11月16日
+ * 维护日期：2026年11月17日
  */
 public final class ReminderThresholdRuntimeTest {
     private static final long MINUTE_MS = 60_000L;
@@ -161,6 +161,10 @@ public final class ReminderThresholdRuntimeTest {
             PendingInterception oldRest = new PendingInterception(oldDecision, oldSession, bootId,
                     occurredWall, occurredElapsed, 2L, occurredWall, cycleKey, floor, originalLimitMs, window == null ? Long.MAX_VALUE
                             : RuleWindowSchedule.activeInterval(window, occurredWall, zoneId).endMs);
+            // 旧提醒与旧周期必须同时表示已经用满额度；否则改端点后零用量会被判为休息完成。
+            cycles.save(cycleKey, new ContinuousUsageCycle(bootId, occurredWall, occurredElapsed,
+                    originalLimitMs, 0L, source, null, "", 2L, ORIGINAL_REST_MS),
+                    original.usageStart(policyId).id);
             pendingStore.saveRest(oldRest);
             pendingStore.save(oldRest);
 
@@ -177,6 +181,8 @@ public final class ReminderThresholdRuntimeTest {
             }
             groups.save(group).join();
             PolicySnapshot latest = storage.snapshot();
+            assertNotNull("Saving new parameters must retain the original unfinished rest",
+                    pendingStore.restFor(oldRest));
             assertTrue(latest.revisionOf(policyId) > original.revisionOf(policyId));
             assertEquals(policyId, latest.effectivePolicyId(target));
             long wall = System.currentTimeMillis();
@@ -199,7 +205,7 @@ public final class ReminderThresholdRuntimeTest {
                 assertTrue(result.recheckAfterMs > 0L);
             }
             PendingInterception retained = new PendingInterceptionStore(context).restFor(oldRest);
-            assertNotNull(retained);
+            assertNotNull("Presenting the new window must retain the old window's separate rest", retained);
             assertEquals(oldSession, retained.sessionId);
             assertEquals(occurredWall, retained.occurredAtMs);
             assertEquals(originalLimitMs, retained.acknowledgedUsageMs);

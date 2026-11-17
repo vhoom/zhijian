@@ -16,9 +16,9 @@ import java.util.Collections;
 import static org.junit.Assert.*;
 
 /**
- * 覆盖单条禁用忽略后的提醒、其他禁用和真实应用访问边界。
+ * 覆盖本次访问确认后的全部禁用、连续提醒、配置版本和真实应用访问边界。
  *
- * 维护日期：2026年11月14日
+ * 维护日期：2026年11月17日
  */
 public class BlockContinuationPolicyTest {
     private static final String APP = "test.app";
@@ -40,27 +40,38 @@ public class BlockContinuationPolicyTest {
         assertEquals(30_000L, due.decision.minimumInterruptionPauseDurationMs);
     }
 
-    /** 没有其他规则时可以持续使用；原忽略不能覆盖新的全天额度禁用。 */
-    @Test public void ignoredRuleDoesNotHideOtherBlocks() {
+    /** 同版本访问确认覆盖全部禁用，配置版本变化后重新执行全天额度禁用。 */
+    @Test public void confirmedVisitSuppressesAllBlocksUntilPolicyRevisionChanges() {
         RuleGroup policy = ban();
-        assertNull(evaluate(policy, ControlLevel.MORTAL, 0L, continuation()).decision);
+        BlockContinuation confirmed = continuation();
+        assertNull(evaluate(policy, ControlLevel.MORTAL, 0L, confirmed).decision);
         policy.types.add(RuleType.DAILY_LIMIT);
         policy.dailyLimitMillis = 60_000L;
+        assertNull(evaluate(policy, ControlLevel.MORTAL, 0L, confirmed).decision);
+        // 新版本改为全天限时，明确验证原时段确认不能跳过新配置。
+        policy.types.remove(RuleType.WINDOW_BAN);
+        InterceptionDecision changed = evaluateWithRevision(policy, ControlLevel.MORTAL,
+                2L, 0L, confirmed).decision;
+        assertNotNull(changed);
         assertEquals(InterceptionDecision.Trigger.DAILY_LIMIT,
-                evaluate(policy, ControlLevel.MORTAL, 0L, continuation()).decision.trigger);
+                changed.trigger);
     }
 
-    /** 同组其他应用、其他窗口和更新后的策略都不继承原应用的忽略。 */
-    @Test public void continuationIsScopedToApplicationRuleAndRevision() {
+    /** 同应用同版本的其他窗口共享本次确认，其他应用、策略或版本不继承。 */
+    @Test public void continuationIsScopedToApplicationPolicyAndRevision() {
         BlockContinuation ignored = continuation();
         assertTrue(ignored.matches(decision(APP, 1L, "work", ControlLevel.MORTAL)));
         assertFalse(ignored.matches(decision("test.other", 1L, "work", ControlLevel.MORTAL)));
         assertFalse(ignored.matches(decision(APP, 2L, "work", ControlLevel.MORTAL)));
-        assertFalse(ignored.matches(decision(APP, 1L, "next", ControlLevel.MORTAL)));
+        assertTrue(ignored.matches(decision(APP, 1L, "next", ControlLevel.MORTAL)));
+        InterceptionDecision otherPolicy = new InterceptionDecision(APP, "group:2", 1L,
+                InterceptionDecision.Kind.BLOCK, InterceptionDecision.Trigger.WINDOW_BAN,
+                ControlLevel.MORTAL, "work", 1L, 1L, NOW + 60_000L, 180_000L, 0L);
+        assertFalse(ignored.matches(otherPolicy));
     }
 
-    /** 修心完成挑战后的确认只跳过当前规则，新的禁用与连续提醒仍正常生效。 */
-    @Test public void repairContinuationKeepsOtherRulesAndReminderDeadline() {
+    /** 修心确认覆盖本次访问的全部禁用，保留提醒期限，配置更新后恢复禁用。 */
+    @Test public void repairContinuationKeepsReminderDeadlineAndRejectsNewPolicyRevision() {
         RuleGroup policy = ban();
         BlockContinuation ignored = continuation(ControlLevel.REPAIR);
         assertNull(evaluate(policy, ControlLevel.REPAIR, 0L, ignored).decision);
@@ -72,11 +83,17 @@ public class BlockContinuationPolicyTest {
                 evaluate(policy, ControlLevel.REPAIR, 60_000L, ignored).decision.trigger);
         policy.types.add(RuleType.DAILY_LIMIT);
         policy.dailyLimitMillis = 60_000L;
+        assertNull(evaluate(policy, ControlLevel.REPAIR, 0L, ignored).decision);
+        assertEquals(60_000L, evaluate(policy, ControlLevel.REPAIR, 0L, ignored).recheckAfterMs);
+        policy.types.remove(RuleType.WINDOW_BAN);
+        InterceptionDecision changed = evaluateWithRevision(policy, ControlLevel.REPAIR,
+                2L, 0L, ignored).decision;
+        assertNotNull(changed);
         assertEquals(InterceptionDecision.Trigger.DAILY_LIMIT,
-                evaluate(policy, ControlLevel.REPAIR, 0L, ignored).decision.trigger);
+                changed.trigger);
     }
 
-    /** 修心超过每日允许次数时，只忽略确认的限次规则，不清零真实次数。 */
+    /** 修心超过每日允许次数时，本次访问确认跳过禁用，不清零真实次数。 */
     @Test public void repairDailyCountContinuationPreservesActualUsage() {
         RuleGroup policy = new RuleGroup(1L, "count");
         policy.types.add(RuleType.DAILY_COUNT);
@@ -149,7 +166,7 @@ public class BlockContinuationPolicyTest {
                 continuous, Collections.emptyMap());
     }
 
-    /** @return 原应用本次访问的时段禁用忽略 */
+    /** @return 从时段禁用继续后保存的原应用本次访问确认 */
     private static BlockContinuation continuation() {
         return continuation(ControlLevel.MORTAL);
     }
@@ -169,7 +186,20 @@ public class BlockContinuationPolicyTest {
     /** @param policy 当前规则 @param level 强度 @param continuous 连续用量 @param ignored 本次忽略 @return 剩余规则结果 */
     private static InterceptionEvaluation evaluate(RuleGroup policy, ControlLevel level,
             long continuous, BlockContinuation ignored) {
-        return RuleEngine.evaluate(APP, "group:1", 1L, policy, level, evidence(continuous),
+        return evaluateWithRevision(policy, level, 1L, continuous, ignored);
+    }
+
+    /**
+     * @param policy 当前规则
+     * @param level 执行强度
+     * @param revision 已提交配置版本，变化后旧访问确认失效
+     * @param continuous 连续使用量，单位毫秒
+     * @param ignored 原访问确认，不修改其身份或真实用量
+     * @return 正式规则引擎对当前版本的计算结果
+     */
+    private static InterceptionEvaluation evaluateWithRevision(RuleGroup policy, ControlLevel level,
+            long revision, long continuous, BlockContinuation ignored) {
+        return RuleEngine.evaluate(APP, "group:1", revision, policy, level, evidence(continuous),
                 180_000L, 0, ignored::matches);
     }
 }
