@@ -20,6 +20,8 @@ import github.vhoom.zhijian.data.store.RuntimeStateStore;
 import github.vhoom.zhijian.data.store.interception.BlockContinuationStore;
 import github.vhoom.zhijian.data.store.interception.PendingInterceptionStore;
 import github.vhoom.zhijian.data.store.settings.InteractionSettingsStore;
+import github.vhoom.zhijian.data.store.usage.ContinuousUsageStore;
+import github.vhoom.zhijian.domain.usage.ContinuousUsageCycle;
 import github.vhoom.zhijian.fixture.ProtectionDeviceSession;
 import github.vhoom.zhijian.fixture.SudokuDeviceDriver;
 import github.vhoom.zhijian.util.config.AppConfig;
@@ -36,9 +38,74 @@ import static org.junit.Assert.*;
 /**
  * 正式修心页面完成挑战并继续后留在目标应用，真实离开后恢复限制。
  *
- * 维护日期：2026年11月14日
+ * 维护日期：2026年11月17日
  */
 public class RepairContinuationTest {
+    /** 三种挑战页静止、实际挑战及完成后的停留均累计同一次休息，不新增应用用量。 */
+    @Test public void idleAndActiveChallengesPreserveContinuousRest() throws Exception {
+        android.content.Context context = androidx.test.platform.app.InstrumentationRegistry
+                .getInstrumentation().getTargetContext();
+        try (SudokuDeviceDriver preserved = new SudokuDeviceDriver(context)) {
+            for (InterceptionChallenge challenge : InterceptionChallenge.values()) {
+                verifyChallengeRest(challenge);
+            }
+        }
+    }
+
+    /**
+     * 通过真实页面操作与正式周期存储核对静止和挑战均计为休息。
+     * @param challenge 本次唯一启用的挑战，不改动正式挑战选择策略
+     */
+    private static void verifyChallengeRest(InterceptionChallenge challenge) throws Exception {
+        try (ProtectionDeviceSession session = new ProtectionDeviceSession()) {
+            InteractionSettingsStore settings = new InteractionSettingsStore(session.context, new AppConfig(session.context));
+            RuleGroup policy = new RuleGroup(0L, "");
+            policy.types.add(RuleType.CONTINUOUS);
+            policy.continuousLimitMillis = 6_000L;
+            policy.interruptionPauseMillis = 30_000L;
+            policy.passDurationMillis = 180_000L;
+            session.start(policy, ControlLevel.REPAIR, () -> {
+                settings.setTemporaryPassEnabled(InterceptionMode.REPAIR, false);
+                settings.setObstaclePagesEnabled(true);
+                settings.setConfirmationEnabled(true);
+                settings.setEnabled(InterceptionMode.REPAIR, challenge, true);
+                for (InterceptionChallenge candidate : InterceptionChallenge.values()) {
+                    if (candidate != challenge) settings.setEnabled(InterceptionMode.REPAIR, candidate, false);
+                }
+            });
+            Activity page = session.awaitInterception(12_000L);
+            assertNotNull(page);
+            clickWhenReady(session, page, R.id.interception_general_continue);
+            InterceptionRuntime runtime = new InterceptionRuntime(session.context);
+            String policyId = "app:" + session.target;
+            runtime.evaluate(session.target);
+            ContinuousUsageStore cycles = new ContinuousUsageStore(session.context);
+            ContinuousUsageCycle entered = cycles.read(policyId);
+            assertNotNull(entered);
+            PendingInterception rest = new PendingInterceptionStore(session.context).rests(policyId).get(0);
+            long idleStarted = SystemClock.elapsedRealtime();
+            SystemClock.sleep(1_600L);
+            runtime.evaluate(session.target);
+            ContinuousUsageCycle idle = cycles.read(policyId);
+            assertEquals("An idle challenge must not consume managed-app usage", entered.usedMs, idle.usedMs);
+            assertTrue("Idle challenge time must count toward rest",
+                    idle.restMs >= entered.restMs + SystemClock.elapsedRealtime() - idleStarted - 400L);
+            long actionStarted = SystemClock.elapsedRealtime();
+            completeChallenge(session, page, challenge);
+            SystemClock.sleep(1_000L);
+            runtime.evaluate(session.target);
+            ContinuousUsageCycle completed = cycles.read(policyId);
+            assertEquals("Challenge actions must not consume managed-app usage", entered.usedMs, completed.usedMs);
+            assertTrue("Actions and completed challenge time must continue the same rest",
+                    completed.restMs >= idle.restMs + SystemClock.elapsedRealtime() - actionStarted - 400L);
+            java.util.List<PendingInterception> rests = new PendingInterceptionStore(session.context).rests(policyId);
+            assertEquals(1, rests.size());
+            assertEquals("Completing a challenge must preserve the rest identity", rest.sessionId, rests.get(0).sessionId);
+            assertNull("Challenge completion alone must not issue a temporary pass",
+                    new RuntimeStateStore(session.context).grantFor(session.target));
+        }
+    }
+
     /** 三种挑战、开启或关闭反问，都通过正式写入器保存本次访问确认。 */
     @Test public void completedChallengesDoNotImmediatelyInterceptAgain() throws Exception {
         android.content.Context context = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getTargetContext();

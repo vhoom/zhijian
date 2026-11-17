@@ -57,8 +57,20 @@ public final class InterceptionOutcomeWriter {
      */
     public CompletableFuture<Void> save(InterceptionDecision decision, String sessionId,
             long occurredAtMs, InterceptionChallenge challenge, InteractionSettings settings, InterceptionEffect effect) {
-        long nowWall = System.currentTimeMillis();
-        long nowElapsed = SystemClock.elapsedRealtime();
+        return save(decision, sessionId, occurredAtMs, challenge, settings, effect,
+                UUID.randomUUID().toString(), System.currentTimeMillis(), SystemClock.elapsedRealtime(), BootIdentity.read(context));
+    }
+
+    /**
+     * 重建或进程恢复使用同一提交身份，原确认时间不推迟、原授权期限不延长。
+     * @param decision 冻结决定 @param sessionId 页面身份 @param occurredAtMs 原触发 @param challenge 冻结挑战
+     * @param settings 冻结选项 @param effect 用户出口 @param submissionId 提交身份
+     * @param nowWall 原确认墙钟 @param nowElapsed 原确认单调时间 @param submittedBootId 原启动身份
+     * @return 审计、授权及继续确认均完成的异步结果
+     */
+    public CompletableFuture<Void> save(InterceptionDecision decision, String sessionId, long occurredAtMs,
+            InterceptionChallenge challenge, InteractionSettings settings, InterceptionEffect effect,
+            String submissionId, long nowWall, long nowElapsed, String submittedBootId) {
         boolean directReminder = ReminderRepeatPolicy.isDirectReminder(
                 decision.kind, decision.level, settings.options.temporaryPassEnabled);
         boolean issueGrant = effect == InterceptionEffect.ISSUE_GRANT;
@@ -71,7 +83,7 @@ public final class InterceptionOutcomeWriter {
             throw new IllegalArgumentException("Completion does not match the session options");
         }
         PassGrant grant = issueGrant ? new PassGrant(decision.packageName, decision.policyId,
-                decision.policyRevision, BootIdentity.read(context), nowWall, decision.passDurationMs,
+                decision.policyRevision, submittedBootId, nowWall, decision.passDurationMs,
                 Math.addExact(nowElapsed, decision.passDurationMs)) : null;
         String challengeCode = "none";
         if (settings.options.obstaclePagesEnabled && challenge == InterceptionChallenge.WORD_TRANSLATION) {
@@ -83,7 +95,7 @@ public final class InterceptionOutcomeWriter {
             challengeCode = challenge.name().toLowerCase(Locale.ROOT);
         }
         String outcome = issueGrant ? "allowed" : effect == InterceptionEffect.RETURN_TO_TARGET ? "continued" : "abandoned";
-        InterceptionRecord record = new InterceptionRecord(issueGrant ? "pass:" + sessionId : UUID.randomUUID().toString(),
+        InterceptionRecord record = new InterceptionRecord(issueGrant ? "pass:" + sessionId : "result:" + submissionId,
                 decision.packageName, decision.policyId, decision.policyRevision,
                 decision.kind.name().toLowerCase(Locale.ROOT), decision.level.code, decision.trigger.code,
                 challengeCode, outcome, occurredAtMs, Math.max(occurredAtMs, nowWall));

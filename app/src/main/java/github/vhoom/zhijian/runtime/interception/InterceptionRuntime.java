@@ -74,6 +74,31 @@ public final class InterceptionRuntime {
     /** @param packageName 真实前台包名，调用方在后台串行提交，拦截返回不结束访问 */
     public void observeForeground(String packageName) { continuations.observeForeground(packageName); }
 
+    /**
+     * 在后台持久化同组禁用的当前目标身份，完成落盘后才能启动页面或接受继续操作。
+     * @param original 已保存的原组员展示 @param target 当前组员包名
+     * @return 当前目标的完整展示；配置、原展示或放行变化时返回空
+     */
+    public PendingInterception redirectSharedBlock(PendingInterception original, String target) {
+        return ContinuousUsageReader.withCycleLock(() -> {
+            PolicySnapshot policies = storage.snapshot();
+            String policyId = policies.effectivePolicyId(target);
+            if (!policyId.startsWith("group:") || policies.level() == ControlLevel.SEAL
+                    || original.decision.kind != InterceptionDecision.Kind.BLOCK
+                    || !original.isCurrent(policyId, policies.revisionOf(policyId), policies.level(),
+                            System.currentTimeMillis())) return null;
+            PendingInterception current = pendingStore.read(original.decision.packageName);
+            if (current == null || !current.sessionId.equals(original.sessionId)
+                    || current.decision.trigger != original.decision.trigger
+                    || !current.decision.windowId.equals(original.decision.windowId)
+                    || current.decision.policyRevision != original.decision.policyRevision) return null;
+            PendingInterception selected = current.forTarget(target);
+            if (isPresentationSuppressed(selected.decision)) return null;
+            pendingStore.save(selected);
+            return selected;
+        });
+    }
+
     /** @param decision 候选展示 @return 是否属于同档位本次已确认禁用，后续开关变化不撤销确认 */
     public boolean isContinuedBlock(InterceptionDecision decision) {
         return decision.level != ControlLevel.SEAL
@@ -149,13 +174,13 @@ public final class InterceptionRuntime {
         if (configured.enabled) {
             for (ReminderUsageReader.CompletedWindow window : usage.completedWindows()) {
                 ContinuousUsageCycle cycle = usage.cycle(window);
-                if (cycle == null || hasRest(rests, window.window.id)) continue;
+                if (cycle == null || hasRest(rests, window.cycleKey)) continue;
                 InterceptionDecision due = RuleEngine.completedWindowReminder(packageName, policyId, revision,
                         policies.level(), window.window, window.interval, cycle.usedMs, nowWall, passDurationMillis(policy));
                 if (due == null) continue;
                 PendingInterception triggered = new PendingInterception(due, UUID.randomUUID().toString(),
                         bootId, nowWall, nowElapsed, cycle.generation, window.interval.endMs - 1L,
-                        window.cycleKey, window.interval.startMs);
+                         window.cycleKey, window.interval.startMs, -1L, window.interval.endMs);
                 if (!saveRest(policies, triggered)) return InterceptionEvaluation.allow(InterceptionEvaluation.DEFAULT_RECHECK_MS);
                 rests.add(triggered);
                 usage.track(triggered);
@@ -185,7 +210,9 @@ public final class InterceptionRuntime {
         int resetMinute = settings.dailyResetMinute();
         UsageEvidence evidence = readEvidence(packageName, policy, policies, nowWall, nowElapsed, resetMinute,
                 foregroundObservedAtMs, usage.allDay()).withWindowContinuousMillis(usage.windowUsage());
-        UsageEvidence reminderEvidence = ReminderRepeatPolicy.forEvaluation(evidence, rests, policies.level());
+        List<PendingInterception> activeRests = new java.util.ArrayList<>();
+        for (PendingInterception rest : rests) if (usage.appliesToCurrentUsage(rest)) activeRests.add(rest);
+        UsageEvidence reminderEvidence = ReminderRepeatPolicy.forEvaluation(evidence, activeRests, policies.level());
         List<BlockContinuation> ignored = policies.level() != ControlLevel.SEAL
                 ? continuations.readForVisit(packageName, bootId,
                 start -> evidenceReader.reopenedSince(packageName, start, nowWall, foregroundObservedAtMs))
@@ -201,14 +228,16 @@ public final class InterceptionRuntime {
             boolean known = false;
             for (PendingInterception rest : rests) {
                 if (rest.decision.trigger == current.decision.trigger
-                        && rest.decision.windowId.equals(current.decision.windowId)) known = true;
+                        && rest.decision.windowId.equals(current.decision.windowId)
+                        && usage.sameOccurrence(rest, current.decision)) known = true;
             }
             if (!known) {
                 ContinuousUsageCycle cycle = usage.cycle(current.decision);
                 PendingInterception triggered = new PendingInterception(current.decision,
                         UUID.randomUUID().toString(), bootId, nowWall, nowElapsed,
                         cycle == null ? -1L : cycle.generation, nowWall,
-                        usage.keyFor(current.decision), usage.floorFor(current.decision));
+                        usage.keyFor(current.decision), usage.floorFor(current.decision), -1L,
+                        usage.ceilingFor(current.decision));
                 if (!saveRest(policies, triggered)) return InterceptionEvaluation.allow(InterceptionEvaluation.DEFAULT_RECHECK_MS);
                 rests.add(triggered);
                 usage.track(triggered);
@@ -217,6 +246,8 @@ public final class InterceptionRuntime {
         PendingInterception selected = null;
         long nextCheck = current.recheckAfterMs;
         for (PendingInterception rest : rests) {
+            if (usage.replacedOccurrence(rest) && rest.acknowledgedUsageMs >= 0L
+                    && policies.level() != ControlLevel.SEAL) continue;
             long remainingUsage = ReminderRepeatPolicy.remainingUsage(rest, usage.cycle(rest), policies.level(),
                     ReminderRepeatPolicy.limitMillis(rest, policy));
             if (remainingUsage > 0L) {
@@ -236,11 +267,11 @@ public final class InterceptionRuntime {
         return InterceptionEvaluation.allow(nextCheck);
     }
 
-    /** @param rests 已触发休息 @param windowId 窗口身份 @return 相同窗口是否仍有未完成休息 */
-    private static boolean hasRest(java.util.List<PendingInterception> rests, String windowId) {
+    /** @param rests 已触发休息 @param cycleKey 实际窗口发生身份 @return 同次发生是否仍有未完成休息 */
+    private static boolean hasRest(java.util.List<PendingInterception> rests, String cycleKey) {
         for (PendingInterception rest : rests) {
             if (rest.decision.trigger == InterceptionDecision.Trigger.WINDOW_CONTINUOUS
-                    && rest.decision.windowId.equals(windowId)) return true;
+                    && rest.continuousKey.equals(cycleKey)) return true;
         }
         return false;
     }
@@ -266,10 +297,10 @@ public final class InterceptionRuntime {
         InterceptionDecision decision = new InterceptionDecision(target, policyId, revision, old.kind,
                 old.trigger, level, old.windowId, old.currentValue,
                 ReminderRepeatPolicy.limitMillis(rest, policy), 0L, pass,
-                ContinuousRestPolicy.requiredRestMillis(policyId, old.minimumInterruptionPauseDurationMs));
+                old.minimumInterruptionPauseDurationMs);
         return new PendingInterception(decision, rest.sessionId, rest.bootId, rest.startedAtMs,
                 rest.startedElapsedMs, rest.cycleGeneration, rest.occurredAtMs, rest.continuousKey,
-                rest.continuousFloorMs, rest.acknowledgedUsageMs);
+                rest.continuousFloorMs, rest.acknowledgedUsageMs, rest.continuousCeilingMs);
     }
 
     /**
@@ -304,20 +335,24 @@ public final class InterceptionRuntime {
                 if (samePresentation(shared, decision, rest)) reusable = shared;
             }
             boolean same = samePresentation(reusable, decision, rest);
-            long rested = cycle == null ? 0L : Math.min(cycle.restMs, decision.minimumInterruptionPauseDurationMs);
+            long rested = cycle == null ? 0L : Math.min(cycle.restMs,
+                    ContinuousRestPolicy.requiredRestMillis(decision.policyId,
+                            Math.max(decision.minimumInterruptionPauseDurationMs, cycle.requiredRestMs)));
             InterceptionDecision displayed = decision;
             if (rest != null && cycle != null) {
                 displayed = new InterceptionDecision(decision.packageName, decision.policyId, decision.policyRevision,
                         decision.kind, decision.trigger, decision.level, decision.windowId, cycle.usedMs,
                         decision.limitValue, decision.resetAtMs, decision.passDurationMs,
-                        decision.minimumInterruptionPauseDurationMs);
+                        ContinuousRestPolicy.requiredRestMillis(decision.policyId,
+                                Math.max(decision.minimumInterruptionPauseDurationMs, cycle.requiredRestMs)));
             }
             PendingInterception shown = new PendingInterception(displayed,
                     same ? reusable.sessionId : UUID.randomUUID().toString(), bootId,
                     Math.max(0L, wall - rested), Math.max(0L, elapsed - rested),
                     cycle == null ? -1L : cycle.generation,
                     rest == null ? same ? reusable.occurredAtMs : wall : rest.occurredAtMs,
-                    rest == null ? "" : rest.continuousKey, rest == null ? 0L : rest.continuousFloorMs);
+                    rest == null ? "" : rest.continuousKey, rest == null ? 0L : rest.continuousFloorMs,
+                    -1L, rest == null ? Long.MAX_VALUE : rest.continuousCeilingMs);
             pendingStore.save(shown);
             if (previous != null && !previous.sessionId.equals(shown.sessionId)) {
                 pendingStore.clearPresentation(previous.sessionId);
@@ -334,7 +369,8 @@ public final class InterceptionRuntime {
                 && shown.decision.policyRevision == decision.policyRevision
                 && shown.decision.kind == decision.kind && shown.decision.level == decision.level
                 && (rest == null || shown.occurredAtMs == rest.occurredAtMs
-                && shown.decision.trigger == decision.trigger && shown.decision.windowId.equals(decision.windowId));
+                && shown.decision.trigger == decision.trigger && shown.decision.windowId.equals(decision.windowId)
+                && shown.continuousKey.equals(rest.continuousKey));
     }
 
     /**

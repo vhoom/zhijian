@@ -190,7 +190,7 @@ public class ReminderRepeatPolicyTest {
                     active.interruptionPauseMillis = 180_000L;
                     policy.windows.add(active);
                 }
-                for (ControlLevel level : new ControlLevel[]{ControlLevel.MORTAL, ControlLevel.FRICTION}) {
+                for (ControlLevel level : new ControlLevel[]{ControlLevel.MORTAL, ControlLevel.REPAIR}) {
                     InterceptionDecision old = new InterceptionDecision("app.test", "group:1", 1L,
                             InterceptionDecision.Kind.INTERRUPT, trigger, level, window ? "active" : "",
                             oldLimit, oldLimit, 0L, PASS_MS, 600_000L);

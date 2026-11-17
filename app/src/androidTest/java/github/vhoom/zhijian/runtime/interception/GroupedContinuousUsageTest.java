@@ -37,7 +37,7 @@ import static org.junit.Assert.*;
 /**
  * 在隔离模拟器用真实 UsageEvents 验证同组累计、共享休息和跨组独立使用。
  *
- * 维护日期：2026年11月15日
+ * 维护日期：2026年11月17日
  */
 public class GroupedContinuousUsageTest {
     /** 辅助应用必须可启动、未配置独立或组规则，且不能被系统识别为桌面。 */
@@ -112,7 +112,7 @@ public class GroupedContinuousUsageTest {
     }
 
     /**
-     * 使用历史基线构造有效的一位小数分钟额度，让两应用分别不足而合计超限。
+     * 从正式保存的首次生效起点统计，让两应用分别不足而合计超限。
      * @param type 每日限时或时段限时
      */
     private static void assertSharedTimedLimit(RuleType type) throws Exception {
@@ -125,29 +125,35 @@ public class GroupedContinuousUsageTest {
                     Math.floorMod(minute - 1, 1440), Math.floorMod(minute + 60, 1440), 6_000L);
             if (type == RuleType.WINDOW_LIMIT) group.windows.add(window);
             UsageEvidenceReader reader = new UsageEvidenceReader(device.context);
-            long now = System.currentTimeMillis();
             int reset = new github.vhoom.zhijian.data.store.settings.GlobalSettings(device.context,
                     new github.vhoom.zhijian.util.config.AppConfig(device.context)).dailyResetMinute();
-            github.vhoom.zhijian.domain.interception.UsageEvidence a = reader.read(device.a, group, now, 0L, reset);
-            github.vhoom.zhijian.domain.interception.UsageEvidence b = reader.read(device.b, group, now, 0L, reset);
-            long baseline = type == RuleType.DAILY_LIMIT ? a.appForegroundMs + b.appForegroundMs
-                    : a.windowForegroundMs(window.id) + b.windowForegroundMs(window.id);
-            long limit = (baseline / 6_000L + 2L) * 6_000L;
+            long limit = 12_000L;
             if (type == RuleType.DAILY_LIMIT) group.dailyLimitMillis = limit;
             else window.limitDurationMillis = limit;
             group.apps.addAll(Arrays.asList(device.a, device.b));
             device.created.add(group);
             device.groups.save(group).join();
-            long eachDuration = (limit - baseline) / 2L + 600L;
+            String policyId = "group:" + group.id;
+            assertEquals(policyId, ZhijianStorage.get(device.context).snapshot().effectivePolicyId(device.a));
+            assertEquals(policyId, ZhijianStorage.get(device.context).snapshot().effectivePolicyId(device.b));
+            assertNotNull(ZhijianStorage.get(device.context).snapshot().usageStart(policyId));
+            long eachDuration = limit / 2L + 600L;
             device.open(device.a);
             SystemClock.sleep(eachDuration);
             device.open(device.b);
             SystemClock.sleep(eachDuration);
             long end = System.currentTimeMillis();
-            github.vhoom.zhijian.domain.interception.UsageEvidence current = reader.read(device.b, group, end, 0L, reset);
-            assertTrue("Current member alone must still be below the group limit",
-                    (type == RuleType.DAILY_LIMIT ? current.appForegroundMs
-                            : current.windowForegroundMs(window.id)) < limit);
+            long floor = ZhijianStorage.get(device.context).snapshot().usageFloorMillis(policyId,
+                    BootIdentity.read(device.context), end, SystemClock.elapsedRealtime());
+            github.vhoom.zhijian.domain.interception.UsageEvidence a = reader.read(device.a, group,
+                    end, 0L, reset, 0L, device.a::equals, floor);
+            github.vhoom.zhijian.domain.interception.UsageEvidence b = reader.read(device.b, group,
+                    end, 0L, reset, device.observedAtMs, device.b::equals, floor);
+            long aUsage = type == RuleType.DAILY_LIMIT ? a.appForegroundMs : a.windowForegroundMs(window.id);
+            long bUsage = type == RuleType.DAILY_LIMIT ? b.appForegroundMs : b.windowForegroundMs(window.id);
+            assertTrue("The first member alone must be below the group limit", aUsage < limit);
+            assertTrue("The current member alone must be below the group limit", bUsage < limit);
+            assertTrue("The members together must reach the group limit", aUsage + bUsage >= limit);
             InterceptionEvaluation result = new InterceptionRuntime(device.context).evaluate(device.b, device.observedAtMs);
             assertNotNull("Combined foreground duration must consume the group limit", result.decision);
             assertEquals(type == RuleType.DAILY_LIMIT ? InterceptionDecision.Trigger.DAILY_LIMIT
@@ -160,15 +166,11 @@ public class GroupedContinuousUsageTest {
         try (DeviceSession device = new DeviceSession()) {
             RuleGroup group = device.groups.create();
             group.types.add(RuleType.DAILY_COUNT);
-            UsageEvidenceReader reader = new UsageEvidenceReader(device.context);
-            long now = System.currentTimeMillis();
-            int reset = new github.vhoom.zhijian.data.store.settings.GlobalSettings(device.context,
-                    new github.vhoom.zhijian.util.config.AppConfig(device.context)).dailyResetMinute();
-            group.count = Math.toIntExact(reader.read(device.a, group, now, 0L, reset).openCount
-                    + reader.read(device.b, group, now, 0L, reset).openCount + 2L);
+            group.count = 2;
             group.apps.addAll(Arrays.asList(device.a, device.b));
             device.created.add(group);
             device.groups.save(group).join();
+            assertNotNull(ZhijianStorage.get(device.context).snapshot().usageStart("group:" + group.id));
             device.open(device.a);
             assertNull(new InterceptionRuntime(device.context).evaluate(device.a, device.observedAtMs).decision);
             device.open(device.b);
@@ -177,6 +179,7 @@ public class GroupedContinuousUsageTest {
             InterceptionEvaluation result = new InterceptionRuntime(device.context).evaluate(device.a, device.observedAtMs);
             assertNotNull("Exceeding the shared count must block the current member", result.decision);
             assertEquals(InterceptionDecision.Trigger.DAILY_COUNT, result.decision.trigger);
+            assertEquals("Only openings since the rule became active count", 3L, result.decision.currentValue);
         }
     }
 

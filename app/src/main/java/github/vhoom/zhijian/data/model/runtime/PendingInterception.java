@@ -8,7 +8,7 @@ import java.util.Objects;
 /**
  * 已触发的拦截与休息事实；无为或修心处理提醒不等于完成真实休息。
  *
- * 维护日期：2026年11月13日
+ * 维护日期：2026年11月16日
  */
 public final class PendingInterception {
     public final InterceptionDecision decision;
@@ -21,6 +21,8 @@ public final class PendingInterception {
     /** 独立提醒周期身份及原始起点，修改时段端点不改变已经触发的休息。 */
     public final String continuousKey;
     public final long continuousFloorMs;
+    /** 原窗口使用统计终点；全天为 Long.MAX_VALUE，配置更替不得延长旧窗口。 */
+    public final long continuousCeilingMs;
     /** 无为或修心按冻结选项处理该提醒时的真实连续用量；-1 表示未处理，不作为休息完成或禁用放行依据。 */
     public final long acknowledgedUsageMs;
 
@@ -77,6 +79,17 @@ public final class PendingInterception {
     public PendingInterception(InterceptionDecision decision, String sessionId, String bootId,
             long startedAtMs, long startedElapsedMs, long cycleGeneration, long occurredAtMs,
             String continuousKey, long continuousFloorMs, long acknowledgedUsageMs) {
+        this(decision, sessionId, bootId, startedAtMs, startedElapsedMs, cycleGeneration, occurredAtMs,
+                continuousKey, continuousFloorMs, acknowledgedUsageMs, Long.MAX_VALUE);
+    }
+
+    /** @param decision 原决定 @param sessionId 会话身份 @param bootId 启动身份
+     * @param startedAtMs 休息墙钟 @param startedElapsedMs 休息单调时间 @param cycleGeneration 周期代次
+     * @param occurredAtMs 原触发时间 @param continuousKey 周期身份 @param continuousFloorMs 原起点
+     * @param acknowledgedUsageMs 已确认用量 @param continuousCeilingMs 原统计终点 */
+    public PendingInterception(InterceptionDecision decision, String sessionId, String bootId,
+            long startedAtMs, long startedElapsedMs, long cycleGeneration, long occurredAtMs,
+            String continuousKey, long continuousFloorMs, long acknowledgedUsageMs, long continuousCeilingMs) {
         this.decision = Objects.requireNonNull(decision);
         this.sessionId = Objects.requireNonNull(sessionId);
         this.bootId = Objects.requireNonNull(bootId);
@@ -86,9 +99,10 @@ public final class PendingInterception {
         this.occurredAtMs = occurredAtMs;
         this.continuousKey = Objects.requireNonNull(continuousKey);
         this.continuousFloorMs = continuousFloorMs;
+        this.continuousCeilingMs = continuousCeilingMs;
         this.acknowledgedUsageMs = acknowledgedUsageMs;
         if (sessionId.isEmpty() || bootId.isEmpty() || startedAtMs < 0 || startedElapsedMs < 0 || occurredAtMs < 0
-                || continuousFloorMs < 0 || acknowledgedUsageMs < -1L) {
+                || continuousFloorMs < 0 || continuousCeilingMs < continuousFloorMs || acknowledgedUsageMs < -1L) {
             throw new IllegalArgumentException("Invalid pending interception");
         }
     }
@@ -127,6 +141,23 @@ public final class PendingInterception {
                 old.kind, old.trigger, old.level, old.windowId, old.currentValue, old.limitValue,
                 old.resetAtMs, old.passDurationMs, old.minimumInterruptionPauseDurationMs);
         return new PendingInterception(selected, sessionId, bootId, startedAtMs, startedElapsedMs,
-                cycleGeneration, occurredAtMs, continuousKey, continuousFloorMs, acknowledgedUsageMs);
+                cycleGeneration, occurredAtMs, continuousKey, continuousFloorMs, acknowledgedUsageMs, continuousCeilingMs);
+    }
+
+    /** @param ceilingMs 配置更替时的统计终点 @return 只缩短统计边界，保留原用量确认及休息事实 */
+    public PendingInterception closeUsageAt(long ceilingMs) {
+        return new PendingInterception(decision, sessionId, bootId, startedAtMs, startedElapsedMs,
+                cycleGeneration, occurredAtMs, continuousKey, continuousFloorMs, acknowledgedUsageMs,
+                Math.max(continuousFloorMs, Math.min(continuousCeilingMs, ceilingMs)));
+    }
+
+    /** @param configuredMs 最新配置休息毫秒 @return 增大立即生效、减小不撤销本轮要求的事实 */
+    public PendingInterception increaseRestRequirement(long configuredMs) {
+        InterceptionDecision old = decision;
+        InterceptionDecision effective = new InterceptionDecision(old.packageName, old.policyId, old.policyRevision,
+                old.kind, old.trigger, old.level, old.windowId, old.currentValue, old.limitValue,
+                old.resetAtMs, old.passDurationMs, Math.max(old.minimumInterruptionPauseDurationMs, configuredMs));
+        return new PendingInterception(effective, sessionId, bootId, startedAtMs, startedElapsedMs,
+                cycleGeneration, occurredAtMs, continuousKey, continuousFloorMs, acknowledgedUsageMs, continuousCeilingMs);
     }
 }

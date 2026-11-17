@@ -19,7 +19,7 @@ import java.util.function.LongPredicate;
 /**
  * 持久化一次应用访问的禁用忽略；后台前台观察和结果提交共用原子偏好快照。
  *
- * 维护日期：2026年11月14日
+ * 维护日期：2026年11月16日
  */
 public final class BlockContinuationStore {
     private static final Object LOCK = new Object();
@@ -67,7 +67,9 @@ public final class BlockContinuationStore {
         }
         BlockContinuation continuation = new BlockContinuation(confirmed.packageName, confirmed.policyId,
                 confirmed.policyRevision, confirmed.level, confirmed.trigger, confirmed.windowId, pending.bootId, confirmedAtMs);
-        if (!continuation.matches(pending.decision) || pending.startedAtMs > confirmedAtMs) return false;
+        if (!continuation.matches(pending.decision) || pending.startedAtMs > confirmedAtMs
+                || confirmed.trigger != pending.decision.trigger
+                || !confirmed.windowId.equals(pending.decision.windowId)) return false;
         synchronized (LOCK) {
             String foreground = preferences.getString(FOREGROUND, confirmed.packageName);
             if (!foreground.equals(confirmed.packageName)) return false;

@@ -14,7 +14,7 @@ import java.util.Set;
 /**
  * 只让有启动入口的第三方应用进入规则判定，排除 止间、桌面与系统界面。
  *
- * 维护日期：2026年11月14日
+ * 维护日期：2026年11月17日
  */
 final class ManagedPackageFilter {
     private final PackageManager packageManager;
@@ -38,7 +38,8 @@ final class ManagedPackageFilter {
     }
 
     /**
-     * 区分输入法、系统浮层与真正的应用切换；桌面即使没有启动图标也属于真实离开。
+     * 排除没有独立入口的系统浮层；有图标的输入法和弹窗另由窗口类及系统前台证据核实。
+     * 桌面即使没有启动图标也属于真实离开。
      * @param packageName 窗口事件报告的包名
      * @return 没有独立应用入口且不属于桌面或 止间的瞬时窗口
      */

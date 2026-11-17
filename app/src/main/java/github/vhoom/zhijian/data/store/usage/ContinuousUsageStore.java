@@ -9,7 +9,7 @@ import org.json.JSONObject;
 /**
  * 按生效策略持久化连续周期，独立于页面和进程生命周期。
  *
- * 维护日期：2026年11月15日
+ * 维护日期：2026年11月16日
  */
 public final class ContinuousUsageStore {
     private final SharedPreferences preferences;
@@ -39,7 +39,7 @@ public final class ContinuousUsageStore {
                     row.getLong("elapsed"), row.getLong("used"), row.getLong("rest"),
                     row.isNull("foreground") ? null : row.getString("foreground"),
                     row.isNull("activity") ? null : row.getString("activity"), row.getString("resume"),
-                    row.getLong("generation"));
+                    row.getLong("generation"), row.optLong("requiredRest", 0L));
         } catch (JSONException | IllegalArgumentException failure) {
             throw new IllegalStateException("Invalid continuous usage state: " + policyId, failure);
         }
@@ -58,7 +58,8 @@ public final class ContinuousUsageStore {
                     .put("elapsed", cycle.elapsedMs).put("used", cycle.usedMs).put("rest", cycle.restMs)
                     .put("foreground", cycle.foregroundPackage == null ? JSONObject.NULL : cycle.foregroundPackage)
                     .put("activity", cycle.foregroundClass == null ? JSONObject.NULL : cycle.foregroundClass)
-                    .put("resume", cycle.resumeId).put("generation", cycle.generation);
+                    .put("resume", cycle.resumeId).put("generation", cycle.generation)
+                    .put("requiredRest", cycle.requiredRestMs);
             if (!preferences.edit().putString(policyId, row.toString()).commit()) {
                 throw new IllegalStateException("Could not persist continuous usage state");
             }

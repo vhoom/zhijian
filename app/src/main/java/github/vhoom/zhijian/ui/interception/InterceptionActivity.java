@@ -40,7 +40,8 @@ import github.vhoom.zhijian.ui.interception.preview.InterceptionPreviewCatalog;
 import github.vhoom.zhijian.ui.interception.preview.InterceptionPreviewPanel;
 import github.vhoom.zhijian.ui.interception.request.InterceptionIntents;
 import github.vhoom.zhijian.ui.interception.session.InteractionSessionState;
-import github.vhoom.zhijian.ui.interception.session.InterceptionOutcomeWriter;
+import github.vhoom.zhijian.ui.interception.session.InterceptionSubmission;
+import github.vhoom.zhijian.ui.component.async.FutureUiObserver;
 import github.vhoom.zhijian.ui.interception.session.PageSession;
 import github.vhoom.zhijian.util.config.AppConfig;
 import github.vhoom.zhijian.util.diagnostics.DiagnosticLog;
@@ -55,7 +56,7 @@ import static github.vhoom.zhijian.ui.interception.request.InterceptionIntents.*
 /**
  * 全屏拦截协调层：接收请求、装配独立页面、执行状态机效果和保存结果。
  *
- * 维护日期：2026年11月14日
+ * 维护日期：2026年11月16日
  */
 public final class InterceptionActivity extends ThemedActivity {
     private static final String TAG = "ZhijianInterception";
@@ -95,6 +96,9 @@ public final class InterceptionActivity extends ThemedActivity {
     private long ruleRecheckDeadlineElapsedMs;
     private int copyVariant;
     private boolean busy;
+    private InterceptionSubmission submission;
+    private Bundle completionPageState;
+    private FutureUiObserver<Void> submissionObserver;
     private boolean debugPreview;
     private boolean debugGallery;
     private int debugPageIndex;
@@ -249,6 +253,7 @@ public final class InterceptionActivity extends ThemedActivity {
      * @param state 待恢复或处理的状态快照
      */
     private void loadRequest(Bundle state) {
+        if (submissionObserver != null) submissionObserver.close();
         requestGeneration++;
         recoveryChecking = false;
         ruleRecheckDeadlineElapsedMs = 0L;
@@ -352,11 +357,17 @@ public final class InterceptionActivity extends ThemedActivity {
         if (!debugPreview && sameSession && !flow.containsStage(stage)) {
             stage = flow.initialStage();
         }
-        busy = false;
+        Object retained = getLastNonConfigurationInstance();
+        submission = sameSession ? InterceptionSubmission.restore(state,
+                retained instanceof InterceptionSubmission ? (InterceptionSubmission) retained : submission,
+                decision, sessionId, occurredAtMs, challenge, interactionSettings) : null;
+        completionPageState = submission == null ? null : new Bundle(state);
+        busy = submission != null;
         DiagnosticLog.info("activity", sessionId, "request package="
                 + decision.packageName + " trigger=" + decision.trigger.code
                 + " stage=" + stage.name());
-        render(sameSession ? state : null);
+        if (busy) observeSubmission();
+        else render(sameSession ? state : null);
     }
 
     /** @return 正式页面打开时独立生成的种子；显式 Debug 预览保持可重复的会话样例 */
@@ -649,7 +660,7 @@ public final class InterceptionActivity extends ThemedActivity {
                     }
                     PendingInterception updated = result.pending;
                     if (updated == null) { main.postDelayed(resetTick, 1_000L); return; }
-                    boolean sameReason = updated.decision.kind == decision.kind
+                    boolean sameReason = updated.sessionId.equals(sessionId) && updated.decision.kind == decision.kind
                             && updated.decision.policyId.equals(decision.policyId)
                             && updated.decision.policyRevision == decision.policyRevision
                             && updated.decision.trigger == decision.trigger
@@ -693,43 +704,45 @@ public final class InterceptionActivity extends ThemedActivity {
             else goHome();
             return;
         }
+        completionPageState = new Bundle();
+        onSaveInstanceState(completionPageState);
+        submission = new InterceptionSubmission(UUID.randomUUID().toString(), decision, sessionId, occurredAtMs,
+                challenge, interactionSettings, effect, System.currentTimeMillis(), SystemClock.elapsedRealtime(), BootIdentity.read(this));
         busy = true;
-        int completedGeneration = requestGeneration;
-        Bundle retainedPage = new Bundle();
-        if (activePage != null) activePage.save(retainedPage);
+        observeSubmission();
+    }
+
+    /** 重新绑定后台提交结果；后台完成保留出口，到当前页面真正恢复前台后再导航。 */
+    private void observeSubmission() {
+        if (submission == null) return;
+        if (submissionObserver != null) submissionObserver.close();
         hideAllPages();
         savingPage.setVisibility(View.VISIBLE);
-        String completedSession = sessionId;
-        CompletableFuture<Void> saved = new InterceptionOutcomeWriter(this).save(
-                decision, sessionId, occurredAtMs, challenge, interactionSettings, effect);
-        if (challenge == InterceptionChallenge.SUDOKU) {
-            saved = saved.thenCompose(ignored ->
-                    new github.vhoom.zhijian.data.store.interception.SudokuProgressStore(this)
-                            .finishSession(completedSession));
-        } else if (challenge == InterceptionChallenge.WORD_TRANSLATION) {
-            saved = saved.thenCompose(ignored ->
-                    new github.vhoom.zhijian.data.store.interception.WordProgressStore(this)
-                            .finishSession(completedSession));
-        }
-        saved.whenComplete((ignored, failure) -> {
-            if (failure != null) DiagnosticLog.error("outcome", completedSession,
-                    "save_failed effect=" + effect.name(), failure);
-            else DiagnosticLog.info("outcome", completedSession, "saved effect=" + effect.name());
-            runOnUiThread(() -> {
-                    if (isDestroyed() || completedGeneration != requestGeneration) return;
-                    if (failure != null && allow) {
-                        Log.e(TAG, "Could not persist interception outcome", failure);
-                        busy = false;
-                        Toast.makeText(this, R.string.storage_save_failed, Toast.LENGTH_LONG).show();
-                        render(retainedPage);
-                        return;
-                    }
-                    if (failure != null) Log.e(TAG, "Could not record abandoned interception", failure);
-                    if (allow) finishToTarget();
-                    else goHome();
-            });
+        InterceptionSubmission current = submission;
+        int generation = requestGeneration;
+        submissionObserver = new FutureUiObserver<>(current.save(this), this, (ignored, failure) -> {
+            if (!resumed || current != submission || generation != requestGeneration) return;
+            boolean allow = current.effect != InterceptionEffect.RETURN_HOME;
+            if (failure != null && allow) {
+                DiagnosticLog.error("outcome", current.sessionId, "save_failed effect=" + current.effect.name(), failure);
+                Bundle retainedPage = completionPageState;
+                submission = null;
+                completionPageState = null;
+                busy = false;
+                Toast.makeText(this, R.string.storage_save_failed, Toast.LENGTH_LONG).show();
+                render(retainedPage);
+                return;
+            }
+            if (failure != null) Log.e(TAG, "Could not record abandoned interception", failure);
+            submission = null;
+            completionPageState = null;
+            if (allow) finishToTarget();
+            else goHome();
         });
     }
+
+    /** @return 配置重建继续观察的后台任务，不持有原页面或控件 */
+    @Override public Object onRetainNonConfigurationInstance() { return submission; }
 
     /** 返回系统桌面并移除拦截任务。 */
     private void goHome() {
@@ -770,6 +783,10 @@ public final class InterceptionActivity extends ThemedActivity {
     protected void onResume() {
         super.onResume();
         resumed = true;
+        if (submission != null) {
+            observeSubmission();
+            return;
+        }
         if (activePage != null && !busy) {
             boolean reopenedInitial = refreshInitialActionsOnResume;
             boolean reopenedChallenge = refreshChallengeOnResume;
@@ -823,6 +840,7 @@ public final class InterceptionActivity extends ThemedActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (sessionId == null || stage == null) return;
+        if (submission != null && completionPageState != null) outState.putAll(completionPageState);
         outState.putString(STATE_SESSION, sessionId);
         outState.putString(STATE_STAGE, stage.name());
         outState.putInt(STATE_COPY_VARIANT, copyVariant);
@@ -835,11 +853,13 @@ public final class InterceptionActivity extends ThemedActivity {
         if (BuildConfig.DEBUG && debugGallery) outState.putInt(STATE_DEBUG_PAGE, debugPageIndex);
         InteractionSessionState.save(outState, interactionSettings, challenge);
         if (activePage != null) activePage.save(outState);
+        if (submission != null) submission.saveState(outState);
     }
 
     /** 销毁页面前移除所有 Handler 回调。 */
     @Override
     protected void onDestroy() {
+        if (submissionObserver != null) submissionObserver.close();
         if (previewPanel != null) previewPanel.close();
         stopTimers();
         super.onDestroy();

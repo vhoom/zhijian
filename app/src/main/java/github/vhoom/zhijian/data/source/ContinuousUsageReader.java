@@ -17,6 +17,7 @@ import github.vhoom.zhijian.domain.usage.ContinuousRestPolicy;
 import github.vhoom.zhijian.domain.usage.ForegroundObservation;
 import github.vhoom.zhijian.domain.usage.UsageTimeline;
 import github.vhoom.zhijian.domain.usage.UsageTrackingStart;
+import github.vhoom.zhijian.domain.interception.ReminderRestPolicy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +28,7 @@ import java.util.function.Supplier;
 /**
  * 系统事件到规则组周期的适配器；共享策略身份决定哪些应用共用使用与休息。
  *
- * 维护日期：2026年11月15日
+ * 维护日期：2026年11月16日
  */
 public final class ContinuousUsageReader {
     private static final Object LOCK = new Object();
@@ -109,7 +110,7 @@ public final class ContinuousUsageReader {
     /**
      * 结算有限时段的使用及持续到当前时刻的休息，结束后的前台时间不补进原窗口。
      * @param policies 配置快照 @param policyId 使用归属 @param cycleKey 周期键 @param floorMs 原起点
-     * @param ceilingMs 原时段结束，全天为 Long.MAX_VALUE @param requiredRestMs 配置休息，单应用另保留两分钟切换容错
+     * @param ceilingMs 原时段结束，全天为 Long.MAX_VALUE @param requiredRestMs 配置休息，所有作用域共用五分钟非使用边界
      * @param target 当前观察目标 @param observedAtMs 观察时刻 @param bootId 启动身份
      * @param nowWallMs 当前墙钟 @param nowElapsedMs 当前单调时间 @param pending 原休息事实
      * @return 增量结算后的周期
@@ -158,7 +159,7 @@ public final class ContinuousUsageReader {
             } else if (!bootId.equals(old.bootId)) {
                 // 跨开机保留用量和已确认休息，不用可修改的墙钟赠送关机期间的休息。
                 old = new ContinuousUsageCycle(bootId, bootWall, 0L, old.usedMs, old.restMs,
-                        null, old.resumeId, old.generation);
+                        null, null, old.resumeId, old.generation, old.requiredRestMs);
             }
             if (ceilingMs <= old.wallMs && old.usedMs == 0L && pending == null) {
                 if (old != saved) store.save(cycleKey, old, trackingId);
@@ -172,9 +173,15 @@ public final class ContinuousUsageReader {
                     old.foregroundPackage, old.foregroundClass, queryStart);
             Set<String> homes = HomePackageSource.read(packages);
             Predicate<String> belongs = pkg -> belongs(policies, policyId, pkg, homes);
+            if (pending != null && old.usedMs > 0L && !ReminderRestPolicy.satisfied(pending, old)
+                    && pending.decision.minimumInterruptionPauseDurationMs > old.requiredRestMs) {
+                old = new ContinuousUsageCycle(old.bootId, old.wallMs, old.elapsedMs, old.usedMs, old.restMs,
+                        old.foregroundPackage, old.foregroundClass, old.resumeId, old.generation,
+                        pending.decision.minimumInterruptionPauseDurationMs);
+            }
             ContinuousUsageCycle next = old.advance(timeline, belongs,
                     ContinuousRestPolicy.forScope(belongs), nowWallMs, nowElapsedMs,
-                    ContinuousRestPolicy.requiredRestMillis(policyId, requiredRestMs), ceilingMs);
+                    requiredRestMs, ceilingMs);
             store.save(cycleKey, next, trackingId);
             return next;
         }

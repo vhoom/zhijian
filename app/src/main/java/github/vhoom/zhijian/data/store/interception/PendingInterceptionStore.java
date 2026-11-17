@@ -9,6 +9,9 @@ import github.vhoom.zhijian.data.model.runtime.PendingInterception;
 import github.vhoom.zhijian.data.store.PolicySnapshot;
 import github.vhoom.zhijian.domain.interception.InterceptionDecision;
 import github.vhoom.zhijian.domain.interception.ReminderSchedule;
+import github.vhoom.zhijian.domain.interception.RuleWindowSchedule;
+import github.vhoom.zhijian.domain.interception.WeekdayRuleSchedule;
+import github.vhoom.zhijian.data.model.policy.RuleWindow;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,7 +24,7 @@ import java.util.Set;
 /**
  * 每个目标应用只保存一个未完成会话；后台同步落盘后才允许启动拦截页面。
  *
- * 维护日期：2026年11月15日
+ * 维护日期：2026年11月16日
  */
 public final class PendingInterceptionStore {
     private static final String REST_PREFIX = "reminder-rest:";
@@ -62,7 +65,7 @@ public final class PendingInterceptionStore {
                         row.getString("boot"), row.getLong("wall"), row.getLong("elapsed"),
                         row.getLong("generation"), row.getLong("occurred"),
                         row.getString("cycleKey"), row.getLong("cycleFloor"),
-                        row.optLong("acknowledgedUsage", -1L));
+                        row.optLong("acknowledgedUsage", -1L), row.getLong("cycleCeiling"));
             } catch (JSONException | IllegalArgumentException invalid) {
                 preferences.edit().remove(packageName).apply();
                 return null;
@@ -134,10 +137,11 @@ public final class PendingInterceptionStore {
         }
     }
 
-    /** @param pending 提醒或其展示 @return 同策略、触发类型及窗口共用的休息键 */
+    /** @param pending 提醒或其展示 @return 同策略与窗口发生周期共用的休息键，配置更替不覆盖旧休息 */
     private static String restKey(PendingInterception pending) {
         return REST_PREFIX + pending.decision.policyId + ":" + pending.decision.trigger.code
-                + ":" + pending.decision.windowId;
+                + ":" + pending.decision.windowId + (pending.decision.trigger == InterceptionDecision.Trigger.WINDOW_CONTINUOUS
+                ? ":" + pending.continuousKey : "");
     }
 
     /** @param pending 原提醒或其展示 @return 该规则最新的休息事实，已解除时为空 */
@@ -162,6 +166,7 @@ public final class PendingInterceptionStore {
                         .put("generation", pending.cycleGeneration).put("occurred", pending.occurredAtMs)
                         .put("cycleKey", pending.continuousKey).put("cycleFloor", pending.continuousFloorMs)
                         .put("acknowledgedUsage", pending.acknowledgedUsageMs)
+                        .put("cycleCeiling", pending.continuousCeilingMs)
                         .put("copyVariant", variant);
                 if (!preferences.edit().putString(key, row.toString()).commit()) {
                     throw new IllegalStateException("Could not save pending interception");
@@ -221,6 +226,29 @@ public final class PendingInterceptionStore {
                 }
             }
             if (changed && !editor.commit()) throw new IllegalStateException("Could not clear cancelled reminders");
+        }
+    }
+
+    /**
+     * 时段发生身份改变后，旧提醒仅保留休息，使用量最迟统计到配置生效时刻。
+     * @param policies 新提交快照 @param wallMs 配置生效墙钟 @param zoneId 设备时区
+     */
+    public void closeChangedWindowUsage(PolicySnapshot policies, long wallMs, String zoneId) {
+        synchronized (LOCK) {
+            Map<String, RuleGroup> configured = policies.configuredPolicies();
+            for (String key : new ArrayList<>(preferences.getAll().keySet())) {
+                PendingInterception value = read(key);
+                if (value == null || value.decision.trigger != InterceptionDecision.Trigger.WINDOW_CONTINUOUS) continue;
+                RuleGroup source = configured.get(value.decision.policyId);
+                if (source == null) continue;
+                RuleWindow window = ReminderSchedule.window(WeekdayRuleSchedule.resolve(source,
+                        value.occurredAtMs, zoneId), value.decision.windowId);
+                RuleWindowSchedule.Interval interval = RuleWindowSchedule.activeInterval(window, value.occurredAtMs, zoneId);
+                if (interval == null || !value.continuousKey.equals(ReminderSchedule.cycleKey(
+                        value.decision.policyId, window, value.occurredAtMs, zoneId))) {
+                    saveAt(key, value.closeUsageAt(wallMs));
+                }
+            }
         }
     }
 

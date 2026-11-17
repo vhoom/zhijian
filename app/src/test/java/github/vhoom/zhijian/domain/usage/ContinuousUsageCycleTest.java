@@ -5,9 +5,9 @@ import java.util.function.Predicate;
 import static org.junit.Assert.*;
 
 /**
- * 使用真实区间重放周期，覆盖统一离组休息、单应用两分钟切换及双时钟边界。
+ * 使用真实区间重放周期，覆盖统一离组休息、全局五分钟非使用及双时钟边界。
  *
- * 维护日期：2026年11月14日
+ * 维护日期：2026年11月17日
  */
 public class ContinuousUsageCycleTest {
     private static final Predicate<String> GROUP = pkg -> pkg.equals("a") || pkg.equals("b");
@@ -15,6 +15,43 @@ public class ContinuousUsageCycleTest {
     /** @return 固定时钟下的空周期 */
     private static ContinuousUsageCycle empty() {
         return new ContinuousUsageCycle("boot", 1_000L, 1_000L, 0L, 0L, null, "", 0L);
+    }
+
+    /** 挑战页静止、输入和完成阶段的页面交接都累计休息，返回组内才打断。 */
+    @Test public void challengePagesAndInteractionsCountAsRestUntilReturningToManagedApp() {
+        UsageTimeline timeline = new UsageTimeline("zhijian");
+        timeline.resumed("a", "Main", 1_000L);
+        timeline.resumed("zhijian", "InterceptionActivity", 61_000L);
+        ContinuousUsageCycle entered = empty().advance(timeline, GROUP,
+                ContinuousRestPolicy.forScope(GROUP), 61_000L, 61_000L, 180_000L, Long.MAX_VALUE);
+        timeline.resumed("zhijian", "WordChallengeActivity", 91_000L);
+        ContinuousUsageCycle answering = entered.advance(timeline, GROUP,
+                ContinuousRestPolicy.forScope(GROUP), 121_000L, 121_000L, 180_000L, Long.MAX_VALUE);
+        assertEquals(60_000L, answering.usedMs);
+        assertEquals(60_000L, answering.restMs);
+        timeline.resumed("zhijian", "SudokuChallengeActivity", 121_000L);
+        timeline.resumed("zhijian", "CompletedChallengeActivity", 151_000L);
+        ContinuousUsageCycle completed = answering.advance(timeline, GROUP,
+                ContinuousRestPolicy.forScope(GROUP), 181_000L, 181_000L, 180_000L, Long.MAX_VALUE);
+        assertEquals(60_000L, completed.usedMs);
+        assertEquals(120_000L, completed.restMs);
+        timeline.resumed("b", "Main", 191_000L);
+        ContinuousUsageCycle returned = completed.advance(timeline, GROUP,
+                ContinuousRestPolicy.forScope(GROUP), 201_000L, 201_000L, 180_000L, Long.MAX_VALUE);
+        assertEquals(70_000L, returned.usedMs);
+        assertEquals(0L, returned.restMs);
+    }
+
+    /** 留在挑战页完成足额休息即可结束周期，计时不要求退出或完成挑战。 */
+    @Test public void enoughTimeOnIdleChallengePageCompletesRest() {
+        UsageTimeline timeline = new UsageTimeline("zhijian");
+        timeline.resumed("a", "Main", 1_000L);
+        timeline.resumed("zhijian", "InterceptionActivity", 61_000L);
+        ContinuousUsageCycle rested = empty().advance(timeline, GROUP,
+                ContinuousRestPolicy.forScope(GROUP), 121_000L, 121_000L, 60_000L, Long.MAX_VALUE);
+        assertEquals(0L, rested.usedMs);
+        assertEquals(60_000L, rested.restMs);
+        assertEquals(1L, rested.generation);
     }
 
     /** 退出重开只暂停，不清零；离组期间使用其他应用不算本组使用。 */
@@ -137,7 +174,7 @@ public class ContinuousUsageCycleTest {
         timeline.resumed("other", "Main", 61_000L);
         ContinuousUsageCycle result = groupCycle(empty(), timeline, 661_000L, Long.MAX_VALUE);
         assertEquals(0L, result.usedMs);
-        assertEquals(600_000L, result.restMs);
+        assertEquals(300_001L, result.restMs);
         assertEquals(1L, result.generation);
     }
 
@@ -148,11 +185,11 @@ public class ContinuousUsageCycleTest {
         timeline.resumed("home", "Launcher", 61_000L);
         timeline.resumed("zhijian", "github.vhoom.zhijian.ui.interception.InterceptionActivity", 261_000L);
         timeline.screenChanged(false, 461_000L);
-        ContinuousUsageCycle near = groupCycle(empty(), timeline, 660_000L, Long.MAX_VALUE);
-        assertEquals(599_000L, near.restMs);
+        ContinuousUsageCycle near = groupCycle(empty(), timeline, 361_000L, Long.MAX_VALUE);
+        assertEquals(300_000L, near.restMs);
         assertEquals(60_000L, near.usedMs);
-        ContinuousUsageCycle full = groupCycle(empty(), timeline, 661_000L, Long.MAX_VALUE);
-        assertEquals(600_000L, full.restMs);
+        ContinuousUsageCycle full = groupCycle(empty(), timeline, 361_001L, Long.MAX_VALUE);
+        assertEquals(300_001L, full.restMs);
         assertEquals(0L, full.usedMs);
         assertEquals(1L, full.generation);
     }
@@ -165,7 +202,7 @@ public class ContinuousUsageCycleTest {
         timeline.resumed("zhijian", "github.vhoom.zhijian.ui.activity.SettingsActivity", 361_000L);
         ContinuousUsageCycle result = groupCycle(empty(), timeline, 661_000L, Long.MAX_VALUE);
         assertEquals(0L, result.usedMs);
-        assertEquals(600_000L, result.restMs);
+        assertEquals(300_001L, result.restMs);
         assertEquals(1L, result.generation);
         assertEquals(1L, timeline.openCount("zhijian", 0L, 661_000L));
         assertEquals(600_000L, timeline.foregroundMillis("zhijian", 0L, 661_000L));
@@ -218,35 +255,47 @@ public class ContinuousUsageCycleTest {
         }
     }
 
-    /** 单应用离开一分钟、接近两分钟或恰好两分钟都保留累计，离开时间不算使用。 */
-    @Test public void singleApplicationKeepsUsageThroughTwoMinuteSwitches() {
-        for (long restMs : new long[]{60_000L, 120_000L, 600_000L}) {
-            for (long awayMs : new long[]{60_000L, 119_999L, 120_000L}) {
-                ContinuousUsageCycle result = singleAppAfterSwitch(awayMs, restMs);
-                assertEquals(90_000L, result.usedMs);
-                assertEquals(0L, result.restMs);
-                assertEquals(0L, result.generation);
-            }
+    /** 本轮休息较长时，恰好五分钟保留用量，超过一毫秒结束周期。 */
+    @Test public void allScopesShareStrictFiveMinuteBoundary() {
+        for (String id : new String[]{"app:a", "group:1", "global"}) {
+            assertEquals(300_001L, ContinuousRestPolicy.requiredRestMillis(id, 600_000L));
+            assertEquals(90_000L, singleAppAfterSwitch(300_000L, 600_000L).usedMs);
+            ContinuousUsageCycle full = singleAppAfterSwitch(300_001L, 600_000L);
+            assertEquals(30_000L, full.usedMs);
+            assertEquals(1L, full.generation);
+            assertEquals(30_000L, singleAppAfterSwitch(180_000L, 180_000L).usedMs);
+            assertEquals(30_000L, singleAppAfterSwitch(300_000L, 300_000L).usedMs);
         }
     }
 
-    /** 配置休息不足或等于两分钟时，超过两分钟一毫秒才开始新周期。 */
-    @Test public void singleApplicationStartsNewCycleOnlyAfterTwoMinutes() {
-        for (long restMs : new long[]{60_000L, 120_000L}) {
-            ContinuousUsageCycle result = singleAppAfterSwitch(120_001L, restMs);
-            assertEquals(30_000L, result.usedMs);
-            assertEquals(1L, result.generation);
-        }
-    }
-
-    /** 更长的休息要求继续生效，满足配置的精确边界才清零。 */
-    @Test public void singleApplicationWaitsForLongerConfiguredRest() {
-        for (long awayMs : new long[]{120_001L, 599_999L}) {
-            assertEquals(90_000L, singleAppAfterSwitch(awayMs, 600_000L).usedMs);
-        }
-        ContinuousUsageCycle full = singleAppAfterSwitch(600_000L, 600_000L);
-        assertEquals(30_000L, full.usedMs);
+    /** 未完成本轮时调大立即接管；随后调小不撤销增大后的要求。 */
+    @Test public void largerRestWinsUntilCurrentRoundCompletes() {
+        ContinuousUsageCycle start = new ContinuousUsageCycle("boot", 1_000L, 1_000L,
+                120_000L, 0L, "other", "Main", "", 0L, 180_000L);
+        UsageTimeline rest = new UsageTimeline("zhijian");
+        rest.resumed("other", "Main", 1_000L);
+        ContinuousUsageCycle enlarged = start.advance(rest, GROUP, 61_000L, 61_000L, 600_000L);
+        ContinuousUsageCycle lowered = enlarged.advance(rest, GROUP, 181_000L, 181_000L, 60_000L);
+        assertEquals(120_000L, lowered.usedMs);
+        assertEquals(600_000L, lowered.requiredRestMs);
+        assertEquals(180_000L, lowered.restMs);
+        ContinuousUsageCycle full = lowered.advance(rest, GROUP, 301_001L, 301_001L, 60_000L);
+        assertEquals(0L, full.usedMs);
         assertEquals(1L, full.generation);
+        assertEquals(60_000L, full.requiredRestMs);
+    }
+
+    /** 调小不提前清零，满足本轮原休息后下一轮采用小值。 */
+    @Test public void smallerRestAppliesAfterOriginalRestCompletes() {
+        ContinuousUsageCycle start = new ContinuousUsageCycle("boot", 1_000L, 1_000L,
+                120_000L, 0L, "other", "Main", "", 0L, 180_000L);
+        UsageTimeline rest = new UsageTimeline("zhijian");
+        rest.resumed("other", "Main", 1_000L);
+        ContinuousUsageCycle partial = start.advance(rest, GROUP, 61_000L, 61_000L, 60_000L);
+        assertEquals(120_000L, partial.usedMs);
+        ContinuousUsageCycle full = partial.advance(rest, GROUP, 181_000L, 181_000L, 60_000L);
+        assertEquals(0L, full.usedMs);
+        assertEquals(60_000L, full.requiredRestMs);
     }
 
     /** 桌面和锁屏的短暂离开也保留单应用累计，不要求必须切换到另一个应用。 */
@@ -259,15 +308,15 @@ public class ContinuousUsageCycleTest {
             timeline.resumed("a", "Main", 181_000L);
             ContinuousUsageCycle result = empty().advance(timeline, "a"::equals,
                     ContinuousRestPolicy.forScope("a"::equals), 211_000L, 211_000L,
-                    ContinuousRestPolicy.requiredRestMillis("app:a", 60_000L), Long.MAX_VALUE);
+                    600_000L, Long.MAX_VALUE);
             assertEquals(90_000L, result.usedMs);
             assertEquals(0L, result.generation);
         }
     }
 
-    /** 两分钟容错跨检查点结算保持有效，达到边界不会提前开启代次。 */
-    @Test public void singleApplicationGraceSurvivesCheckpointRestoration() {
-        long required = ContinuousRestPolicy.requiredRestMillis("app:a", 60_000L);
+    /** 连续非使用跨检查点保留，两次短间隔不会提前清零。 */
+    @Test public void partialNonUseSurvivesCheckpointRestoration() {
+        long required = 600_000L;
         ContinuousUsageCycle saved = new ContinuousUsageCycle("boot", 61_000L, 61_000L,
                 60_000L, 0L, "other", "Main", "", 0L);
         UsageTimeline first = new UsageTimeline("zhijian");
@@ -295,7 +344,7 @@ public class ContinuousUsageCycleTest {
         timeline.resumed("a", "Main", 271_000L);
         ContinuousUsageCycle result = empty().advance(timeline, "a"::equals,
                 ContinuousRestPolicy.forScope("a"::equals), 301_000L, 301_000L,
-                ContinuousRestPolicy.requiredRestMillis("app:a", 60_000L), Long.MAX_VALUE);
+                600_000L, Long.MAX_VALUE);
         assertEquals(120_000L, result.usedMs);
         assertEquals(0L, result.generation);
     }
@@ -308,7 +357,7 @@ public class ContinuousUsageCycleTest {
         timeline.resumed("a", "Main", 61_000L + awayMs);
         long now = 91_000L + awayMs;
         return empty().advance(timeline, "a"::equals, ContinuousRestPolicy.forScope("a"::equals),
-                now, now, ContinuousRestPolicy.requiredRestMillis("app:a", restMs), Long.MAX_VALUE);
+                now, now, restMs, Long.MAX_VALUE);
     }
 
     /** @param old 已保存周期 @param timeline 真实事件 @param now 同步双时钟 @param end 使用终点

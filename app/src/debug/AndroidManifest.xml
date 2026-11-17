@@ -3,6 +3,7 @@
     <application>
         <!-- 仅 Debug 变体存在；前台 Activity 可绕过厂商对后台广播启动页面的限制。 -->
         <activity
+            android:screenOrientation="portrait"
             android:name="github.vhoom.zhijian.debug.DebugInterceptionActivity"
             android:excludeFromRecents="true"
             android:exported="true"

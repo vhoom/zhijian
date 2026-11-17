@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * 从桌面重新进入目标应用，验证无为继续、修心恢复页面及闭关返回动作。
  *
- * 维护日期：2026年11月14日
+ * 维护日期：2026年11月17日
  */
 public class InterceptionReentryTest {
     /** 旧禁用页面重进后继续只忽略当前访问；再次真实离开仍恢复同一规则。 */
@@ -281,11 +281,13 @@ public class InterceptionReentryTest {
             assertEquals(restId, restSessionId(session));
             assertTrue(new github.vhoom.zhijian.data.store.RuntimeStateStore(session.context)
                     .grantFor(session.target) == null);
-            session.instrumentation.runOnMainSync(() -> {
-                android.widget.TextView message = returned.findViewById(R.id.interception_countdown);
-                assertTrue(message.isShown());
-                assertTrue(message.getText().toString().contains("秒"));
-            });
+            github.vhoom.zhijian.data.model.runtime.PendingInterception remaining =
+                    new InterceptionRuntime(session.context).evaluate(session.target).pending;
+            assertNotNull("The returned page must still enforce the unfinished rest", remaining);
+            assertTrue("Returning to the target restarts the required continuous rest",
+                    remaining.remainingPauseMs(github.vhoom.zhijian.util.time.BootIdentity.read(session.context),
+                            System.currentTimeMillis(), SystemClock.elapsedRealtime()) >= 27_000L);
+            session.instrumentation.runOnMainSync(() -> assertFalse(returned.isFinishing()));
         }
     }
 

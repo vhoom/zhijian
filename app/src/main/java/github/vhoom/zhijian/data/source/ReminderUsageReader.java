@@ -11,17 +11,20 @@ import github.vhoom.zhijian.domain.interception.ReminderSchedule;
 import github.vhoom.zhijian.domain.interception.ReminderRestPolicy;
 import github.vhoom.zhijian.domain.interception.RuleWindowSchedule;
 import github.vhoom.zhijian.domain.usage.ContinuousUsageCycle;
+import github.vhoom.zhijian.domain.usage.ContinuousRestPolicy;
 import github.vhoom.zhijian.util.permission.PermissionStatusReader;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 提醒计时适配器：全天持续统计，活动时段与已触发的跨时段休息各自持久化。
  *
- * 维护日期：2026年11月15日
+ * 维护日期：2026年11月16日
  */
 public final class ReminderUsageReader {
     private final Context context;
@@ -51,7 +54,8 @@ public final class ReminderUsageReader {
         Map<String, Scope> scopes = new HashMap<>();
         long trackingFloor = policies.usageFloorMillis(policyId, bootId, wall, elapsed);
         if (ReminderSchedule.hasAllDay(source)) {
-            scopes.put(policyId, new Scope(trackingFloor, Long.MAX_VALUE, Math.max(1L, policy.interruptionPauseMillis), null));
+            scopes.put(policyId, new Scope(trackingFloor, Long.MAX_VALUE, policy.has(RuleType.CONTINUOUS)
+                    ? policy.interruptionPauseMillis : ContinuousRestPolicy.requiredRestMillis(policyId, 0L), null));
         }
         RuleWindow active = ReminderSchedule.activeWindow(policy, wall, zoneId);
         if (active != null) {
@@ -79,17 +83,28 @@ public final class ReminderUsageReader {
             if (rest.decision.trigger == InterceptionDecision.Trigger.WINDOW_CONTINUOUS) {
                 RuleWindow window = ReminderSchedule.window(policy, rest.decision.windowId);
                 RuleWindowSchedule.Interval interval = RuleWindowSchedule.activeInterval(window, rest.occurredAtMs, zoneId);
+                if (interval == null || !key.equals(ReminderSchedule.cycleKey(policyId, window, rest.occurredAtMs, zoneId))) {
+                    snapshot.replacedOccurrences.add(rest.sessionId);
+                }
                 floor = !rest.continuousKey.isEmpty() ? rest.continuousFloorMs
                         : interval == null ? rest.startedAtMs : interval.startMs;
-                ceiling = existing != null ? existing.ceilingMs : interval == null ? Long.MAX_VALUE : interval.endMs;
+                ceiling = rest.continuousCeilingMs;
             }
-            scopes.put(key, new Scope(floor, ceiling, Math.max(rest.decision.minimumInterruptionPauseDurationMs,
+            RuleWindow latestWindow = ReminderSchedule.window(policy, rest.decision.windowId);
+            long configuredRest = rest.decision.trigger == InterceptionDecision.Trigger.WINDOW_CONTINUOUS
+                    ? latestWindow == null ? 0L : latestWindow.interruptionPauseMillis
+                    : policy.has(RuleType.CONTINUOUS) ? policy.interruptionPauseMillis : 0L;
+            // 本轮有效要求由周期和原提醒保存；这里传入下一轮配置，完成后才能采用小值。
+            long requirement = Math.max(1L, configuredRest > 0L ? configuredRest
+                    : rest.decision.minimumInterruptionPauseDurationMs);
+            scopes.put(key, new Scope(floor, ceiling, Math.max(requirement,
                     existing == null ? 0L : existing.restMs), rest));
             snapshot.restKeys.put(rest.sessionId, key);
         }
         for (Map.Entry<String, Scope> entry : scopes.entrySet()) {
             Scope scope = entry.getValue();
             snapshot.floors.put(entry.getKey(), scope.floorMs);
+            snapshot.ceilings.put(entry.getKey(), scope.ceilingMs);
             snapshot.cycles.put(entry.getKey(), available ? reader.readScoped(policies, policyId, entry.getKey(),
                     scope.floorMs, scope.ceilingMs, scope.restMs, target, observedMs, bootId, wall, elapsed, scope.pending)
                     : reader.saved(policies, policyId, entry.getKey()));
@@ -138,7 +153,9 @@ public final class ReminderUsageReader {
         private final Map<String, ContinuousUsageCycle> cycles = new HashMap<>();
         private final Map<String, String> restKeys = new HashMap<>();
         private final Map<String, Long> floors = new HashMap<>();
+        private final Map<String, Long> ceilings = new HashMap<>();
         private final List<CompletedWindow> completedWindows = new ArrayList<>();
+        private final Set<String> replacedOccurrences = new HashSet<>();
         private String activeKey, activeWindowId, allDayKey;
         private ContinuousUsageCycle allDay;
 
@@ -159,6 +176,17 @@ public final class ReminderUsageReader {
         }
         /** @param rest 原未完成休息 @return 对应周期；缺权限时只使用已验证的存量进度 */
         public ContinuousUsageCycle cycle(PendingInterception rest) { return cycles.get(restKeys.get(rest.sessionId)); }
+        /** @param rest 原休息 @param decision 当前新提醒 @return 是否为同一次实际窗口或全天周期 */
+        public boolean sameOccurrence(PendingInterception rest, InterceptionDecision decision) {
+            return java.util.Objects.equals(restKeys.get(rest.sessionId), keyFor(decision));
+        }
+        /** @param rest 原休息 @return 是否可把已确认用量用于当前引擎的活动周期 */
+        public boolean appliesToCurrentUsage(PendingInterception rest) {
+            return java.util.Objects.equals(restKeys.get(rest.sessionId),
+                    rest.decision.trigger == InterceptionDecision.Trigger.WINDOW_CONTINUOUS ? activeKey : allDayKey);
+        }
+        /** @param rest 原提醒 @return 配置端点更替后只保留原休息，不继续原已确认提醒的重复计时 */
+        public boolean replacedOccurrence(PendingInterception rest) { return replacedOccurrences.contains(rest.sessionId); }
         /** @param decision 当次新触发 @return 对应当前活动周期 */
         public ContinuousUsageCycle cycle(InterceptionDecision decision) {
             return decision.trigger == InterceptionDecision.Trigger.WINDOW_CONTINUOUS ? cycles.get(activeKey) : allDay;
@@ -169,6 +197,8 @@ public final class ReminderUsageReader {
         }
         /** @param decision 新触发提醒 @return 原始窗口起点 */
         public long floorFor(InterceptionDecision decision) { return floors.getOrDefault(keyFor(decision), 0L); }
+        /** @param decision 新提醒 @return 触发时冻结的统计终点 */
+        public long ceilingFor(InterceptionDecision decision) { return ceilings.getOrDefault(keyFor(decision), Long.MAX_VALUE); }
         /** @param rest 本次新增的提醒事实，沿用已经重放的当前周期 */
         public void track(PendingInterception rest) {
             restKeys.put(rest.sessionId, rest.continuousKey.isEmpty() ? keyFor(rest.decision) : rest.continuousKey);

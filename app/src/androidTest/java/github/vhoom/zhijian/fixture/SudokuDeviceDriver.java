@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 /**
  * 正式页面数独操作夹具；保存原文件，按屏幕题面独立求解，再通过格子与数字键完成。
  *
- * 维护日期：2026年11月14日
+ * 维护日期：2026年11月17日
  */
 public final class SudokuDeviceDriver implements AutoCloseable {
     private final AtomicFile file;
@@ -53,7 +53,12 @@ public final class SudokuDeviceDriver implements AutoCloseable {
         GridLayout[] grid = new GridLayout[1];
         await(instrumentation, () -> {
             grid[0] = page.findViewById(R.id.interception_sudoku_grid);
-            return grid[0] != null && grid[0].isShown() && grid[0].getChildAt(0).isEnabled();
+            if (grid[0] == null || !grid[0].isShown() || grid[0].getChildCount() != 81) return false;
+            // 给定格始终不可编辑；任意可填格就绪才表示题面加载完成。
+            for (int index = 0; index < grid[0].getChildCount(); index++) {
+                if (grid[0].getChildAt(index).isEnabled()) return true;
+            }
+            return false;
         });
         char[] board = new char[81];
         instrumentation.runOnMainSync(() -> {

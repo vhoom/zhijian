@@ -50,7 +50,7 @@ import static org.junit.Assert.*;
 /**
  * 覆盖 StorageIntegration 的边界输入、状态变化与回归行为。
  *
- * 维护日期：2026年11月15日
+ * 维护日期：2026年11月16日
  */
 @RunWith(AndroidJUnit4.class)
 public class StorageIntegrationTest {
@@ -77,6 +77,24 @@ public class StorageIntegrationTest {
         open();
         assertFails(storage.saveGroup(group(0, "app.unassigned")));
         assertTrue(storage.snapshot().groups().isEmpty());
+    }
+
+    /** 只改名称或原样保存保留挑战使用的规则版本，真实参数更改才推进。 */
+    @Test public void renameAndUnchangedSaveKeepRuleRevision() throws Exception {
+        open();
+        RuleGroup draft = group(36, "app.rename");
+        await(storage.saveGroup(draft));
+        long revision = storage.snapshot().revisionOf("group:36");
+        draft = storage.snapshot().group(36);
+        draft.name = "新的组名";
+        await(storage.saveGroup(draft));
+        assertEquals(revision, storage.snapshot().revisionOf("group:36"));
+        assertEquals("新的组名", storage.snapshot().group(36).name);
+        await(storage.saveGroup(storage.snapshot().group(36)));
+        assertEquals(revision, storage.snapshot().revisionOf("group:36"));
+        draft.count++;
+        await(storage.saveGroup(draft));
+        assertEquals(revision + 1L, storage.snapshot().revisionOf("group:36"));
     }
 
     /** 公共保存入口拒绝重复时段且事务回滚，不发布非法配置。 */
