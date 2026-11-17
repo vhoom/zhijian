@@ -1,10 +1,10 @@
 ---
-date: 2026-11-16
+date: 2026-11-17
 ---
 
 # 测试目录与运行说明
 
-本目录对应当前工作区的测试组织。审查结论与已修正问题见[测试有效性审查](测试有效性审查.md)，历史运行结果见[真机验证](真机验证.md)。本轮时段与配置更替修复的静态核对见[时段规则修复核对](时段规则修复核对.md)。测试清单分别见[本地单元测试](本地单元测试.md)和[设备测试](设备测试.md)。源码声明数量为77个本地测试类、53个设备测试类，共765个 `@Test` 方法；循环组合不额外计数。这些数字表示测试清单，不表示通过数量或覆盖率。
+本目录对应当前工作区的测试组织。审查结论与已修正问题见[测试有效性审查](测试有效性审查.md)，历史运行结果见[真机验证](真机验证.md)。本轮时段、配置更替及键盘窗口误判修复的静态核对见[时段规则修复核对](时段规则修复核对.md)。测试清单分别见[本地单元测试](本地单元测试.md)和[设备测试](设备测试.md)。源码声明数量为77个本地测试类、54个设备测试类，共775个 `@Test` 方法；循环组合不额外计数。这些数字表示测试清单，不表示通过数量或覆盖率。
 
 ## 源码组织
 
@@ -42,6 +42,7 @@ date: 2026-11-16
 | 手动规则输入与保存提示 | `RuleInputLimitsTest`、`RuleGroupValidatorTest` | `RuleInputBindingTest`、`RuleCountInputTest`、`RuleValidationUiTest`、`InputErrorTest` |
 | 限次范围与额度释放 | `CountRuleEvaluatorTest`、`RuleGroupValidatorTest`、`UsageTimelineTest`、`WeekdayRuleScheduleTest` | `WeekdayPolicyStoreTest`、`RuleCountInputTest`、`RuleGroupingTest`、`InterceptionRecoveryLifecycleTest` |
 | 前台观察、阈值与提醒 | `ForegroundObservationTest`、`ContinuousUsageCycleTest`、`RuleEngineTest`、`RuleEnginePriorityTest`、提醒系列 | `ForegroundEvaluationTest`、`runtime/interception` 系列 |
+| 有启动图标的输入法、其他浮层及真正前台切换 | — | `ForegroundWindowContinuationTest`；真实事件与独立偏好路径，系统组件元数据和前台查询回调采用可控输入，本次未运行 |
 | 重装、首次生效起点与强度切换 | `UsageTrackingStartTest` | `UsageEvidenceReaderTest`、`UsageTrackingStoreTest`、`InstallationRestoreTest`、`RetreatStorageTest` |
 | 跨日生效与计算耗时后的复查期限 | `InterceptionEvaluationTest`、`WeekdayRuleScheduleTest` | `ForegroundEvaluationTest` 的午夜、延迟回调及额度到期用例 |
 | 随心与修心禁用继续、冻结开关与真实重进 | `BlockContinuationPolicyTest`、`UsageTimelineTest`、`ReminderRepeatPolicyTest` | `BlockContinuationStoreTest`、`RepairContinuationTest`、`InterceptionReentryTest#wuweiContinueAfterReusedPageDoesNotImmediatelyBlockAgain`、`ForegroundEvaluationTest` |

@@ -32,7 +32,7 @@ import java.util.concurrent.Executors;
 /**
  * 前台窗口事件的系统 Adapter；规则解释与交互流程分别交给运行模块和拦截页面。
  *
- * 维护日期：2026年11月16日
+ * 维护日期：2026年11月17日
  */
 public final class ZhijianAccessibilityService extends AccessibilityService {
     private static final String TAG = "ZhijianInterception";
@@ -59,10 +59,17 @@ public final class ZhijianAccessibilityService extends AccessibilityService {
     };
 
     private ManagedPackageFilter packageFilter;
+    private ForegroundWindowClassifier windowClassifier;
     private InterceptionRuntime runtime;
     private String foregroundPackage;
     private long foregroundObservedAtMs;
     private long foregroundVersion;
+    /** 只使旧窗口核实失效；临时窗口核实不改变已经确认的前台访问身份。 */
+    private long windowEventGeneration;
+    /** 身份未明的窗口核实期间，旧目标的计算结果不得直接启动拦截页。 */
+    private boolean windowConfirmationPending;
+    /** 合并同一模糊窗口的重复通知，避免高频键盘事件不断推迟后台核实。 */
+    private String pendingWindowPackage;
     private long evaluationVersion;
     private boolean evaluating;
     private long scheduledAtUptimeMs;
@@ -86,6 +93,7 @@ public final class ZhijianAccessibilityService extends AccessibilityService {
     protected void onServiceConnected() {
         super.onServiceConnected();
         packageFilter = new ManagedPackageFilter(this);
+        windowClassifier = new ForegroundWindowClassifier(this);
         runtime = new InterceptionRuntime(this);
         AccessibilityConnection.connected(this);
         DiagnosticLog.info("accessibility", "", "service_connected "
@@ -98,11 +106,13 @@ public final class ZhijianAccessibilityService extends AccessibilityService {
     /** 后台读取连接时的前台应用，新窗口事件优先于本次初始查询。 */
     private void initializeForeground() {
         long startingVersion = foregroundVersion;
+        long startingWindowGeneration = windowEventGeneration;
         evaluator.execute(() -> {
             try {
                 String packageName = runtime.currentForegroundPackage();
                 main.post(() -> {
                     if (stopped || foregroundVersion != startingVersion
+                            || windowEventGeneration != startingWindowGeneration
                             || !packageFilter.accepts(packageName)) return;
                     foregroundPackage = packageName;
                     foregroundObservedAtMs = System.currentTimeMillis();
@@ -128,14 +138,100 @@ public final class ZhijianAccessibilityService extends AccessibilityService {
         if (event.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
                 || event.getPackageName() == null) return;
         String actualPackage = event.getPackageName().toString();
-        if (stopped || packageFilter == null || packageFilter.isTransientWindow(actualPackage)) return;
+        if (stopped || packageFilter == null || windowClassifier == null) return;
+        String className = event.getClassName() == null ? null : event.getClassName().toString();
+        ForegroundWindowClassifier.Kind kind = actualPackage.equals(getPackageName()) || packageFilter.isHome(actualPackage)
+                ? ForegroundWindowClassifier.Kind.APPLICATION : windowClassifier.classify(actualPackage, className);
+        if (kind == ForegroundWindowClassifier.Kind.TRANSIENT || packageFilter.isTransientWindow(actualPackage)) {
+            DiagnosticLog.sample("window_ignored:" + actualPackage, "accessibility",
+                    "transient_window_ignored package=" + actualPackage + " class=" + className);
+            return;
+        }
+        if (kind == ForegroundWindowClassifier.Kind.VERIFY_APPLICATION && windowConfirmationPending
+                && Objects.equals(actualPackage, pendingWindowPackage)) return;
+        long request = ++windowEventGeneration;
+        windowConfirmationPending = false;
+        pendingWindowPackage = null;
+        long observedAtMs = System.currentTimeMillis();
+        if (kind == ForegroundWindowClassifier.Kind.VERIFY_APPLICATION
+                && !Objects.equals(actualPackage, foregroundPackage)) {
+            DiagnosticLog.sample("window_verify:" + actualPackage, "accessibility",
+                    "window_foreground_verification_requested package=" + actualPackage + " class=" + className);
+            confirmForegroundWindow(request, actualPackage, observedAtMs);
+            return;
+        }
+        acceptForegroundWindow(actualPackage, observedAtMs);
+    }
+
+    /**
+     * 在后台确认有应用入口但不是明确 Activity 的窗口，给系统事件短暂落盘时间。
+     * @param request 本次窗口观察代次，后续真实事件使旧回调失效
+     * @param packageName 待核实的窗口包名
+     * @param observedAtMs 原窗口观察的墙钟时间，单位毫秒
+     */
+    private void confirmForegroundWindow(long request, String packageName, long observedAtMs) {
+        windowConfirmationPending = true;
+        pendingWindowPackage = packageName;
+        main.postDelayed(() -> {
+            if (stopped || request != windowEventGeneration || !windowConfirmationPending) return;
+            try {
+                evaluator.execute(() -> {
+                    String actualPackage = null;
+                    Throwable failure = null;
+                    try { actualPackage = runtime.currentForegroundPackage(); }
+                    catch (RuntimeException unavailable) { failure = unavailable; }
+                    String confirmed = actualPackage;
+                    Throwable unavailable = failure;
+                    main.post(() -> completeWindowConfirmation(request, packageName, observedAtMs,
+                            confirmed, unavailable));
+                });
+            } catch (java.util.concurrent.RejectedExecutionException shuttingDown) {
+                completeWindowConfirmation(request, packageName, observedAtMs, null, shuttingDown);
+            }
+        }, 250L);
+    }
+
+    /**
+     * 只接受当前代次的系统前台证据；键盘、其他浮层及读取失败不清除原访问确认。
+     * @param request 本次后台核实的窗口代次
+     * @param requestedPackage 原事件包名，仅用于匹配原观察时间与诊断
+     * @param observedAtMs 原事件观察时间，单位毫秒
+     * @param actualPackage 系统确认的真实前台；缺少证据时为 null
+     * @param failure 后台证据读取失败，可为 null
+     */
+    private void completeWindowConfirmation(long request, String requestedPackage, long observedAtMs,
+            String actualPackage, Throwable failure) {
+        if (stopped || request != windowEventGeneration || !windowConfirmationPending) return;
+        windowConfirmationPending = false;
+        pendingWindowPackage = null;
+        if (failure != null) {
+            DiagnosticLog.error("accessibility", "", "window_foreground_confirmation_failed package="
+                    + requestedPackage, failure);
+        } else if (actualPackage != null) {
+            if (!actualPackage.equals(requestedPackage)) {
+                DiagnosticLog.sample("window_verified:" + requestedPackage, "accessibility",
+                        "window_foreground_verified event_package=" + requestedPackage
+                                + " actual_package=" + actualPackage);
+            }
+            acceptForegroundWindow(actualPackage, actualPackage.equals(requestedPackage)
+                    ? observedAtMs : System.currentTimeMillis());
+        }
+        if (packageFilter.accepts(foregroundPackage)) scheduleEvaluation(1L);
+    }
+
+    /**
+     * 更新已经确认的前台身份；同包页面交接不重开访问，也不推迟现有阈值期限。
+     * @param actualPackage 真实 Activity、桌面或系统证据确认的前台包名
+     * @param observedAtMs 本次有效观察时间，单位毫秒
+     */
+    private void acceptForegroundWindow(String actualPackage, long observedAtMs) {
         if (Objects.equals(actualPackage, foregroundPackage)) {
             // 桌面事件可能遗漏；同包恢复仍复查真实访问，保留前台代次且不推迟更早的阈值检查。
             if (packageFilter.accepts(actualPackage)) scheduleEvaluation(250L);
             return;
         }
         foregroundPackage = actualPackage;
-        foregroundObservedAtMs = System.currentTimeMillis();
+        foregroundObservedAtMs = observedAtMs;
         foregroundVersion++;
         if (!actualPackage.equals(getPackageName()) && !isWaitingAfterBack(launchRequest)) {
             InterceptionLaunchDiagnostics.cancel(launchRequest);
@@ -212,7 +308,7 @@ public final class ZhijianAccessibilityService extends AccessibilityService {
         scheduledAtUptimeMs = 0L;
         String packageName = foregroundPackage;
         if (stopped || packageFilter == null || !packageFilter.accepts(packageName)) return;
-        if (evaluating) {
+        if (evaluating || windowConfirmationPending) {
             scheduleEvaluation(250L);
             return;
         }
@@ -258,6 +354,10 @@ public final class ZhijianAccessibilityService extends AccessibilityService {
             long evaluatedAtWallMs, long evaluatedAtElapsedMs) {
         evaluating = false;
         if (stopped) return;
+        if (windowConfirmationPending) {
+            scheduleEvaluation(250L);
+            return;
+        }
         if (!packageName.equals(foregroundPackage) || evaluationVersion != foregroundVersion) {
             if (result != null && result.pending != null && packageFilter.accepts(foregroundPackage)) {
                 PendingInterception redirected = redirectSharedPending(result.pending);
@@ -462,6 +562,10 @@ public final class ZhijianAccessibilityService extends AccessibilityService {
      * @param pending 已持久化的限制 @param appLabel 目标显示名称 @param afterBack 是否为返回后弹页
      */
     private void launchInterception(PendingInterception pending, String appLabel, boolean afterBack) {
+        if (windowConfirmationPending) {
+            scheduleEvaluation(250L);
+            return;
+        }
         InterceptionDecision decision = pending.decision;
         if (runtime.isPresentationSuppressed(decision)) {
             DiagnosticLog.info("launch", pending.sessionId, "suppressed_after_continuation_or_grant");

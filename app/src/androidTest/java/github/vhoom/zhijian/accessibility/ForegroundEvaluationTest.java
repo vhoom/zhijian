@@ -43,7 +43,7 @@ import static org.junit.Assert.assertFalse;
 /**
  * 在主线程复现前台检查、闭关返回兜底及窗口回执等待之间的竞争。
  *
- * 维护日期：2026年11月16日
+ * 维护日期：2026年11月17日
  */
 public class ForegroundEvaluationTest {
     /** 在测试线程等待提交快照就绪，避免单独运行时依赖其他用例的初始化顺序。 */
@@ -176,6 +176,7 @@ public class ForegroundEvaluationTest {
             android.view.accessibility.AccessibilityEvent event = android.view.accessibility.AccessibilityEvent.obtain(
                     android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
             event.setPackageName(homePackage);
+            event.setClassName(homePackage + ".Launcher");
             try {
                 invoke(service, "scheduleEvaluation", new Class<?>[]{long.class}, 1_000L);
                 service.onAccessibilityEvent(event);
@@ -193,6 +194,7 @@ public class ForegroundEvaluationTest {
             android.view.accessibility.AccessibilityEvent event = android.view.accessibility.AccessibilityEvent.obtain(
                     android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
             event.setPackageName("test.transient.window");
+            event.setClassName("android.app.Dialog");
             try {
                 invoke(service, "scheduleEvaluation", new Class<?>[]{long.class}, 1_000L);
                 long due = (long) read(service, "scheduledAtUptimeMs");
@@ -216,6 +218,7 @@ public class ForegroundEvaluationTest {
             android.view.accessibility.AccessibilityEvent event = android.view.accessibility.AccessibilityEvent.obtain(
                     android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
             event.setPackageName("test.next");
+            event.setClassName("test.next.MainActivity");
             try {
                 invoke(service, "scheduleEvaluation", new Class<?>[]{long.class}, 10L);
                 long due = (long) read(service, "scheduledAtUptimeMs");
@@ -348,6 +351,7 @@ public class ForegroundEvaluationTest {
         android.view.accessibility.AccessibilityEvent event = android.view.accessibility.AccessibilityEvent.obtain(
                 android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
         event.setPackageName(packageName);
+        event.setClassName(packageName + ".MainActivity");
         try { service.onAccessibilityEvent(event); }
         finally { event.recycle(); }
     }
@@ -359,6 +363,7 @@ public class ForegroundEvaluationTest {
             android.view.accessibility.AccessibilityEvent event = android.view.accessibility.AccessibilityEvent.obtain(
                     android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
             event.setPackageName("test.current");
+            event.setClassName("test.current.MainActivity");
             try {
                 invoke(service, "scheduleEvaluation", new Class<?>[]{long.class}, 1_000L);
                 long due = (long) read(service, "scheduledAtUptimeMs");
@@ -381,6 +386,7 @@ public class ForegroundEvaluationTest {
             android.view.accessibility.AccessibilityEvent event = android.view.accessibility.AccessibilityEvent.obtain(
                     android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
             event.setPackageName("test.current");
+            event.setClassName("test.current.MainActivity");
             try {
                 invoke(service, "scheduleEvaluation", new Class<?>[]{long.class}, 60_000L);
                 long version = (long) read(service, "foregroundVersion");
@@ -546,6 +552,8 @@ public class ForegroundEvaluationTest {
             attach.invoke(service, new RecordingContext(context));
         } catch (ReflectiveOperationException failure) { throw new AssertionError(failure); }
         write(service, "packageFilter", filter);
+        // 此夹具只模拟真实应用页面；键盘与模糊窗口由独立的窗口继续确认用例覆盖。
+        write(service, "windowClassifier", new ForegroundWindowClassifier(component -> true, component -> false));
         write(service, "runtime", new InterceptionRuntime(context));
         write(service, "foregroundPackage", "test.current");
         write(service, "evaluating", true);
